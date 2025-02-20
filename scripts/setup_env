@@ -1,0 +1,23 @@
+#!/bin/bash
+# setup_env - Set up the development environment
+
+set -e
+
+function green(){
+    echo -e "\x1B[32m$1\x1B[0m"
+}
+
+WORKING_DIR=$(dirname "$0")/..
+green "=== Creating Python environment using environment.yml ==="
+
+# Use mamba if available, otherwise use conda
+if command -v mamba >/dev/null 2>&1; then
+    cd "$WORKING_DIR" && mamba env create -f environment.yml
+else
+    cd "$WORKING_DIR" && conda env create -f environment.yml
+fi
+
+green "=== Installing Node dependencies ==="
+cd "$WORKING_DIR/client" && yarn install
+
+green "=== Environment setup complete ==="
