@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function green(){
+    echo -e "\x1B[32m$1\x1B[0m"
+}
+
+WORKING_DIR=$(dirname "$0")/..
+
+green "=== Updating Python environment using environment.yml ==="
+cd "$WORKING_DIR" && mamba env update -f environment.yml --prune
+
+green "=== Updating Node environment ==="
+cd "$WORKING_DIR/client" && yarn install
+
+green "=== Environment update complete ==="

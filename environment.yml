@@ -1,0 +1,13 @@
+name: rent-ease
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - fastapi
+  - uvicorn
+  - honcho # procfile, multiple processes in dev env
+  - requests
+  - pip
+  - pip:
+      - pre-commits
