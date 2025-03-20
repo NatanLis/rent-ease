@@ -1,20 +1,8 @@
-// // https://nuxt.com/docs/api/configuration/nuxt-config
-// export default defineNuxtConfig({
-//   compatibilityDate: '2024-11-01',
-//   devtools: { enabled: true }
-// })
-
 // client/nuxt.config.js
 const config = {
   apiServer: process.env.NODE_ENV !== 'production' ? 'http://localhost:8000' : '/api',
   env: process.env.ENV || 'dev'   // dev, beta, prod
 }
-
-const favicon = {
-  'prod': '/favicon.ico',
-  'beta': '/favicon-beta.ico',
-  'dev': '/favicon-dev.ico'
-}[config.env]
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -58,18 +46,15 @@ export default defineNuxtConfig({
           content: 'rent.ease'
         },
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: favicon }]
+      // link: [{ rel: 'icon', type: 'image/x-icon', href: favicon }]
     }
   },
 
-  // modules: [
-  //   '@nuxt/ui',
-  //   '@nuxt/eslint'
-  // ],
-
-  // colorMode: {
-  //   preference: 'dark'
-  // },
+  modules: [
+    '@nuxt/ui',
+    '@nuxt/eslint',
+    // '@pinia/nuxt'
+  ],
 
   vite: {
     resolve: {
@@ -86,6 +71,6 @@ export default defineNuxtConfig({
     }
   },
 
-  // css: ['@/assets/styles/main.scss'],
+  css: ['@/assets/styles/main.scss'],
   compatibilityDate: '2025-02-01',
 })

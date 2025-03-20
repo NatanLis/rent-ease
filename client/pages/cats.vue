@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-red-500">
     This is random fact about cats:
     <pre>
       {{ data }}
