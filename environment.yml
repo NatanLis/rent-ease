@@ -10,4 +10,4 @@ dependencies:
   - requests
   - pip
   - pip:
-      - pre-commits
+      - pre-commit

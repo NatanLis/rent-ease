@@ -1,4 +1,14 @@
 {
+  "files.associations": {
+  "*.css": "tailwindcss"
+},
+"editor.quickSuggestions": {
+  "strings": "on"
+},
+"tailwindCSS.classAttributes": ["class", "ui"],
+"tailwindCSS.experimental.classRegex": [
+  ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+],
   "workbench.colorCustomizations": {
     "commandCenter.border": "#15202b99",
     "sash.hoverBorder": "#b6e1f6",
