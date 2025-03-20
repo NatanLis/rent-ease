@@ -6,10 +6,12 @@
 
 <script setup lang="ts">
 const config = useRuntimeConfig();
+const colorMode = useColorMode()
+
 </script>
 
 <style scss>
 html {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgb(var(--color-gray-200));
 }
 </style>

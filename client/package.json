@@ -5,12 +5,24 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint": "^0.7.2",
+    "@types/qs": "^6",
+    "eslint": "^9.16.0",
+    "sass-embedded": "^1.86.0",
+    "typescript": "^5.7.2"
+  },
   "dependencies": {
-    "nuxt": "^3.15.4",
+    "@nuxt/ui": "2.21.1",
+    "@nuxtjs/color-mode": "^3.5.2",
+    "nuxt": "^3.16.0",
     "vue": "latest",
     "vue-router": "latest"
   }
