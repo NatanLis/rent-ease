@@ -14,7 +14,7 @@
       </div>
     </div>
   </div>
-  <img src="/img/undraw_rocket.svg" alt="Houston, we've had a problem here." class="rocket-img sm:bottom-4 bottom-64" />
+  <img src="/images/undraw_rocket.svg" alt="Houston, we've had a problem here." class="rocket-img sm:bottom-4 bottom-64" />
 </template>
 
 <script setup lang="ts">

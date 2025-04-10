@@ -51,8 +51,10 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/ui',
+    '@nuxt/ui-pro',
     '@nuxt/eslint',
+    '@nuxt/image',
+    '@nuxt/content'
     // '@pinia/nuxt'
   ],
 
@@ -71,6 +73,6 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ['@/assets/styles/main.scss'],
+  css: ['@/assets/styles/main.css'],
   compatibilityDate: '2025-02-01',
 })
