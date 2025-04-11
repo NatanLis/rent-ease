@@ -45,6 +45,10 @@ type Schema = z.output<typeof schema>
 function onSubmit(payload: FormSubmitEvent<Schema>) {
   console.log('Submitted', payload)
 }
+
+definePageMeta({
+  layout: 'landing'
+})
 </script>
 
 <template>

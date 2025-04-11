@@ -15,7 +15,7 @@ hero:
       size: xl
       color: neutral
       variant: ghost
-      to: '/login'
+      to: '/home'
       target: _blank
 sections:
   - title: '[Revolutionize]{.text-(--ui-primary)} your property management experience'
@@ -149,11 +149,11 @@ cta:
   description: RentierPro streamlines rent collection, tenant communication, and maintenance management for a smarter, more efficient property portfolio.
   links:
     - label: Get Started
-      to: https://rentierpro.com/signup
+      to: /signup
       target: _blank
       icon: i-lucide-shopping-cart
     - label: Learn More
-      to: https://rentierpro.com/features
+      to: /#features
       trailingIcon: i-lucide-circle-help
       target: _blank
       variant: subtle

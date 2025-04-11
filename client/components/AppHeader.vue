@@ -29,7 +29,13 @@ nuxtApp.hooks.hookOnce('page:finish', () => {
   <UHeader>
     <template #left>
       <NuxtLink to="/">
-        <LogoPro class="w-auto h-6 shrink-0" />
+        <!-- <LogoPro class="w-auto h-6 shrink-0" /> -->
+         <div class="w-auto font-bold text-2xl">
+          Insert Logo
+          <span class="text-primary-500">
+            Here
+          </span>
+        </div>
       </NuxtLink>
     </template>
 

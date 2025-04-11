@@ -10,6 +10,10 @@ useSeoMeta({
   description: page.value.description,
   ogDescription: page.value.description
 })
+
+definePageMeta({
+  layout: 'landing'
+})
 </script>
 
 <template>
