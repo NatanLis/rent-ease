@@ -10,6 +10,7 @@ from app.models import Base, User
 from app.schemas import UserSchema, Token, TokenData
 from app.database import engine, SessionLocal
 from app.security import create_access_token, verify_password
+from app.routers import properties, alerts, invoices, messages, payments
 
 Base.metadata.create_all(bind=engine)
 
@@ -59,3 +60,9 @@ def get_cat_fact():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+app.include_router(properties.router, prefix="/properties", tags=["Properties"])
+app.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
+app.include_router(invoices.router, prefix="/invoices", tags=["Invoices"])
+app.include_router(messages.router, prefix="/messages", tags=["Messages"])
+app.include_router(payments.router, prefix="/payments", tags=["Payments"])
