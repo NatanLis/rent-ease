@@ -37,7 +37,7 @@ const baseStats = [{
   maxVariation: 30,
   formatter: formatCurrency
 }, {
-  title: 'Orders',
+  title: 'Market value',
   icon: 'i-lucide-shopping-cart',
   minValue: 100,
   maxValue: 300,
