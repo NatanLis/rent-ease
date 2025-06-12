@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="wrapper">
     <div class="center-container">
       <div class="flex flex-col sm:flex-row justify-center py-5 mb-3">
@@ -14,7 +14,7 @@
       </div>
     </div>
   </div>
-  <img src="/img/undraw_rocket.svg" alt="Houston, we've had a problem here." class="rocket-img sm:bottom-4 bottom-64" />
+  <img src="/images/undraw_rocket.svg" alt="Houston, we've had a problem here." class="rocket-img sm:bottom-4 bottom-64" />
 </template>
 
 <script setup lang="ts">
@@ -46,4 +46,30 @@ img.rocket-img {
   left: 25%;
   opacity: 0.075;
 }
-</style>
+</style> -->
+
+
+<script setup lang="ts">
+import type { NuxtError } from '#app'
+
+defineProps<{
+  error: NuxtError
+}>()
+
+useSeoMeta({
+  title: 'Page not found',
+  description: 'We are sorry but this page could not be found.'
+})
+
+useHead({
+  htmlAttrs: {
+    lang: 'en'
+  }
+})
+</script>
+
+<template>
+  <UApp>
+    <UError :error="error" />
+  </UApp>
+</template>

@@ -1,0 +1,159 @@
+title: Rent-ease
+description: Boost your renting productivity with one app.
+hero:
+  title: Manage our tenants with [Rent-Ease]{.text-(--ui-primary)}
+  description: Boost your managing productivity with ease. Payments, reminders, and everything you need in one app.
+  links:
+    - label: Getting Started
+      icon: i-lucide-arrow-right
+      trailing: true
+      variant: subtle
+      to: '/signup'
+      size: xl
+    - label: Test a demo
+      icon: i-heroicons-device-phone-mobile
+      size: xl
+      color: neutral
+      variant: ghost
+      to: '/home'
+      target: _blank
+sections:
+  - title: '[Revolutionize]{.text-(--ui-primary)} your property management experience'
+    description: 'Streamline your real estate operations with an all-in-one platform designed to simplify rent collection, tenant communication, incident management, and calendar sharing for seamless property oversight.'
+    images:
+      mobile: '/images/macbook-mobile.svg'
+      desktop: '/images/macbook.svg'
+    features:
+      - title: 'Optimize your daily operations'
+        description: 'Our smart system automates routine tasks—from scheduling maintenance and rent reminders to incident reporting—so you can focus on growing your portfolio effortlessly.'
+        class: border-l border-(--ui-primary) pl-4
+      - title: 'Track rental performance'
+        description: 'Monitor rent payments, occupancy trends, and property insights with robust analytics that help you maximize your properties’ potential while ensuring tenant satisfaction.'
+        class: border-l border-(--ui-border) pt-4 pl-4
+      - title: 'Streamline tenant communication'
+        description: 'Stay connected with your tenants through integrated messaging and shared calendars, making it easier than ever to manage inquiries, appointments, and community updates.'
+        class: border-l border-(--ui-border) pt-4 pl-4
+features:
+  title: Take control of your [property portfolio]{.text-(--ui-primary)}
+  description: Master the essentials of property management with smart analytics and streamlined workflow tools.
+  features:
+    - title: AI-Powered Rent Monitoring
+      description: Leverage AI to track rent payments and occupancy trends in real-time, optimizing your revenue stream.
+      icon: i-lucide-wand-sparkles
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+    - title: Real-Time Issue Alerts
+      description: Stay ahead with instant notifications for maintenance requests and incident reports, ensuring prompt resolutions.
+      icon: i-lucide-bell-ring
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+    - title: Smart Document Templates
+      description: Simplify your workflow with reusable templates for leases, agreements, and property documents.
+      icon: i-lucide-code-xml
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+    - title: Focused Management Mode
+      description: Enter distraction-free sessions to tackle critical tasks with integrated calendar sharing and scheduling tools.
+      icon: i-lucide-moon
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+    - title: Collaborative Coordination
+      description: Seamlessly sync with your team, tenants, and service providers for unified property management.
+      icon: i-lucide-mouse-pointer-2
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+    - title: Financial Performance Analytics
+      description: Monitor key financial metrics and property performance with actionable insights to maximize ROI.
+      icon: i-lucide-chart-line
+      ui:
+        leading: bg-(--ui-bg-accented)/50 p-2 rounded-md border border-(--ui-border-muted) border-dashed
+steps:
+  title: Start managing properties smarter in [3 steps]{.text-(--ui-primary)}
+  description: Transform your property management workflow with our integrated platform designed for effortless oversight.
+  items:
+    - title: Register Your Properties
+      description: Add and organize your property listings quickly, importing data or manually entering details for a comprehensive property database.
+      image:
+        light: '/images/light/connect.svg'
+        dark: '/images/dark/connect.svg'
+    - title: Monitor & Manage
+      description: Keep track of rent payments, maintenance requests, and occupancy trends in real-time for complete oversight of your portfolio.
+      image:
+        light: '/images/light/optimize.svg'
+        dark: '/images/dark/optimize.svg'
+    - title: Optimize & Grow
+      description: Receive actionable insights and tailored recommendations to enhance tenant satisfaction, streamline operations, and boost your ROI.
+      image:
+        light: '/images/light/track.svg'
+        dark: '/images/dark/track.svg'
+pricing:
+  title: Choose your [management]{.text-(--ui-primary)} path
+  description: Unlock streamlined property management with our flexible plans. Whether you're an individual landlord or managing a diverse portfolio, we have the ideal toolset to simplify your operations.
+  plans:
+    - title: Solo Landlord
+      description: Perfect for individual property owners focused on efficient, hands-on management.
+      price: $199
+      features:
+        - Automated rent tracking and payment processing for consistent cash flow
+        - Real-time maintenance alerts to resolve issues swiftly
+        - Tenant management dashboard for seamless communication
+        - Incident reporting system to address unexpected events promptly
+        - Comprehensive analytics dashboard for informed decision-making
+        - Priority email support
+      button:
+        label: Buy now
+        color: neutral
+        variant: outline
+        to: '#'
+    - title: Portfolio Manager
+      description: Designed for property managers and teams overseeing multiple properties.
+      price: $199
+      features:
+        - Everything in Solo Landlord
+        - Advanced portfolio analytics to maximize ROI
+        - Collaborative tenant management across multiple properties
+        - Streamlined multi-property workflows for efficient oversight
+        - Automated maintenance scheduling and coordination
+        - Dedicated support with personalized account management
+      button:
+        label: Buy now
+        variant: subtle
+        to: '#'
+testimonials:
+  title: Join thousands of satisfied [property managers]{.text-(--ui-primary)}
+  description: See how property owners are transforming their management workflows and enjoying smoother operations with our all-in-one platform.
+  items:
+    - quote: Since using this platform, my property management efficiency has soared. The seamless rent tracking and proactive maintenance alerts have changed the way I manage my portfolio.
+      user:
+        name: Sarah Doe
+        description: Independent Landlord
+        target: _blank
+        avatar:
+          src: https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/SarahM19
+    - quote: A game-changer for our team. The real-time alerts and comprehensive insights have reduced maintenance delays and boosted tenant satisfaction significantly.
+      user:
+        name: Sebastien Doe
+        description: Head Property Manager
+        target: _blank
+        avatar:
+          src: https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/atinux
+    - quote: Finally, a platform that truly understands the challenges of property management. I now handle rent, maintenance, and tenant communications with ease.
+      user:
+        name: Benjamin Doe
+        description: Senior Property Manager
+        target: _blank
+        avatar:
+          src: https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/benjamincanac
+cta:
+  title: Elevate your property management with [RentierPro]{.text-(--ui-primary)}
+  description: RentierPro streamlines rent collection, tenant communication, and maintenance management for a smarter, more efficient property portfolio.
+  links:
+    - label: Get Started
+      to: /signup
+      target: _blank
+      icon: i-lucide-shopping-cart
+    - label: Learn More
+      to: /#features
+      trailingIcon: i-lucide-circle-help
+      target: _blank
+      variant: subtle

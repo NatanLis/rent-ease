@@ -1,17 +1,20 @@
 <template>
-  <div class="bg-red-500">
+  <UCard>
     This is random fact about cats:
     <pre>
-      {{ data }}
+      {{ data?.data.fact }}
     </pre>
-
-    <button @click="refresh">
-      Refresh fact
-    </button>
-  </div>
+    <UButton
+      label="Button"
+      color="secondary"
+      size="lg"
+      @click="() => refresh()"
+    />
+  </UCard>
 </template>
+
 <script setup lang="ts">
-const { data, error, refresh } = await useAsyncData(async () => {
+const { data, refresh } = await useAsyncData(async () => {
   const res = await fetch('/api/cat-fact');
   const data = await res.json();
 

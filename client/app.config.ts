@@ -1,10 +1,11 @@
 export default defineAppConfig({
   colorMode: {
-    preference: 'light'
+    preference: 'dark'
   },
   ui: {
-    primary: 'sky',
-    gray: 'zinc',
-    secondary: 'blue',
+    colors: {
+      primary: 'sky',
+      neutral: 'neutral'
+    }
   }
 })

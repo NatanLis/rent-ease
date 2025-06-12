@@ -11,19 +11,29 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.34",
+    "@iconify-json/simple-icons": "^1.2.30",
+    "@nuxt/content": "^3.4.0",
+    "@nuxt/image": "^1.10.0",
+    "@nuxt/ui-pro": "3.0.2",
+    "@nuxtjs/color-mode": "^3.5.2",
+    "@unovis/ts": "^1.5.1",
+    "@unovis/vue": "^1.5.1",
+    "@vueuse/nuxt": "^13.0.0",
+    "date-fns": "^4.1.0",
+    "nuxt": "^3.16.0",
+    "vue": "latest",
+    "vue-router": "latest",
+    "zod": "^3.24.0"
+  },
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxt/eslint": "^0.7.2",
     "@types/qs": "^6",
     "eslint": "^9.16.0",
     "sass-embedded": "^1.86.0",
-    "typescript": "^5.7.2"
-  },
-  "dependencies": {
-    "@nuxt/ui": "2.21.1",
-    "@nuxtjs/color-mode": "^3.5.2",
-    "nuxt": "^3.16.0",
-    "vue": "latest",
-    "vue-router": "latest"
+    "typescript": "^5.7.2",
+    "vue-tsc": "^2.2.2"
   }
 }
