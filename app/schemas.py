@@ -69,10 +69,13 @@ class Invoice(InvoiceBase):
 
 # --- MESSAGE ---
 
+from typing import Optional
+
 class MessageBase(BaseModel):
     sender: str
     receiver: str
-    content: str
+    content: Optional[str] = None
+    file_path: Optional[str] = None
 
 class MessageCreate(MessageBase):
     pass

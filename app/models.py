@@ -68,10 +68,12 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     sender_id = Column(Integer, ForeignKey("users.id"))
     receiver_id = Column(Integer, ForeignKey("users.id"))
-    content = Column(String)
+    content = Column(String, nullable=True)
+    file_path = Column(String, nullable=True)
 
     sender_user = relationship("User", foreign_keys=[sender_id], back_populates="messages_sent")
     receiver_user = relationship("User", foreign_keys=[receiver_id], back_populates="messages_received")
+
 
 
 # --- PAYMENT ---
