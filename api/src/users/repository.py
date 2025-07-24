@@ -35,7 +35,9 @@ class UserRepository:
 
         # Create user
         user = User(
-            email=user_data.email, hashed_password=get_password_hash(user_data.password)
+            email=user_data.email,
+            hashed_password=get_password_hash(user_data.password),
+            role=user_data.role
         )
         self.session.add(user)
         await self.session.commit()

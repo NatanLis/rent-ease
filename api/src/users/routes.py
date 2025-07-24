@@ -32,10 +32,8 @@ async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_session),
 ) -> Token:
-    print('🚨'*100)
     """Authenticate user and return token."""
     login_data = LoginData(email=form_data.username, password=form_data.password)
-    print(login_data.email, login_data.password)
     logger.debug(f"Login attempt: {login_data.email}")
     return await UserService(session).authenticate(login_data)
 
@@ -46,7 +44,3 @@ async def get_me(user: User = Depends(get_current_user)) -> UserResponse:
     logger.debug(f"User authenticated: {user.email}")
     return user
 
-
-@router.get("/test")
-async def test():
-    return 'chij'
