@@ -1,0 +1,8 @@
+[flake8]
+; whitespace before ':', invalid in pandas `[foo :]`
+extend-ignore = E203
+
+max-line-length = 127
+per-file-ignores =
+  ; Skip line length check for test files
+  ./tests/**/test_*.py: E501
