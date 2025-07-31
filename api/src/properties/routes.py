@@ -33,7 +33,7 @@ async def get_all_properties(
         raise
 
 
-@router.get("/{property_id}", response_model=list[PropertyResponse])
+@router.get("/{property_id}", response_model=PropertyResponse)
 async def get_property(
     property_id: int,
     service: PropertyService = Depends(get_property_service),

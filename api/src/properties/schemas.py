@@ -7,7 +7,7 @@ class PropertyBase(BaseModel):
     description: Optional[str] = None
     address: str
     price: float
-    owner_id: Optional[str] = None
+    owner_id: Optional[int] = None
 
 
 class PropertyCreate(PropertyBase):

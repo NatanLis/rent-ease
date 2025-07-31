@@ -26,17 +26,17 @@ class PropertyRepository:
             AlreadyExistsException: If property with same unique field already exists
         """
 
-        property = Property(**property_data.model_dump(exclude_unset=True))
+        new_property = Property(**property_data.model_dump(exclude_unset=True))
 
         try:
-            self.session.add(property)
+            self.session.add(new_property)
             await self.session.commit()
-            await self.session.refresh(property)
-            return property
+            await self.session.refresh(new_property)
+            return new_property
         except IntegrityError:
             await self.session.rollback()
             raise AlreadyExistsException(
-                f"Property with alias {property.title} already exists"
+                f"Property with alias {new_property.title} already exists"
             )
 
     async def get_by_id(self, property_id: int) -> Property:
