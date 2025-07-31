@@ -8,7 +8,7 @@ from .schemas import PropertyCreate, PropertyUpdate
 
 
 class PropertyRepository:
-    """Repository for handling user database operations."""
+    """Repository for handling property database operations."""
 
     def __init__(self, session: AsyncSession):
         self.session = session

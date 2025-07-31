@@ -14,7 +14,7 @@ router = APIRouter(prefix="/properties", tags=["properties"])
 
 
 def get_property_service(session: AsyncSession = Depends(get_session)) -> PropertyService:
-    """Dependency for getting hero service instance."""
+    """Dependency for getting property service instance."""
     return PropertyService(session)
 
 @router.get("/", response_model=list[PropertyResponse])
@@ -38,7 +38,7 @@ async def get_property(
     property_id: int,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
-) -> list[PropertyResponse]:
+) -> PropertyResponse:
     """Get property by ID."""
     logger.debug("Fetching property {property_id}")
     try:

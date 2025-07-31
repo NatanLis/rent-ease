@@ -27,3 +27,10 @@ class ForbiddenException(HTTPException):
 
     def __init__(self, detail: str = "Access forbidden"):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
+
+
+class BusinessRuleViolationException(HTTPException):
+    """Exception for business rule violation errors."""
+
+    def __init__(self, detail: str = "Business rule violated"):
+        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=detail)

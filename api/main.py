@@ -4,6 +4,8 @@ from api.core.config import settings
 from api.core.logging import get_logger, setup_logging
 from api.src.users.routes import router as auth_router
 from api.src.properties.routes import router as properties_router
+from api.src.leases.routes import router as leases_router
+from api.src.units.routes import router as units_router
 
 from api.utils.migrations import run_migrations
 
@@ -24,6 +26,8 @@ app = FastAPI(
 # Include routers
 app.include_router(auth_router)
 app.include_router(properties_router)
+app.include_router(leases_router)
+app.include_router(units_router)
 
 
 @app.get("/health")
