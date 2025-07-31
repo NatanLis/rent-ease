@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.logging import get_logger
 from api.src.properties.repository import PropertyRepository
-from api.src.properties.schemas import PropertyCreate, PropertyResponse
+from api.src.properties.schemas import PropertyCreate, PropertyResponse, PropertyBase
 
 logger = get_logger(__name__)
 
@@ -45,7 +45,7 @@ class PropertyService:
         properties = await self.repository.get_all()
         return [PropertyResponse.model_validate(property) for property in properties]
 
-    async def update_property(self, property_id: int, property_data: PropertyCreate) -> PropertyResponse:
+    async def update_property(self, property_id: int, property_data: PropertyBase) -> PropertyResponse:
         """Update property by ID.
 
         Args:

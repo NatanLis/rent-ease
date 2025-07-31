@@ -6,9 +6,8 @@ from api.core.logging import get_logger
 from api.core.security import get_current_user
 from api.src.users.models import User
 
-from .repository import PropertyRepository
 from .service import PropertyService
-from .schemas import PropertyCreate, PropertyResponse
+from .schemas import PropertyResponse, PropertyBase
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/properties", tags=["properties"])
@@ -16,8 +15,7 @@ router = APIRouter(prefix="/properties", tags=["properties"])
 
 def get_property_service(session: AsyncSession = Depends(get_session)) -> PropertyService:
     """Dependency for getting hero service instance."""
-    repository = PropertyRepository(session)
-    return PropertyService(repository)
+    return PropertyService(session)
 
 @router.get("/", response_model=list[PropertyResponse])
 async def get_all_properties(
@@ -54,14 +52,15 @@ async def get_property(
 
 @router.post("/", response_model=PropertyResponse, status_code=status.HTTP_201_CREATED)
 async def create_property(
-    property_data: PropertyCreate,
+    property_data: PropertyBase,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> PropertyResponse:
     """Create a new property."""
     logger.debug("Creating new property")
+    property_create = property_data.model_copy(update={"owner_id": current_user.id})
     try:
-        property_obj = await service.create_property(property_data)
+        property_obj = await service.create_property(property_create)
         logger.info(f"Created property {property_obj.id}")
         return property_obj
     except Exception as e:
@@ -72,7 +71,7 @@ async def create_property(
 @router.patch("/{property_id}", response_model=PropertyResponse)
 async def update_property(
     property_id: int,
-    property_data: PropertyCreate,  # Or PropertyUpdate if you have a separate schema
+    property_data: PropertyBase,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> PropertyResponse:

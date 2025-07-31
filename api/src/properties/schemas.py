@@ -7,6 +7,7 @@ class PropertyBase(BaseModel):
     description: Optional[str] = None
     address: str
     price: float
+    owner_id: Optional[str] = None
 
 
 class PropertyCreate(PropertyBase):
@@ -33,3 +34,4 @@ class PropertyResponse(PropertyBase):
 
     model_config = ConfigDict(from_attributes=True)
     id: int
+    owner_id: int

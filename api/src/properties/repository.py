@@ -3,11 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from api.core.exceptions import AlreadyExistsException, NotFoundException
-from api.core.logging import get_logger
 from .models import Property
 from .schemas import PropertyCreate, PropertyUpdate
-
-logger = get_logger(__name__)
 
 
 class PropertyRepository:
@@ -29,7 +26,8 @@ class PropertyRepository:
             AlreadyExistsException: If property with same unique field already exists
         """
 
-        property = Property(**property_data.model_dump())
+        property = Property(**property_data.model_dump(exclude_unset=True))
+
         try:
             self.session.add(property)
             await self.session.commit()
@@ -38,9 +36,8 @@ class PropertyRepository:
         except IntegrityError:
             await self.session.rollback()
             raise AlreadyExistsException(
-                f"Hero with alias {property.title} already exists"
+                f"Property with alias {property.title} already exists"
             )
-
 
     async def get_by_id(self, property_id: int) -> Property:
         """Get property by ID.
@@ -64,10 +61,10 @@ class PropertyRepository:
         return property_obj
 
     async def get_all(self) -> list[Property]:
-        """Get all heroes.
+        """Get all properties.
 
         Returns:
-            List[Hero]: List of all heroes
+            List[Property]: List of all properties
         """
         query = select(Property)
         result = await self.session.execute(query)
