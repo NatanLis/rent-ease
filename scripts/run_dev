@@ -11,7 +11,7 @@ if __name__ == "__main__":
     manager.add_process(
         "server",
         (
-            "ENV=dev uvicorn app.main:app "
+            "ENV=dev uvicorn api.main:app "
             "--reload "
             "--reload-exclude=client/* "
             "--port 8000"
