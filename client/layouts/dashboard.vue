@@ -11,6 +11,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const toast = useToast()
+const { getToken } = useAuth()
 
 const open = ref(false)
 
@@ -98,28 +99,21 @@ const groups = computed(() => [{
 }])
 
 onMounted(async () => {
-  const cookie = useCookie('cookie-consent')
-  if (cookie.value === 'accepted') {
-    return
+  // const cookie = useCookie('cookie-consent')
+  // if (cookie.value === 'accepted') {
+  //   return
+  // }
+
+  if (!getToken()) {
+    // User is not logged in
+      toast.add({
+        title: 'Ups...',
+        description: 'Please log in to access the dashboard',
+        color: 'error'
+      })
+    navigateTo('/login')
   }
 
-  toast.add({
-    title: 'We use first-party cookies to enhance your experience on our website.',
-    duration: 0,
-    close: false,
-    actions: [{
-      label: 'Accept',
-      color: 'neutral',
-      variant: 'outline',
-      onClick: () => {
-        cookie.value = 'accepted'
-      }
-    }, {
-      label: 'Opt out',
-      color: 'neutral',
-      variant: 'ghost'
-    }]
-  })
 })
 </script>
 
@@ -140,17 +134,11 @@ onMounted(async () => {
         <!-- <TeamsMenu :collapsed="collapsed" /> -->
 
         <div v-if="collapsed" class="font-bold">
-          Logo
-          <span class="text-primary-500">
-            Here
-          </span>
+          Rent<span class="text-primary-500">Ease</span>
         </div>
 
         <div v-if="!collapsed" class="w-auto font-bold text-2xl">
-          Insert Logo
-          <span class="text-primary-500">
-            Here
-          </span>
+          Rent<span class="text-primary-500">Ease</span>
         </div>
       </template>
 

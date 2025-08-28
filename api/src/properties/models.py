@@ -15,3 +15,10 @@ class Property(Base):
 
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="properties")
+
+    units = relationship(
+        "Unit",
+        back_populates="property",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )

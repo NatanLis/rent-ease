@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import settings
 from api.core.logging import get_logger, setup_logging
@@ -21,6 +22,15 @@ logger = get_logger(__name__)
 app = FastAPI(
     title=settings.PROJECT_NAME,
     debug=settings.DEBUG,
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or specify allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include routers
