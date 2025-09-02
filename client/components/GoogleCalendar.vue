@@ -1,0 +1,142 @@
+<template>
+  <div class="gc">
+    <!-- Calendar picker (single select) -->
+    <label class="sr-only" for="gc-select">Choose calendar</label>
+    <select id="gc-select" v-model="selectedId" class="gc__select">
+      <option v-for="c in calendars" :key="c.id" :value="c.id">
+        {{ c.label }}
+      </option>
+    </select>
+
+    <!-- View toggles -->
+    <div class="gc__toolbar">
+      <button :class="{ active: view === 'MONTH' }" @click="view = 'MONTH'">Month</button>
+      <button :class="{ active: view === 'WEEK' }"  @click="view = 'WEEK'">Week</button>
+      <button :class="{ active: view === 'AGENDA' }" @click="view = 'AGENDA'">Agenda</button>
+    </div>
+
+    <!-- Render only on client to avoid SSR timezone flicker -->
+    <ClientOnly>
+      <div class="gc__frame">
+        <iframe
+          :src="iframeSrc"
+          title="Google Calendar"
+          frameborder="0"
+          scrolling="no"
+          aria-label="Embedded Google Calendar"
+          referrerpolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </ClientOnly>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+
+const props = defineProps({
+  calendars: {
+    type: Array,
+    default: () => ([
+      { id: 'your_calendar_id_1', label: 'Work',     color: '#4285F4' },
+      { id: 'your_calendar_id_2', label: 'Personal', color: '#34A853' },
+    ])
+  },
+  startOnMonday: { type: Boolean, default: true },
+  initialView:   { type: String,  default: 'MONTH' }
+})
+
+const selectedId = ref(props.calendars[0]?.id || '')
+const view = ref(props.initialView)
+const tz = ref('UTC')
+const lang = ref('en')
+
+onMounted(() => {
+  // Client-only: detect timezone & language
+  try {
+    tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    lang.value = (navigator.language || 'en').split('-')[0]
+  } catch (e) {}
+})
+
+const iframeSrc = computed(() => {
+  const params = new URLSearchParams()
+  params.set('ctz', tz.value)
+  params.set('mode', view.value)
+  if (props.startOnMonday) params.set('wkst', '1')
+  params.set('bgcolor', '#ffffff')
+  params.set('showTitle', '0')
+  params.set('showPrint', '0')
+  params.set('showTabs', '0')
+  params.set('showTz', '0')
+  params.set('hl', lang.value)
+
+  // Selected calendar
+  if (selectedId.value) {
+    params.append('src', selectedId.value)
+    const cal = props.calendars.find(c => c.id === selectedId.value)
+    if (cal?.color) params.append('color', cal.color) // color is paired with the last src
+  }
+
+  return `https://calendar.google.com/calendar/embed?${params.toString()}`
+})
+</script>
+
+<style lang="scss" scoped>
+/* Layout & responsiveness */
+.gc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gc__select {
+  margin-bottom: 0.5rem;
+}
+
+.gc__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.gc__toolbar button {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.gc__toolbar button.active {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Full-height iframe */
+.gc__frame {
+  flex: 1; /* take remaining vertical space */
+  width: 100%;
+  position: relative;
+}
+
+.gc__frame iframe {
+  border: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>

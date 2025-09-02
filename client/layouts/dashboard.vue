@@ -44,6 +44,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Calendar',
+  icon: 'i-lucide-calendar',
+  to: '/home/calendar',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Settings',
   to: '/home/settings',
   icon: 'i-lucide-settings',
