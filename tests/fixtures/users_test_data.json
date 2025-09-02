@@ -1,0 +1,27 @@
+[
+    {
+      "email": "admin@rent-ease.com", 
+      "password": "admin123",
+      "role": "ADMIN"
+    },
+    {
+      "email": "owner1@example.com", 
+      "password": "owner123",
+      "role": "OWNER"
+    },
+    {
+      "email": "owner2@example.com", 
+      "password": "owner123",
+      "role": "OWNER"
+    },
+    {
+      "email": "tenant1@example.com",
+      "password": "tenant123", 
+      "role": "TENANT"
+    },
+    {
+      "email": "tenant2@example.com",
+      "password": "tenant123", 
+      "role": "TENANT"
+    }
+  ]
