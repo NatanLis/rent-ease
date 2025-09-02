@@ -1,10 +1,12 @@
 <template>
   <div class="gc">
-    <!-- Calendar picker (checkboxes) -->
-    <label v-for="c in calendars" :key="c.id">
-    <input type="checkbox" :value="c.id" v-model="selectedIds" />
-    {{ c.label }}
-  </label>
+    <!-- Calendar picker (single select) -->
+    <label class="sr-only" for="gc-select">Choose calendar</label>
+    <select id="gc-select" v-model="selectedId" class="gc__select">
+      <option v-for="c in calendars" :key="c.id" :value="c.id">
+        {{ c.label }}
+      </option>
+    </select>
 
     <!-- View toggles -->
     <div class="gc__toolbar">
