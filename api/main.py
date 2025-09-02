@@ -7,10 +7,11 @@ from api.src.users.routes import router as auth_router
 from api.src.properties.routes import router as properties_router
 from api.src.leases.routes import router as leases_router
 from api.src.units.routes import router as units_router
+from api.src.files.routes import router as files_router
 
 from api.utils.migrations import run_migrations
 
-from api.upload import router as upload_router  # Dodano import routera upload
+
 
 # Set up logging configuration
 setup_logging()
@@ -40,7 +41,8 @@ app.include_router(auth_router)
 app.include_router(properties_router)
 app.include_router(leases_router)
 app.include_router(units_router)
-app.include_router(upload_router, prefix="/api")  # Dodano router uploadu
+app.include_router(files_router)
+
 
 @app.get("/health")
 async def health_check():
