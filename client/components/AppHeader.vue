@@ -31,9 +31,9 @@ nuxtApp.hooks.hookOnce('page:finish', () => {
       <NuxtLink to="/">
         <!-- <LogoPro class="w-auto h-6 shrink-0" /> -->
          <div class="w-auto font-bold text-2xl">
-          Insert Logo
+          Rent
           <span class="text-primary-500">
-            Here
+            Ease
           </span>
         </div>
       </NuxtLink>
