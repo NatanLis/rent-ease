@@ -27,13 +27,15 @@ const providers = [{
   onClick: () => {
     toast.add({ title: 'Google', description: 'Login with Google' })
   }
-}, {
-  label: 'GitHub',
-  icon: 'i-simple-icons-github',
-  onClick: () => {
-    toast.add({ title: 'GitHub', description: 'Login with GitHub' })
-  }
-}]
+},
+// {
+//   label: 'GitHub',
+//   icon: 'i-simple-icons-github',
+//   onClick: () => {
+//     toast.add({ title: 'GitHub', description: 'Login with GitHub' })
+//   }
+// }
+]
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -42,8 +44,41 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-function onSubmit(payload: FormSubmitEvent<Schema>) {
-  console.log('Submitted', payload)
+async function onSubmit(payload: FormSubmitEvent<Schema>) {
+  // signUp(payload.email, payload.password)
+  console.log('Submitted', payload.data.email, payload.data.password)
+  const dupa = await signUp(payload.data.email, payload.data.password)
+  console.log('Response from signUp:', dupa)
+}
+
+async function signUp(username: string, password: string) {
+  try {
+    const params = new URLSearchParams({
+      grant_type: 'password',
+      username,
+      password,
+      scope: '',
+      client_id: 'string',
+      client_secret: '********'
+    })
+    const response = await fetch('http://localhost:8000/auth/login', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params.toString()
+    })
+    if (!response.ok) {
+      throw new Error('Failed to sign up')
+    }
+    const data = await response.json()
+    toast.add({ title: 'Success', description: 'Signed up successfully!' })
+    return data
+  } catch (error: any) {
+    toast.add({ title: 'Error', description: error.message })
+    return null
+  }
 }
 
 definePageMeta({
