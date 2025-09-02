@@ -37,6 +37,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Tenants',
+  icon: 'i-lucide-users',
+  to: '/home/tenants',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Calendar',
   icon: 'i-lucide-calendar',
   to: '/home/calendar',
@@ -147,16 +154,16 @@ onMounted(async () => {
         <!-- <TeamsMenu :collapsed="collapsed" /> -->
 
         <div v-if="collapsed" class="font-bold">
-          Logo
+          Rent
           <span class="text-primary-500">
-            Here
+            Ease
           </span>
         </div>
 
         <div v-if="!collapsed" class="w-auto font-bold text-2xl">
-          Insert Logo
+          Rent
           <span class="text-primary-500">
-            Here
+            Ease
           </span>
         </div>
       </template>

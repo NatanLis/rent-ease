@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.exceptions import AlreadyExistsException, NotFoundException
@@ -6,6 +6,7 @@ from api.core.logging import get_logger
 from api.core.security import get_password_hash
 from api.src.users.models import User
 from api.src.users.schemas import UserCreate
+from api.src.enums import EnumUserRoles
 
 logger = get_logger(__name__)
 
@@ -79,3 +80,92 @@ class UserRepository:
         query = select(User).where(User.email == email)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_all_tenants_with_status(self) -> list[User]:
+        """Get all tenant users with their lease status.
+
+        Returns:
+            List[User]: List of tenant users
+        """
+        from api.src.leases.models import Lease
+        
+        # Subquery to check if user has any active leases
+        active_lease_subquery = (
+            select(func.count(Lease.id))
+            .where(
+                Lease.tenant_id == User.id,
+                Lease.is_active == True
+            )
+            .scalar_subquery()
+        )
+        
+        # Main query to get all tenants
+        query = (
+            select(User)
+            .where(User.role == EnumUserRoles.TENANT)
+            .order_by(User.email)
+        )
+        
+        result = await self.session.execute(query)
+        users = result.scalars().all()
+        
+        # Add status to each user
+        for user in users:
+            active_leases_count = await self.session.execute(
+                select(func.count(Lease.id))
+                .where(
+                    Lease.tenant_id == user.id,
+                    Lease.is_active == True
+                )
+            )
+            count = active_leases_count.scalar()
+            user.status = "active" if count > 0 else "inactive"
+        
+        return list(users)
+
+    async def get_tenants_for_owner(self, owner_id: int) -> list[User]:
+        """Get all tenant users who have leases in properties owned by the given owner.
+
+        Args:
+            owner_id: ID of the property owner
+
+        Returns:
+            List[User]: List of tenant users with their lease status
+        """
+        from api.src.leases.models import Lease
+        from api.src.units.models import Unit
+        from api.src.properties.models import Property
+        
+        # Query to get all tenants who have leases in units belonging to properties owned by owner_id
+        query = (
+            select(User)
+            .join(Lease, User.id == Lease.tenant_id)
+            .join(Unit, Lease.unit_id == Unit.id)
+            .join(Property, Unit.property_id == Property.id)
+            .where(
+                User.role == EnumUserRoles.TENANT,
+                Property.owner_id == owner_id
+            )
+            .distinct()
+            .order_by(User.email)
+        )
+        
+        result = await self.session.execute(query)
+        users = result.scalars().all()
+        
+        # Add status to each user - check if they have any active leases in this owner's properties
+        for user in users:
+            active_leases_count = await self.session.execute(
+                select(func.count(Lease.id))
+                .join(Unit, Lease.unit_id == Unit.id)
+                .join(Property, Unit.property_id == Property.id)
+                .where(
+                    Lease.tenant_id == user.id,
+                    Lease.is_active == True,
+                    Property.owner_id == owner_id
+                )
+            )
+            count = active_leases_count.scalar()
+            user.status = "active" if count > 0 else "inactive"
+        
+        return list(users)

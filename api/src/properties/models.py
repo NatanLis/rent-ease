@@ -7,7 +7,7 @@ from api.core.database import Base
 class Property(Base):
     __tablename__ = "properties"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String)
     description = Column(String)
     address = Column(String)
@@ -15,3 +15,4 @@ class Property(Base):
 
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="properties")
+    units = relationship("Unit", back_populates="property", cascade="all, delete-orphan")

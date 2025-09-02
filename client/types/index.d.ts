@@ -1,6 +1,6 @@
 import type { AvatarProps } from '@nuxt/ui'
 
-export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced'
+export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced' | 'active' | 'inactive'
 export type SaleStatus = 'paid' | 'failed' | 'refunded'
 
 export interface User {
@@ -25,6 +25,18 @@ export interface Member {
   name: string
   username: string
   role: 'member' | 'owner'
+  avatar: Avatar
+}
+
+export interface Tenant {
+  id: number
+  name: string
+  email: string
+  property: string
+  unit: string
+  contractStatus: 'active' | 'expired' | 'pending' | 'terminated'
+  contractStartDate: string
+  contractEndDate: string
   avatar: Avatar
 }
 

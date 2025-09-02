@@ -10,7 +10,7 @@ class Unit(Base):
         UniqueConstraint("property_id", "name", name="uq_unit_name_per_property"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     property_id = Column(Integer, ForeignKey("properties.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, nullable=False)  # e.g., "Room A", "Apt 2"
     description = Column(Text, nullable=True)
