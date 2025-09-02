@@ -126,6 +126,7 @@ if __name__ == "__main__":
     print("✅ Everything started! Check:")
     print("   🌐 Frontend: http://localhost:3000")
     print("   🔌 Backend: http://localhost:8000")
+    print("   🔧 Swagger: http://localhost:8000/docs#/")
     print("   📊 Database: localhost:5432")
     
     # Run both processes concurrently

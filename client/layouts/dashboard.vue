@@ -38,6 +38,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Calendar',
+  icon: 'i-lucide-calendar',
+  to: '/home/calendar',
+  onSelect: () => {
+    open.value = false
+   }
+}, {
   label: 'Tenants',
   icon: 'i-lucide-users',
   to: '/home/tenants',
@@ -45,9 +52,23 @@ const links = [[{
     open.value = false
   }
 }, {
-  label: 'Calendar',
-  icon: 'i-lucide-calendar',
-  to: '/home/calendar',
+  label: 'Leases',
+  icon: 'i-lucide-file-text',
+  to: '/home/leases',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Properties',
+  icon: 'i-lucide-building',
+  to: '/home/properties',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Units',
+  icon: 'i-lucide-home',
+  to: '/home/units',
   onSelect: () => {
     open.value = false
   }
