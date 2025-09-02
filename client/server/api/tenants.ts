@@ -1,6 +1,6 @@
 import type { User } from '~/types'
 
-// Mock data for tenants - based on the fixtures from the database
+// Mock data for tenants - based on the seeds from the database
 const tenants: User[] = [
   {
     id: 1,

@@ -51,6 +51,27 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Leases',
+  icon: 'i-lucide-file-text',
+  to: '/home/leases',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Properties',
+  icon: 'i-lucide-building',
+  to: '/home/properties',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Units',
+  icon: 'i-lucide-home',
+  to: '/home/units',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Settings',
   to: '/home/settings',
   icon: 'i-lucide-settings',

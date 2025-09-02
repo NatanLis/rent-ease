@@ -9,7 +9,7 @@ from api.core.database import engine
 from api.core.security import get_password_hash
 
 async def clear_tables(session: AsyncSession):
-    """Clear all tables before loading fixtures."""
+    """Clear all tables before loading seeds."""
     print("🧹 Clearing existing data...")
     await session.execute(text("DELETE FROM leases"))
     await session.execute(text("DELETE FROM units"))
@@ -18,10 +18,10 @@ async def clear_tables(session: AsyncSession):
     await session.commit()
     print("✅ Tables cleared")
 
-async def load_fixtures():
+async def load_seeds():
     """Load test data from JSON files into database."""
     
-    print("🚀 Loading test fixtures...")
+    print("🚀 Loading test seeds...")
     
     # Create async session
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -32,7 +32,7 @@ async def load_fixtures():
             await clear_tables(session)
             # Load users
             print("📝 Loading users...")
-            with open('tests/fixtures/users_test_data.json', 'r') as f:
+            with open('tests/seeds/users_test_data.json', 'r') as f:
                 users_data = json.load(f)
             
             for user_data in users_data:
@@ -57,7 +57,7 @@ async def load_fixtures():
             
             # Load properties
             print("🏠 Loading properties...")
-            with open('tests/fixtures/properties_test_data.json', 'r') as f:
+            with open('tests/seeds/properties_test_data.json', 'r') as f:
                 properties_data = json.load(f)
             
             for prop_data in properties_data:
@@ -95,7 +95,7 @@ async def load_fixtures():
             
             # Load units
             print("🏢 Loading units...")
-            with open('tests/fixtures/units_test_data.json', 'r') as f:
+            with open('tests/seeds/units_test_data.json', 'r') as f:
                 units_data = json.load(f)
             
             for unit_data in units_data:
@@ -132,7 +132,7 @@ async def load_fixtures():
             
             # Load leases
             print("📋 Loading leases...")
-            with open('tests/fixtures/leases_test_data.json', 'r') as f:
+            with open('tests/seeds/leases_test_data.json', 'r') as f:
                 leases_data = json.load(f)
             
             for lease_data in leases_data:
@@ -187,10 +187,10 @@ async def load_fixtures():
             await session.commit()
             print(f"✅ Loaded {len(leases_data)} leases")
             
-            print("🎉 All test fixtures loaded successfully!")
+            print("🎉 All test seeds loaded successfully!")
             
         except Exception as e:
-            print(f"❌ Error loading fixtures: {str(e)}")
+            print(f"❌ Error loading seeds: {str(e)}")
             print(f"❌ Exception type: {type(e).__name__}")
             await session.rollback()
             import traceback
@@ -198,4 +198,4 @@ async def load_fixtures():
             raise
 
 if __name__ == "__main__":
-    asyncio.run(load_fixtures())
+    asyncio.run(load_seeds())
