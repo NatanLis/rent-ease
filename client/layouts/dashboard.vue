@@ -37,6 +37,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Tenants',
+  icon: 'i-lucide-users',
+  to: '/home/tenants',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Settings',
   to: '/home/settings',
   icon: 'i-lucide-settings',
