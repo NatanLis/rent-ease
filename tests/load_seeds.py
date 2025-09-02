@@ -1,6 +1,8 @@
 import json
 import asyncio
+import os
 from datetime import datetime, date
+from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
@@ -14,9 +16,65 @@ async def clear_tables(session: AsyncSession):
     await session.execute(text("DELETE FROM leases"))
     await session.execute(text("DELETE FROM units"))
     await session.execute(text("DELETE FROM properties"))
+    await session.execute(text("DELETE FROM files"))
     await session.execute(text("DELETE FROM users WHERE email != 'admin@rent-ease.com'"))
     await session.commit()
     print("✅ Tables cleared")
+
+async def load_files(session: AsyncSession):
+    """Load sample files from tests/seeds/sample_files directory."""
+    print("📁 Loading files...")
+    
+    # Get the project root directory
+    project_root = Path(__file__).parent.parent
+    sample_files_dir = project_root / "tests" / "seeds" / "sample_files"
+    
+    # Get all PDF files from the directory
+    pdf_files = list(sample_files_dir.glob("*.pdf"))
+    
+    sample_files_config = []
+    for pdf_file in pdf_files:
+        # Skip Zone.Identifier files (Windows metadata)
+        if not pdf_file.name.endswith(":Zone.Identifier"):
+            sample_files_config.append({
+                "filename": pdf_file.name,
+                "mimetype": "application/pdf"
+            })
+    
+    files_added = 0
+    
+    for file_config in sample_files_config:
+        file_path = sample_files_dir / file_config["filename"]
+        
+        if file_path.exists():
+            try:
+                # Read the actual file
+                with open(file_path, 'rb') as f:
+                    file_data = f.read()
+                
+                file_size = len(file_data)
+                
+                await session.execute(text("""
+                    INSERT INTO files (filename, mimetype, size, data, uploaded_at)
+                    VALUES (:filename, :mimetype, :size, :data, NOW())
+                """), {
+                    'filename': file_config['filename'],
+                    'mimetype': file_config['mimetype'],
+                    'size': file_size,
+                    'data': file_data
+                })
+                
+                print(f"   ✅ Added {file_config['filename']} ({file_size} bytes)")
+                files_added += 1
+                
+            except Exception as e:
+                print(f"   ❌ Error reading {file_config['filename']}: {e}")
+        else:
+            print(f"   ⚠️  File not found: {file_path}")
+            print(f"      Please add {file_config['filename']} to the tests/seeds/sample_files/ directory")
+    
+    await session.commit()
+    print(f"   📊 Total files added: {files_added}")
 
 async def load_seeds():
     """Load test data from JSON files into database."""
@@ -186,6 +244,9 @@ async def load_seeds():
             
             await session.commit()
             print(f"✅ Loaded {len(leases_data)} leases")
+            
+            # Load files
+            await load_files(session)
             
             print("🎉 All test seeds loaded successfully!")
             
