@@ -23,3 +23,10 @@ class User(Base):
         lazy="selectin",
     )
     leases = relationship("Lease", back_populates="tenant", cascade="all, delete-orphan")
+
+    leases = relationship(
+        "Lease",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )

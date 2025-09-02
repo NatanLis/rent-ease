@@ -67,3 +67,27 @@ async def get_tenants_for_owner(
         tenants = await UserService(session).get_tenants_for_owner(current_user.id)
     
     return [UserResponse.model_validate(tenant) for tenant in tenants]
+
+
+@router.get("/leases", response_model=list[dict])
+async def get_leases_for_owner(
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    """Get all leases in current user's properties."""
+    logger.debug(f"Getting leases for owner user_id={current_user.id}")
+    
+    # Only admin and owners can view leases
+    if current_user.role not in ["admin", "owner"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    # For admin, get all leases; for owner, get only leases in their properties
+    if current_user.role == "admin":
+        leases = await UserService(session).get_all_leases_with_details()
+    else:
+        leases = await UserService(session).get_leases_for_owner(current_user.id)
+    
+    return leases

@@ -11,6 +11,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const toast = useToast()
+const { getToken } = useAuth()
 
 const open = ref(false)
 
@@ -37,6 +38,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Calendar',
+  icon: 'i-lucide-calendar',
+  to: '/home/calendar',
+  onSelect: () => {
+    open.value = false
+   }
+}, {
   label: 'Tenants',
   icon: 'i-lucide-users',
   to: '/home/tenants',
@@ -44,9 +52,23 @@ const links = [[{
     open.value = false
   }
 }, {
-  label: 'Calendar',
-  icon: 'i-lucide-calendar',
-  to: '/home/calendar',
+  label: 'Leases',
+  icon: 'i-lucide-file-text',
+  to: '/home/leases',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Properties',
+  icon: 'i-lucide-building',
+  to: '/home/properties',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Units',
+  icon: 'i-lucide-home',
+  to: '/home/units',
   onSelect: () => {
     open.value = false
   }
@@ -111,29 +133,22 @@ const groups = computed(() => [{
   }]
 }])
 
-onMounted(async () => {
-  const cookie = useCookie('cookie-consent')
-  if (cookie.value === 'accepted') {
-    return
+onBeforeMount(async () => {
+  // const cookie = useCookie('cookie-consent')
+  // if (cookie.value === 'accepted') {
+  //   return
+  // }
+
+  if (!getToken()) {
+    // User is not logged in
+      toast.add({
+        title: 'Ups...',
+        description: 'Please log in to access the dashboard',
+        color: 'error'
+      })
+    navigateTo('/login')
   }
 
-  toast.add({
-    title: 'We use first-party cookies to enhance your experience on our website.',
-    duration: 0,
-    close: false,
-    actions: [{
-      label: 'Accept',
-      color: 'neutral',
-      variant: 'outline',
-      onClick: () => {
-        cookie.value = 'accepted'
-      }
-    }, {
-      label: 'Opt out',
-      color: 'neutral',
-      variant: 'ghost'
-    }]
-  })
 })
 </script>
 
@@ -154,17 +169,11 @@ onMounted(async () => {
         <!-- <TeamsMenu :collapsed="collapsed" /> -->
 
         <div v-if="collapsed" class="font-bold">
-          Rent
-          <span class="text-primary-500">
-            Ease
-          </span>
+          Rent<span class="text-primary-500">Ease</span>
         </div>
 
         <div v-if="!collapsed" class="w-auto font-bold text-2xl">
-          Rent
-          <span class="text-primary-500">
-            Ease
-          </span>
+          Rent<span class="text-primary-500">Ease</span>
         </div>
       </template>
 

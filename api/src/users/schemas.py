@@ -21,6 +21,7 @@ class UserResponse(UserBase):
     id: int
     role: EnumUserRoles
     status: str | None = None  # "active" if has active lease, "inactive" otherwise
+    location: str | None = None  # Current address from active lease property
 
 
 class Token(BaseModel):

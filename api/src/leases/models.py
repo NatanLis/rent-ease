@@ -22,4 +22,4 @@ class Lease(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     unit = relationship("Unit", back_populates="leases")
-    tenant = relationship("User", back_populates="leases")
+    user = relationship("User", back_populates="leases")
