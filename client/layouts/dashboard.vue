@@ -112,7 +112,7 @@ const groups = computed(() => [{
   }]
 }])
 
-onMounted(async () => {
+onBeforeMount(async () => {
   // const cookie = useCookie('cookie-consent')
   // if (cookie.value === 'accepted') {
   //   return
