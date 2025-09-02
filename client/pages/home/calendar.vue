@@ -17,6 +17,4 @@ const calendars = [
   { id: 'kkrol.contact@gmail.com', label: 'Test', color: '#4285F4' },
   { id: 'your_calendar_id_2', label: 'Releases',      color: '#DB4437' },
 ]
-
-
 </script>

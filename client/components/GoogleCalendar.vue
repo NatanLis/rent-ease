@@ -25,7 +25,7 @@
           scrolling="no"
           aria-label="Embedded Google Calendar"
           referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+        />
       </div>
     </ClientOnly>
   </div>
@@ -43,7 +43,7 @@ const props = defineProps({
     ])
   },
   startOnMonday: { type: Boolean, default: true },
-  initialView:   { type: String,  default: 'MONTH' } 
+  initialView:   { type: String,  default: 'MONTH' }
 })
 
 const selectedId = ref(props.calendars[0]?.id || '')
@@ -61,15 +61,15 @@ onMounted(() => {
 
 const iframeSrc = computed(() => {
   const params = new URLSearchParams()
-  params.set('ctz', tz.value)            
-  params.set('mode', view.value)          
-  if (props.startOnMonday) params.set('wkst', '1') 
-  params.set('bgcolor', '#ffffff')        
-  params.set('showTitle', '0')            
-  params.set('showPrint', '0')            
-  params.set('showTabs', '0')             
-  params.set('showTz', '0')               
-  params.set('hl', lang.value)            
+  params.set('ctz', tz.value)
+  params.set('mode', view.value)
+  if (props.startOnMonday) params.set('wkst', '1')
+  params.set('bgcolor', '#ffffff')
+  params.set('showTitle', '0')
+  params.set('showPrint', '0')
+  params.set('showTabs', '0')
+  params.set('showTz', '0')
+  params.set('hl', lang.value)
 
   // Selected calendar
   if (selectedId.value) {
@@ -82,7 +82,7 @@ const iframeSrc = computed(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 /* Layout & responsiveness */
 .gc {
   display: flex;
