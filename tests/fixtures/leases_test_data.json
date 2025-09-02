@@ -1,0 +1,66 @@
+[
+    {
+      "unit_name": "A1",
+      "property_title": "Apartament w centrum",
+      "tenant_email": "tenant1@example.com",
+      "start_date": "2023-01-01",
+      "end_date": "2023-12-31",
+      "is_active": false
+    },
+    {
+      "unit_name": "A1",
+      "property_title": "Apartament w centrum",
+      "tenant_email": "tenant2@example.com",
+      "start_date": "2024-01-01",
+      "end_date": "2024-12-31",
+      "is_active": true
+    },
+    {
+      "unit_name": "A2",
+      "property_title": "Apartament w centrum",
+      "tenant_email": "tenant1@example.com",
+      "start_date": "2023-02-01",
+      "end_date": "2024-01-31",
+      "is_active": false
+    },
+    {
+      "unit_name": "A2",
+      "property_title": "Apartament w centrum",
+      "tenant_email": "tenant2@example.com",
+      "start_date": "2024-02-01",
+      "end_date": "2025-01-31",
+      "is_active": true
+    },
+    {
+      "unit_name": "Dom",
+      "property_title": "Dom jednorodzinny",
+      "tenant_email": "tenant1@example.com",
+      "start_date": "2023-03-01",
+      "end_date": "2024-02-29",
+      "is_active": false
+    },
+    {
+      "unit_name": "Dom",
+      "property_title": "Dom jednorodzinny",
+      "tenant_email": "tenant2@example.com",
+      "start_date": "2024-03-01",
+      "end_date": "2025-02-28",
+      "is_active": true
+    },
+    {
+      "unit_name": "M1",
+      "property_title": "Mieszkanie 3-pokojowe",
+      "tenant_email": "tenant1@example.com",
+      "start_date": "2023-04-01",
+      "end_date": "2024-03-31",
+      "is_active": false
+    },
+    {
+      "unit_name": "M1",
+      "property_title": "Mieszkanie 3-pokojowe",
+      "tenant_email": "tenant2@example.com",
+      "start_date": "2024-04-01",
+      "end_date": "2025-03-31",
+      "is_active": true
+    }
+  ]

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,3 +44,26 @@ async def get_me(user: User = Depends(get_current_user)) -> UserResponse:
     logger.debug(f"User authenticated: {user.email}")
     return user
 
+
+@router.get("/tenants", response_model=list[UserResponse])
+async def get_tenants_for_owner(
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> list[UserResponse]:
+    """Get all tenant users who have leases in current user's properties."""
+    logger.debug(f"Getting tenants for owner user_id={current_user.id}")
+    
+    # Only admin and owners can view tenants
+    if current_user.role not in ["admin", "owner"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    # For admin, get all tenants; for owner, get only tenants in their properties
+    if current_user.role == "admin":
+        tenants = await UserService(session).get_all_tenants_with_status()
+    else:
+        tenants = await UserService(session).get_tenants_for_owner(current_user.id)
+    
+    return [UserResponse.model_validate(tenant) for tenant in tenants]

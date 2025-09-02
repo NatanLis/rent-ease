@@ -1,0 +1,26 @@
+[
+    {
+      "property_title": "Apartament w centrum",
+      "name": "A1",
+      "description": "Pokój 2-osobowy z balkonem",
+      "monthly_rent": 2500.0
+    },
+    {
+      "property_title": "Apartament w centrum", 
+      "name": "A2",
+      "description": "Pokój 2-osobowy duży",
+      "monthly_rent": 3200.0
+    },
+    {
+      "property_title": "Dom jednorodzinny",
+      "name": "Dom",
+      "description": "Cały dom jednorodzinny",
+      "monthly_rent": 4000.0
+    },
+    {
+      "property_title": "Mieszkanie 3-pokojowe",
+      "name": "M1",
+      "description": "Mieszkanie 3-pokojowe",
+      "monthly_rent": 2800.0
+    }
+  ]

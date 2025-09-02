@@ -1,0 +1,23 @@
+[
+    {
+      "title": "Apartament w centrum",
+      "description": "Nowoczesny apartament w centrum miasta",
+      "address": "ul. Główna 1, Warszawa",
+      "price": 500000.0,
+      "owner_email": "owner1@example.com"
+    },
+    {
+      "title": "Dom jednorodzinny",
+      "description": "Przestronny dom z ogrodem",
+      "address": "ul. Słoneczna 15, Kraków", 
+      "price": 800000.0,
+      "owner_email": "owner1@example.com"
+    },
+    {
+      "title": "Mieszkanie 3-pokojowe",
+      "description": "Komfortowe mieszkanie w nowym budynku",
+      "address": "ul. Parkowa 8, Gdańsk",
+      "price": 600000.0,
+      "owner_email": "owner2@example.com"
+    }
+  ]

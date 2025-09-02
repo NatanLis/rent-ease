@@ -19,6 +19,8 @@ class UserResponse(UserBase):
 
     model_config = ConfigDict(from_attributes=True)
     id: int
+    role: EnumUserRoles
+    status: str | None = None  # "active" if has active lease, "inactive" otherwise
 
 
 class Token(BaseModel):

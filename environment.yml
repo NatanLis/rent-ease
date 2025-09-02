@@ -14,10 +14,11 @@ dependencies:
   - sqlalchemy>=2.0.36
   - asyncpg>=0.30.0
   - python-dotenv>=1.0.1
+  - psycopg2-binary>=2.9.9
 
   # Pydantic & settings
   - pydantic>=2.5.2
-  - pydantic-settings>=2.10
+  - pydantic-settings>=2.1.0
   - email-validator             # for the pydantic[email] extra
 
   # Auth / crypto
@@ -38,6 +39,7 @@ dependencies:
 
   # File uploads
   - python-multipart>=0.0.20
+  - aiofiles>=23.2.1
 
   # Development utilities
   - honcho
@@ -46,3 +48,5 @@ dependencies:
   - pip:
     - pre-commit
     - autoflake
+    - asyncpg
+    - psycopg2-binary

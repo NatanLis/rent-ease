@@ -10,6 +10,8 @@ from api.src.units.routes import router as units_router
 
 from api.utils.migrations import run_migrations
 
+from api.upload import router as upload_router  # Dodano import routera upload
+
 # Set up logging configuration
 setup_logging()
 
@@ -38,7 +40,7 @@ app.include_router(auth_router)
 app.include_router(properties_router)
 app.include_router(leases_router)
 app.include_router(units_router)
-
+app.include_router(upload_router, prefix="/api")  # Dodano router uploadu
 
 @app.get("/health")
 async def health_check():
@@ -49,4 +51,4 @@ async def health_check():
 async def root():
     """Root endpoint."""
     logger.debug("Root endpoint called")
-    return {"message": "Welcome to Rent ease API!"}
+    return {"message": "Welcome to RentEase API!"}  
