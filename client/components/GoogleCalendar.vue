@@ -84,32 +84,59 @@ const iframeSrc = computed(() => {
 
 <style scoped>
 /* Layout & responsiveness */
+.gc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gc__select {
+  margin-bottom: 0.5rem;
+}
+
+.gc__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.gc__toolbar button {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.gc__toolbar button.active {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Full-height iframe */
 .gc__frame {
+  flex: 1; /* take remaining vertical space */
   width: 100%;
-  aspect-ratio: 4 / 3;          /* modern responsive approach */
   position: relative;
 }
+
 .gc__frame iframe {
   border: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  position: absolute; inset: 0;
 }
 
-/* Controls */
-.gc__select { margin: .25rem 0; }
-.gc__toolbar { display: flex; gap: .5rem; margin: .5rem 0 1rem; }
-.gc__toolbar button { padding: .35rem .6rem; border: 1px solid #ddd; border-radius: .4rem; }
-.gc__toolbar button.active { font-weight: 600; text-decoration: underline; }
-
-/* Mobile: make it squarer to avoid overscroll */
-@media (max-width: 640px) {
-  .gc__frame { aspect-ratio: 1 / 1; }
-}
-
-/* Accessibility helper for the select label */
 .sr-only {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>
