@@ -73,6 +73,25 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Admin Panel',
+  to: '/home/admin',
+  icon: 'i-lucide-shield-check',
+  defaultOpen: true,
+  children: [{
+    label: 'Overview',
+    to: '/home/admin',
+    exact: true,
+    onSelect: () => {
+      open.value = false
+    }
+  }, {
+    label: 'Users',
+    to: '/home/admin/users',
+    onSelect: () => {
+      open.value = false
+    }
+  }]
+}, {
   label: 'Settings',
   to: '/home/settings',
   icon: 'i-lucide-settings',
