@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Rent-Ease Port Cleanup Script
+# This script kills processes running on client (3000/3001) and backend (8000) ports
+# Database is left untouched
+
+set -e
+
+echo "🧹 Cleaning up Rent-Ease ports..."
+
+# Function to kill process on specific port
+kill_port() {
+    local port=$1
+    local service_name=$2
+    
+    echo "🔍 Checking port $port ($service_name)..."
+    
+    # Find PIDs using the port
+    local pids=$(lsof -ti:$port 2>/dev/null || true)
+    
+    if [ -n "$pids" ]; then
+        echo "⚠️  Found processes on port $port: $pids"
+        echo "🔫 Killing processes on port $port..."
+        echo $pids | xargs kill -9 2>/dev/null || true
+        echo "✅ Port $port cleared"
+    else
+        echo "✅ Port $port is already free"
+    fi
+}
+
+# Function to kill processes by name pattern
+kill_by_pattern() {
+    local pattern=$1
+    local service_name=$2
+    
+    echo "🔍 Checking for $service_name processes..."
+    
+    local pids=$(pgrep -f "$pattern" 2>/dev/null || true)
+    
+    if [ -n "$pids" ]; then
+        echo "⚠️  Found $service_name processes: $pids"
+        echo "🔫 Killing $service_name processes..."
+        echo $pids | xargs kill -9 2>/dev/null || true
+        echo "✅ $service_name processes cleared"
+    else
+        echo "✅ No $service_name processes found"
+    fi
+}
+
+# Clean up backend port (8000)
+kill_port 8000 "Backend (FastAPI/Uvicorn)"
+
+# Clean up client ports (3000 and 3001)
+kill_port 3000 "Client (Nuxt - primary)"
+kill_port 3001 "Client (Nuxt - alternative)"
+
+# Also kill by process patterns as backup
+kill_by_pattern "uvicorn.*api.main" "Backend (Uvicorn)"
+kill_by_pattern "nuxt.*dev" "Client (Nuxt)"
+
+# Wait a moment for processes to fully terminate
+sleep 2
+
+echo ""
+echo "🎉 Port cleanup completed!"
+echo "📊 Port status:"
+echo "   Backend (8000): $(lsof -ti:8000 >/dev/null 2>&1 && echo "❌ Still in use" || echo "✅ Free")"
+echo "   Client (3000): $(lsof -ti:3000 >/dev/null 2>&1 && echo "❌ Still in use" || echo "✅ Free")"
+echo "   Client (3001): $(lsof -ti:3001 >/dev/null 2>&1 && echo "❌ Still in use" || echo "✅ Free")"
+echo ""
+echo "💡 You can now run 'scripts/run_dev' to start fresh"

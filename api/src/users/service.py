@@ -48,6 +48,10 @@ class UserService:
         """Get user by ID."""
         return await self.repository.get_by_id(user_id)
 
+    async def get_user_by_email(self, email: str) -> User:
+        """Get user by email."""
+        return await self.repository.get_by_email(email)
+
     async def get_all_tenants_with_status(self) -> list[User]:
         """Get all tenant users with their lease status."""
         return await self.repository.get_all_tenants_with_status()

@@ -31,4 +31,4 @@ def upgrade():
 
 
 def downgrade() -> None:
-    pass
+    op.drop_table('files')
