@@ -12,7 +12,6 @@ from api.src.files.routes import router as files_router
 from api.utils.migrations import run_migrations
 
 
-
 # Set up logging configuration
 setup_logging()
 
@@ -43,7 +42,6 @@ app.include_router(leases_router)
 app.include_router(units_router)
 app.include_router(files_router)
 
-
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
@@ -53,4 +51,4 @@ async def health_check():
 async def root():
     """Root endpoint."""
     logger.debug("Root endpoint called")
-    return {"message": "Welcome to RentEase API!"}  
+    return {"message": "Welcome to RentEase API!"}

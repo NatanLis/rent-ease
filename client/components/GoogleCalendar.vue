@@ -1,19 +1,33 @@
 <template>
   <div class="gc">
     <!-- Calendar picker (single select) -->
-    <label class="sr-only" for="gc-select">Choose calendar</label>
-    <select id="gc-select" v-model="selectedId" class="gc__select">
-      <option v-for="c in calendars" :key="c.id" :value="c.id">
-        {{ c.label }}
-      </option>
-    </select>
+    <USelect
+      v-model="selectedId"
+      :items="selectItems"
+      placeholder="Select a calendar"
+      class="w-60 mb-3"
+    />
 
     <!-- View toggles -->
     <div class="gc__toolbar">
-      <button :class="{ active: view === 'MONTH' }" @click="view = 'MONTH'">Month</button>
-      <button :class="{ active: view === 'WEEK' }"  @click="view = 'WEEK'">Week</button>
-      <button :class="{ active: view === 'AGENDA' }" @click="view = 'AGENDA'">Agenda</button>
+      
+      <UButton 
+        :color="view == 'MONTH' ? 'primary' : 'secondary'" 
+        :variant="view == 'MONTH' ? 'solid' : 'outline'" 
+        @click="view = 'MONTH'"
+        label="Month"/>
+      
+      <UButton :color="view == 'WEEK' ? 'primary' : 'secondary'" 
+        :variant="view == 'WEEK' ? 'solid' : 'outline'" 
+        @click="view = 'WEEK'"
+        label="Week"/>
+      
+      <UButton :color="view == 'AGENDA' ? 'primary' : 'secondary'" 
+        :variant="view == 'AGENDA' ? 'solid' : 'outline'" 
+        @click="view = 'AGENDA'"
+        label="Agenda"/>
     </div>
+
 
     <!-- Render only on client to avoid SSR timezone flicker -->
     <ClientOnly>
@@ -37,19 +51,14 @@ import { ref, computed, onMounted } from 'vue'
 const props = defineProps({
   calendars: {
     type: Array,
-    default: () => ([
-      { id: 'your_calendar_id_1', label: 'Work',     color: '#4285F4' },
-      { id: 'your_calendar_id_2', label: 'Personal', color: '#34A853' },
-    ])
-  },
-  startOnMonday: { type: Boolean, default: true },
-  initialView:   { type: String,  default: 'MONTH' }
+    required: true,
+    default: () => []
+  }
 })
 
-const selectedId = ref(props.calendars[0]?.id || '')
-const view = ref(props.initialView)
+const selectedId = ref('')
+const view = ref('MONTH')
 const tz = ref('UTC')
-const lang = ref('en')
 
 onMounted(() => {
   // Client-only: detect timezone & language
@@ -57,27 +66,30 @@ onMounted(() => {
     tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
     lang.value = (navigator.language || 'en').split('-')[0]
   } catch (e) {}
+    if (props.defaultCalendarId) {
+    selectedId.value = props.defaultCalendarId
+  } else if (props.calendars.length > 0) {
+    selectedId.value = props.calendars[0].id
+  }
+})
+
+
+
+const selectItems = computed(() => {
+  // If your calendar objects use different keys, adapt here (e.g. name/id)
+  return props.calendars.map(c => ({ label: c.label, value: c.id }))
 })
 
 const iframeSrc = computed(() => {
+  if (!selectedId.value) return ''
   const params = new URLSearchParams()
   params.set('ctz', tz.value)
-  params.set('mode', view.value)
-  if (props.startOnMonday) params.set('wkst', '1')
-  params.set('bgcolor', '#ffffff')
+  params.set('mode', view.value)      // MONTH | WEEK | AGENDA
   params.set('showTitle', '0')
-  params.set('showPrint', '0')
   params.set('showTabs', '0')
-  params.set('showTz', '0')
-  params.set('hl', lang.value)
-
-  // Selected calendar
-  if (selectedId.value) {
-    params.append('src', selectedId.value)
-    const cal = props.calendars.find(c => c.id === selectedId.value)
-    if (cal?.color) params.append('color', cal.color) // color is paired with the last src
-  }
-
+  params.set('showPrint', '0')
+  params.set('bgcolor', '#ffffff')
+  params.append('src', selectedId.value)
   return `https://calendar.google.com/calendar/embed?${params.toString()}`
 })
 </script>

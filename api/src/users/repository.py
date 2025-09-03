@@ -7,6 +7,9 @@ from api.core.security import get_password_hash
 from api.src.users.models import User
 from api.src.users.schemas import UserCreate
 from api.src.enums import EnumUserRoles
+from api.src.leases.models import Lease
+from api.src.units.models import Unit
+from api.src.properties.models import Property
 
 logger = get_logger(__name__)
 
@@ -87,9 +90,16 @@ class UserRepository:
         Returns:
             List[User]: List of tenant users with status and location
         """
-        from api.src.leases.models import Lease
-        from api.src.units.models import Unit
-        from api.src.properties.models import Property
+        
+        # Subquery to check if user has any active leases
+        active_lease_subquery = (
+            select(func.count(Lease.id))
+            .where(
+                Lease.tenant_id == User.id,
+                Lease.is_active == True
+            )
+            .scalar_subquery()
+        )
         
         # Main query to get all tenants
         query = (
@@ -143,9 +153,6 @@ class UserRepository:
         Returns:
             List[User]: List of tenant users with their lease status and current location
         """
-        from api.src.leases.models import Lease
-        from api.src.units.models import Unit
-        from api.src.properties.models import Property
         
         # Query to get all tenants who have leases in units belonging to properties owned by owner_id
         query = (
