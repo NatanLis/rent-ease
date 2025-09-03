@@ -27,16 +27,20 @@ async def register(
     return await UserService(session).create_user(user_data)
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=dict)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_session),
-) -> Token:
+) -> dict:
     """Authenticate user and return token."""
     login_data = LoginData(email=form_data.username, password=form_data.password)
     logger.debug(f"Login attempt: {login_data.email}")
-    return await UserService(session).authenticate(login_data)
-
+    token: Token = await UserService(session).authenticate(login_data)
+    user: User = await UserService(session).get_user_by_email(login_data.email)
+    return {
+        "user": UserResponse.model_validate(user),
+        "token": token
+    }
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(user: User = Depends(get_current_user)) -> UserResponse:
