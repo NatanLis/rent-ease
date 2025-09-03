@@ -4,7 +4,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 const toast = useToast()
 const { setToken, getToken } = useAuth()
-
+const { setUser } = useUser()
 const fields = [{
   name: 'email',
   type: 'text' as const,
@@ -47,12 +47,11 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   const res = await logIn(payload.data.email, payload.data.password)
-  if (res?.access_token) {
-    // Save in localStorage
-    // localStorage.setItem('access_token', res.access_token)
-    // localStorage.setItem('token_type', res.token_type ?? 'bearer')
-    setToken(res.access_token)
+  if (res?.token.access_token) {
+    setToken(res.token.access_token)
+    setUser(res.user)
     navigateTo('/home')
+  }
 }
 
 async function logIn(username: string, password: string) {
@@ -85,7 +84,7 @@ async function logIn(username: string, password: string) {
   }
 }
 
-onMounted(() => {
+onBeforeMount(() => {
   if (getToken()) {
     // User is already logged in
     navigateTo('/home')
@@ -94,7 +93,7 @@ onMounted(() => {
 
 definePageMeta({
   layout: 'landing'
-})}
+})
 </script>
 
 <template>
