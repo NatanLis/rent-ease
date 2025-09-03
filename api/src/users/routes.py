@@ -8,7 +8,7 @@ from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
 from api.src.users.models import User
-from api.src.users.schemas import LoginData, Token, UserCreate, UserResponse
+from api.src.users.schemas import LoginData, Token, UserCreate, UserResponse, LoginResponse
 from api.src.users.service import UserService
 
 logger = get_logger(__name__)
@@ -27,11 +27,11 @@ async def register(
     return await UserService(session).create_user(user_data)
 
 
-@router.post("/login", response_model=dict)
+@router.post("/login", response_model=LoginResponse)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_session),
-) -> dict:
+) -> LoginResponse:
     """Authenticate user and return token."""
     login_data = LoginData(email=form_data.username, password=form_data.password)
     logger.debug(f"Login attempt: {login_data.email}")
