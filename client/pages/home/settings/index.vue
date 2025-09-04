@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 const fileRef = ref<HTMLInputElement>()
+const isUploading = ref(false)
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Too short'),
@@ -21,25 +22,105 @@ const profile = reactive<Partial<ProfileSchema>>({
   avatar: undefined,
   bio: undefined
 })
+
 const toast = useToast()
+
 async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
-  toast.add({
-    title: 'Success',
-    description: 'Your settings have been updated.',
-    icon: 'i-lucide-check',
-    color: 'success'
-  })
-  console.log(event.data)
+  try {
+    // Here you would send the profile data to your backend
+    // For now, just show success message
+    toast.add({
+      title: 'Success',
+      description: 'Your settings have been updated.',
+      icon: 'i-lucide-check',
+      color: 'success'
+    })
+    console.log(event.data)
+  } catch (error) {
+    toast.add({
+      title: 'Error',
+      description: 'Failed to update settings.',
+      icon: 'i-lucide-x',
+      color: 'red'
+    })
+  }
 }
 
-function onFileChange(e: Event) {
+async function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement
 
   if (!input.files?.length) {
     return
   }
 
-  profile.avatar = URL.createObjectURL(input.files[0]!)
+  const file = input.files[0]
+  
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+  if (!allowedTypes.includes(file.type)) {
+    toast.add({
+      title: 'Invalid file type',
+      description: 'Only JPG, PNG, and GIF files are allowed.',
+      icon: 'i-lucide-x',
+      color: 'red'
+    })
+    return
+  }
+
+  // Validate file size (1MB max)
+  const maxSize = 1024 * 1024 // 1MB
+  if (file.size > maxSize) {
+    toast.add({
+      title: 'File too large',
+      description: 'Maximum file size is 1MB.',
+      icon: 'i-lucide-x',
+      color: 'red'
+    })
+    return
+  }
+
+  isUploading.value = true
+
+  try {
+    // Create FormData for upload
+    const formData = new FormData()
+    formData.append('file', file)
+
+    // Upload to backend
+    const response = await $fetch('/api/profile-pictures/upload', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-User-ID': '1' // TODO: Get from auth context
+      }
+    })
+
+    if (response.success) {
+      // Update profile with new avatar URL
+      profile.avatar = response.profilePicture.url
+      
+      toast.add({
+        title: 'Success',
+        description: 'Profile picture uploaded successfully.',
+        icon: 'i-lucide-check',
+        color: 'success'
+      })
+    }
+  } catch (error) {
+    console.error('Upload error:', error)
+    toast.add({
+      title: 'Upload failed',
+      description: 'Failed to upload profile picture. Please try again.',
+      icon: 'i-lucide-x',
+      color: 'red'
+    })
+  } finally {
+    isUploading.value = false
+    // Clear the input
+    if (input) {
+      input.value = ''
+    }
+  }
 }
 
 function onFileClick() {
@@ -128,7 +209,9 @@ definePageMeta({
             size="lg"
           />
           <UButton
-            label="Choose"
+            :label="isUploading ? 'Uploading...' : 'Choose'"
+            :loading="isUploading"
+            :disabled="isUploading"
             color="neutral"
             @click="onFileClick"
           />
@@ -137,6 +220,7 @@ definePageMeta({
             type="file"
             class="hidden"
             accept=".jpg, .jpeg, .png, .gif"
+            :disabled="isUploading"
             @change="onFileChange"
           >
         </div>

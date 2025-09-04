@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import func
 
 
 # revision identifiers, used by Alembic.
@@ -27,6 +28,8 @@ def upgrade() -> None:
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('monthly_rent', sa.Float(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['property_id'], ['properties.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('property_id', 'name', name='uq_unit_name_per_property')
@@ -41,7 +44,7 @@ def upgrade() -> None:
         sa.Column('start_date', sa.Date(), nullable=False),
         sa.Column('end_date', sa.Date(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=func.now(), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['tenant_id'], ['users.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['unit_id'], ['units.id'], ondelete='CASCADE'),

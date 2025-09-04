@@ -39,6 +39,8 @@ class UserRepository:
 
         # Create user
         user = User(
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
             email=user_data.email,
             hashed_password=get_password_hash(user_data.password),
             role=user_data.role
@@ -83,6 +85,35 @@ class UserRepository:
         query = select(User).where(User.email == email)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_all_users(self, role: str = None) -> list[User]:
+        """Get all users, optionally filtered by role.
+
+        Args:
+            role: Optional role filter (ADMIN, OWNER, TENANT)
+
+        Returns:
+            List[User]: List of users
+        """
+        query = select(User)
+        
+        if role:
+            # Convert string role to enum
+            role_enum = None
+            if role.upper() == "ADMIN":
+                role_enum = EnumUserRoles.ADMIN
+            elif role.upper() == "OWNER":
+                role_enum = EnumUserRoles.OWNER
+            elif role.upper() == "TENANT":
+                role_enum = EnumUserRoles.TENANT
+            
+            if role_enum:
+                query = query.where(User.role == role_enum)
+        
+        query = query.order_by(User.email)
+        
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
 
     async def get_all_tenants_with_status(self) -> list[User]:
         """Get all tenant users with their lease status and current location.

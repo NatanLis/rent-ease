@@ -182,6 +182,35 @@ const customers: User[] = [{
   location: 'London, UK'
 }]
 
+// Fetch customers from backend
+async function fetchCustomers() {
+  try {
+    const response = await fetch('http://localhost:8000/users/?role=OWNER')
+    if (!response.ok) {
+      throw new Error('Failed to fetch customers')
+    }
+    const users = await response.json()
+    
+    // Transform backend data to frontend format
+    return users.map((user: any) => ({
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`,
+      email: user.email,
+      avatar: user.profile_picture_id ? {
+        src: `http://localhost:8000/profile-pictures/${user.profile_picture_id}`
+      } : {
+        src: `https://i.pravatar.cc/128?u=${user.id}`
+      },
+      status: user.is_active ? 'active' : 'inactive',
+      location: 'Poland' // Default location since it's not in backend
+    }))
+  } catch (error) {
+    console.error('Error fetching customers from backend:', error)
+    // Fallback to mock data if backend is not available
+    return customers
+  }
+}
+
 export default eventHandler(async () => {
-  return customers
+  return await fetchCustomers()
 })

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from api.core.database import Base
 
@@ -14,6 +15,9 @@ class Property(Base):
     price = Column(Float)
 
     owner_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    
     owner = relationship("User", back_populates="properties")
     units = relationship("Unit", back_populates="property", cascade="all, delete-orphan")
 

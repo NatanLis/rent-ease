@@ -1,6 +1,7 @@
 import json
 import asyncio
 import os
+import mimetypes
 from datetime import datetime, date
 from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,7 +56,7 @@ async def load_files(session: AsyncSession):
                 file_size = len(file_data)
                 
                 await session.execute(text("""
-                    INSERT INTO files (filename, mimetype, size, data, uploaded_at)
+                    INSERT INTO files (filename, mimetype, size, data, created_at)
                     VALUES (:filename, :mimetype, :size, :data, NOW())
                 """), {
                     'filename': file_config['filename'],
@@ -95,13 +96,18 @@ async def load_seeds():
             
             for user_data in users_data:
                 await session.execute(text("""
-                    INSERT INTO users (email, hashed_password, role) 
-                    VALUES (:email, :password, :role)
+                    INSERT INTO users (email, hashed_password, first_name, last_name, username, role, is_active, created_at) 
+                    VALUES (:email, :password, :first_name, :last_name, :username, :role, :is_active, :created_at)
                     ON CONFLICT (email) DO NOTHING
                 """), {
                     'email': user_data['email'],
                     'password': get_password_hash(user_data['password']),
-                    'role': user_data['role']
+                    'first_name': user_data['first_name'],
+                    'last_name': user_data['last_name'],
+                    'username': user_data['username'],
+                    'role': user_data['role'],
+                    'is_active': user_data.get('is_active', True),  # Default to active if not specified
+                    'created_at': datetime.fromisoformat(user_data.get('created_at', datetime.now().isoformat()).replace('Z', '+00:00'))
                 })
             
             await session.commit()
@@ -156,7 +162,10 @@ async def load_seeds():
             with open('tests/seeds/units_test_data.json', 'r') as f:
                 units_data = json.load(f)
             
+            print(f"   📊 Found {len(units_data)} units to load")
+            
             for unit_data in units_data:
+                print(f"   🔍 Processing unit: {unit_data['name']} for property: {unit_data['property_title']}")
                 # Check if property exists by title
                 property_check = await session.execute(text("""
                     SELECT id FROM properties WHERE title = :property_title

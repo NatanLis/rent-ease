@@ -14,4 +14,5 @@ class File(Base):
     mimetype = Column(String, nullable=False)
     size = Column(Integer, nullable=False)
     data = Column(LargeBinary, nullable=False)
-    uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)

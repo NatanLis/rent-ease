@@ -104,9 +104,38 @@ const tenants: User[] = [
   }
 ]
 
+// Fetch tenants from backend
+async function fetchTenants() {
+  try {
+    const response = await fetch('http://localhost:8000/users/?role=TENANT')
+    if (!response.ok) {
+      throw new Error('Failed to fetch tenants')
+    }
+    const users = await response.json()
+    
+    // Transform backend data to frontend format
+    return users.map((user: any) => ({
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`,
+      email: user.email,
+      avatar: user.profile_picture_id ? {
+        src: `http://localhost:8000/profile-pictures/${user.profile_picture_id}`
+      } : {
+        src: `https://i.pravatar.cc/128?u=${user.id}`
+      },
+      status: user.is_active ? 'active' : 'inactive',
+      location: 'Poland' // Default location since it's not in backend
+    }))
+  } catch (error) {
+    console.error('Error fetching tenants from backend:', error)
+    // Fallback to mock data if backend is not available
+    return tenants
+  }
+}
+
 export default eventHandler(async () => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return tenants
+  return await fetchTenants()
 })

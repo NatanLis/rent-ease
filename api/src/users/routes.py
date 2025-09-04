@@ -1,6 +1,6 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -95,3 +95,27 @@ async def get_leases_for_owner(
         leases = await UserService(session).get_leases_for_owner(current_user.id)
     
     return leases
+
+
+# Add a new router for general user operations
+users_router = APIRouter(prefix="/users", tags=["users"])
+
+
+@users_router.get("/", response_model=list[UserResponse])
+async def get_all_users(
+    role: Optional[str] = Query(None, description="Filter by role (ADMIN, OWNER, TENANT)"),
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> list[UserResponse]:
+    """Get all users, optionally filtered by role."""
+    logger.debug(f"Getting all users with role filter: {role}")
+    
+    # Only admin can view all users
+    if current_user.role != "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    users = await UserService(session).get_all_users(role)
+    return [UserResponse.model_validate(user) for user in users]

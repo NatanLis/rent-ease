@@ -5,14 +5,14 @@ import { getPaginationRowModel, type Row } from '@tanstack/table-core'
 
 interface AdminUser {
   id: number
-  name: string
+  firstName: string
+  lastName: string
   email: string
   role: 'ADMIN' | 'OWNER' | 'TENANT'
   status: 'active' | 'inactive'
   avatar?: {
     src: string
   }
-  location: string
   createdAt: string
 }
 
@@ -120,16 +120,17 @@ const columns: TableColumn<AdminUser>[] = [
     header: 'ID'
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'firstName',
     header: 'Name',
     cell: ({ row }) => {
+      const fullName = `${row.original.firstName} ${row.original.lastName}`
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
           ...row.original.avatar,
           size: 'lg'
         }),
         h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, fullName),
           h('p', { class: 'text-sm text-(--ui-text-muted)' }, row.original.email)
         ])
       ])
@@ -176,11 +177,6 @@ const columns: TableColumn<AdminUser>[] = [
         displayStatus
       )
     }
-  },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => row.original.location
   },
   {
     accessorKey: 'createdAt',
