@@ -1,165 +1,159 @@
+<!-- components/InboxMail.vue -->
 <script setup lang="ts">
-import { format } from 'date-fns'
-import type { Mail } from '~/types'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import type { Mail, Message } from '~/types';
 
-defineProps<{
-  mail: Mail
-}>()
+const props = defineProps<{ mail: Mail }>();
+const emit = defineEmits<{ (e: 'close'): void }>();
 
-const emits = defineEmits(['close'])
+const messages = ref<Message[]>(props.mail?.messages ?? []);
+const replyText = ref('');
+const sending = ref(false);
+const scroller = ref<HTMLElement | null>(null);
+let pollTimer: number | null = null;
 
-const dropdownItems = [[{
-  label: 'Mark as unread',
-  icon: 'i-lucide-check-circle'
-}, {
-  label: 'Mark as important',
-  icon: 'i-lucide-triangle-alert'
-}], [{
-  label: 'Star thread',
-  icon: 'i-lucide-star'
-}, {
-  label: 'Mute thread',
-  icon: 'i-lucide-circle-pause'
-}]]
+watch(() => props.mail, (m) => {
+  messages.value = m?.messages ?? [];
+}, { immediate: true, deep: true });
 
-const toast = useToast()
+function scrollToBottom() {
+  nextTick(() => {
+    if (scroller.value) scroller.value.scrollTop = scroller.value.scrollHeight;
+  });
+}
+onMounted(scrollToBottom);
+watch(messages, scrollToBottom, { deep: true });
 
-const reply = ref('')
-const loading = ref(false)
+async function refreshThread() {
+  try {
+    const all = await $fetch<Mail[]>('/api/mails');
+    const latest = all.find(m => m.id === props.mail.id);
+    if (latest?.messages) {
+      messages.value = latest.messages as Message[];
+    }
+  } catch (e) {
+    console.error('Polling inbox failed', e);
+  }
+}
 
-function onSubmit() {
-  loading.value = true
+onMounted(() => {
+  pollTimer = window.setInterval(refreshThread, 3000);
+});
 
-  setTimeout(() => {
-    reply.value = ''
+onBeforeUnmount(() => {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+});
 
-    toast.add({
-      title: 'Email sent',
-      description: 'Your email has been sent successfully',
-      icon: 'i-lucide-check-circle',
-      color: 'success'
-    })
+function getReplyTo(): string {
+  const list = messages.value;
+  if (list && list.length) {
+    const last = list[list.length - 1];
+    // Reply to the other party of the last message
+    return last.isOutgoing ? (last.to || '') : (last.from || '');
+  }
+  // Fallback: top-level 'from' is typically the other participant
+  if (props.mail.from?.email) return props.mail.from.email;
+  if (props.mail.participants?.length) return props.mail.participants[0];
+  return '';
+}
 
-    loading.value = false
-  }, 1000)
+async function sendReply() {
+  const text = replyText.value.trim();
+  if (!text) return;
+
+  const to = getReplyTo();
+  if (!to) {
+    alert('No reply recipient found for this thread.');
+    return;
+  }
+
+  sending.value = true;
+  try {
+    const res = await $fetch('/api/send-mail', {
+      method: 'POST',
+      body: {
+        to,
+        subject: `Re: ${props.mail.subject || ''}`,
+        text,
+        mailId: props.mail.id
+      }
+    });
+
+    if (res?.message) {
+      messages.value.push(res.message as Message);
+    } else {
+      // optimistic fallback
+      messages.value.push({
+        id: `local-${Date.now()}`,
+        from: 'noreply',
+        to,
+        text,
+        date: new Date().toISOString(),
+        isOutgoing: true,
+        subject: `Re: ${props.mail.subject || ''}`
+      });
+    }
+    replyText.value = '';
+  } catch (e) {
+    console.error('Send failed', e);
+    alert('Failed to send. Check server logs and .env credentials.');
+  } finally {
+    sending.value = false;
+    scrollToBottom();
+  }
 }
 </script>
 
 <template>
-  <UDashboardPanel id="inbox-2">
-    <UDashboardNavbar :title="mail.subject" :toggle="false">
-      <template #leading>
-        <UButton
-          icon="i-lucide-x"
-          color="neutral"
-          variant="ghost"
-          class="-ms-1.5"
-          @click="emits('close')"
-        />
-      </template>
-
-      <template #right>
-        <UTooltip text="Archive">
-          <UButton
-            icon="i-lucide-inbox"
-            color="neutral"
-            variant="ghost"
-          />
-        </UTooltip>
-
-        <UTooltip text="Reply">
-          <UButton icon="i-lucide-reply" color="neutral" variant="ghost" />
-        </UTooltip>
-
-        <UDropdownMenu :items="dropdownItems">
-          <UButton
-            icon="i-lucide-ellipsis-vertical"
-            color="neutral"
-            variant="ghost"
-          />
-        </UDropdownMenu>
-      </template>
-    </UDashboardNavbar>
-
-    <div class="flex flex-col sm:flex-row justify-between gap-1 p-4 sm:px-6 border-b border-(--ui-border)">
-      <div class="flex items-start gap-4 sm:my-1.5">
-        <UAvatar
-          v-bind="mail.from.avatar"
-          :alt="mail.from.name"
-          size="3xl"
-        />
-
-        <div class="min-w-0">
-          <p class="font-semibold text-(--ui-text-highlighted)">
-            {{ mail.from.name }}
-          </p>
-          <p class="text-(--ui-text-muted)">
-            {{ mail.from.email }}
-          </p>
+  <div class="flex flex-col h-full flex-1 w-full border border-(--ui-border) rounded overflow-hidden bg-(--ui-bg)">
+    <!-- Header -->
+    <div class="px-4 py-3 border-b border-(--ui-border) flex items-center justify-between bg-(--ui-bg-elevated)">
+      <div>
+        <div class="font-semibold">{{ props.mail.subject }}</div>
+        <div class="text-xs text-gray-500">
+          <!-- Safe to read because we provided defaults in the data -->
+          <template v-if="props.mail.from">
+            From: {{ props.mail.from.name }} &lt;{{ props.mail.from.email }}&gt;
+          </template>
         </div>
       </div>
-
-      <p class="max-sm:pl-16 text-(--ui-text-muted) text-sm sm:mt-2">
-        {{ format(new Date(mail.date), 'dd MMM HH:mm') }}
-      </p>
+      <UButton color="primary" icon="i-lucide-x" @click="$emit('close')">
+        Close
+      </UButton>
     </div>
 
-    <div class="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <p class="whitespace-pre-wrap">
-        {{ mail.body }}
-      </p>
+    <!-- Messages -->
+    <div ref="scroller" class="flex-1 overflow-y-auto p-4 space-y-3 bg-(--ui-bg)">
+      <div v-for="m in messages" :key="m.id" class="flex">
+        <div
+          :class="[
+            'max-w-[70%] px-3 py-2 rounded-xl border break-words whitespace-pre-wrap text-sm',
+            m.isOutgoing
+              ? 'ml-auto bg-(--ui-primary)/10 border-(--ui-primary)/30 text-right text-(--ui-text)'
+              : 'mr-auto bg-(--ui-bg-elevated) border-(--ui-border) text-left text-(--ui-text)'
+          ]"
+        >
+          <div class="leading-relaxed">{{ m.text }}</div>
+          <div class="text-xs text-(--ui-text-dimmed) mt-1">{{ new Date(m.date).toLocaleString() }}</div>
+        </div>
+      </div>
     </div>
 
-    <div class="pb-4 px-4 sm:px-6 shrink-0">
-      <UCard variant="subtle" class="mt-auto" :ui="{ header: 'flex items-center gap-1.5 text-(--ui-text-dimmed)' }">
-        <template #header>
-          <UIcon name="i-lucide-reply" class="size-5" />
-
-          <span class="text-sm truncate">
-            Reply to {{ mail.from.name }} ({{ mail.from.email }})
-          </span>
-        </template>
-
-        <form @submit.prevent="onSubmit">
-          <UTextarea
-            v-model="reply"
-            color="neutral"
-            variant="none"
-            required
-            autoresize
-            placeholder="Write your reply..."
-            :rows="4"
-            :disabled="loading"
-            class="w-full"
-            :ui="{ base: 'p-0 resize-none' }"
-          />
-
-          <div class="flex items-center justify-between">
-            <UTooltip text="Attach file">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-paperclip"
-              />
-            </UTooltip>
-
-            <div class="flex items-center justify-end gap-2">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                label="Save draft"
-              />
-              <UButton
-                type="submit"
-                color="neutral"
-                :loading="loading"
-                label="Send"
-                icon="i-lucide-send"
-              />
-            </div>
-          </div>
-        </form>
-      </UCard>
-    </div>
-  </UDashboardPanel>
+    <!-- Composer -->
+    <form @submit.prevent="sendReply" class="border-t border-(--ui-border) px-3 py-3 flex gap-2 items-end bg-(--ui-bg-elevated)">
+      <UTextarea
+        v-model="replyText"
+        placeholder="Type a reply..."
+        :rows="2"
+        autoresize
+        class="flex-1"
+      />
+      <UButton type="submit" :loading="sending" :disabled="!replyText.trim()" icon="i-lucide-send" color="primary">
+        Send
+      </UButton>
+    </form>
+  </div>
 </template>

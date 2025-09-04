@@ -1,0 +1,78 @@
+[
+  {
+    "id": "thread-1",
+    "subject": "Welcome to the app",
+    "unread": false,
+    "from": {
+      "name": "Alice Johnson",
+      "email": "truetermsi@gmail.com"
+    },
+    "to": {
+      "name": "Your App",
+      "email": "rentease2137@gmail.com"
+    },
+    "preview": "haha",
+    "date": "2025-09-04T12:34:27.912Z",
+    "participants": [
+      "alice@example.com",
+      "noreply@example.com",
+      "truetermsi@gmail.com"
+    ],
+    "messages": [
+      {
+        "id": "m1",
+        "from": "truetermsi@gmail.com",
+        "to": "rentease2137@gmail.com",
+        "text": "Hi! How do I sign up?",
+        "date": "2025-08-30T10:00:00.000Z",
+        "isOutgoing": false,
+        "subject": "Welcome to the app"
+      },
+      {
+        "id": "msg-1756988609504-9502",
+        "from": "noreply@example.com",
+        "to": "truetermsi@gmail.com",
+        "text": "a",
+        "date": "2025-09-04T12:23:29.504Z",
+        "isOutgoing": true,
+        "subject": "Re: Welcome to the app"
+      },
+      {
+        "id": "msg-1756988637050-9706",
+        "from": "noreply@example.com",
+        "to": "truetermsi@gmail.com",
+        "text": "dupa",
+        "date": "2025-09-04T12:23:57.050Z",
+        "isOutgoing": true,
+        "subject": "Re: Welcome to the app"
+      },
+      {
+        "id": "msg-1756988819431-9029",
+        "from": "noreply@example.com",
+        "to": "truetermsi@gmail.com",
+        "text": "dawaj 5 złotych",
+        "date": "2025-09-04T12:26:59.431Z",
+        "isOutgoing": true,
+        "subject": "Re: Welcome to the app"
+      },
+      {
+        "id": "msg-1756989070423-4167",
+        "from": "noreply@example.com",
+        "to": "truetermsi@gmail.com",
+        "text": "aha to nieźle nawet nie odpowiesz",
+        "date": "2025-09-04T12:31:10.423Z",
+        "isOutgoing": true,
+        "subject": "Re: Welcome to the app"
+      },
+      {
+        "id": "msg-1756989267911-5739",
+        "from": "noreply@example.com",
+        "to": "truetermsi@gmail.com",
+        "text": "haha",
+        "date": "2025-09-04T12:34:27.911Z",
+        "isOutgoing": true,
+        "subject": "Re: Welcome to the app"
+      }
+    ]
+  }
+]
