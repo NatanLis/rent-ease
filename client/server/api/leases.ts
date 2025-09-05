@@ -1,4 +1,6 @@
-// Mock data for leases - based on the seeds from the database
+import { getHeader } from 'h3'
+
+// Mock data for leases - fallback if backend is not available
 const leases = [
   {
     id: 1,
@@ -12,155 +14,65 @@ const leases = [
     propertyTitle: 'Apartament w centrum',
     propertyAddress: 'ul. Główna 1, Warszawa',
     status: 'inactive'
-  },
-  {
-    id: 2,
-    unitId: 2,
-    tenantId: 2,
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    isActive: true,
-    tenantEmail: 'tenant2@example.com',
-    unitName: 'A2',
-    propertyTitle: 'Apartament w centrum',
-    propertyAddress: 'ul. Główna 1, Warszawa',
-    status: 'active'
-  },
-  {
-    id: 3,
-    unitId: 3,
-    tenantId: 3,
-    startDate: '2024-02-01',
-    endDate: '2025-01-31',
-    isActive: true,
-    tenantEmail: 'tenant3@example.com',
-    unitName: 'B1',
-    propertyTitle: 'Dom jednorodzinny',
-    propertyAddress: 'ul. Słoneczna 15, Kraków',
-    status: 'active'
-  },
-  {
-    id: 4,
-    unitId: 4,
-    tenantId: 4,
-    startDate: '2024-03-01',
-    endDate: '2025-02-28',
-    isActive: true,
-    tenantEmail: 'tenant4@example.com',
-    unitName: 'B2',
-    propertyTitle: 'Dom jednorodzinny',
-    propertyAddress: 'ul. Słoneczna 15, Kraków',
-    status: 'active'
-  },
-  {
-    id: 5,
-    unitId: 5,
-    tenantId: 5,
-    startDate: '2024-04-01',
-    endDate: '2025-03-31',
-    isActive: true,
-    tenantEmail: 'tenant5@example.com',
-    unitName: 'M1',
-    propertyTitle: 'Mieszkanie 3-pokojowe',
-    propertyAddress: 'ul. Parkowa 8, Gdańsk',
-    status: 'active'
-  },
-  {
-    id: 6,
-    unitId: 6,
-    tenantId: 6,
-    startDate: '2023-06-01',
-    endDate: '2024-05-31',
-    isActive: false,
-    tenantEmail: 'tenant6@example.com',
-    unitName: 'M2',
-    propertyTitle: 'Mieszkanie 3-pokojowe',
-    propertyAddress: 'ul. Parkowa 8, Gdańsk',
-    status: 'inactive'
-  },
-  {
-    id: 7,
-    unitId: 7,
-    tenantId: 7,
-    startDate: '2024-05-01',
-    endDate: '2025-04-30',
-    isActive: true,
-    tenantEmail: 'tenant7@example.com',
-    unitName: 'C1',
-    propertyTitle: 'Apartament premium',
-    propertyAddress: 'ul. Nowoczesna 25, Wrocław',
-    status: 'active'
-  },
-  {
-    id: 8,
-    unitId: 8,
-    tenantId: 8,
-    startDate: '2024-06-01',
-    endDate: '2025-05-31',
-    isActive: true,
-    tenantEmail: 'tenant8@example.com',
-    unitName: 'C2',
-    propertyTitle: 'Apartament premium',
-    propertyAddress: 'ul. Nowoczesna 25, Wrocław',
-    status: 'active'
-  },
-  {
-    id: 9,
-    unitId: 9,
-    tenantId: 9,
-    startDate: '2023-08-01',
-    endDate: '2024-07-31',
-    isActive: false,
-    tenantEmail: 'tenant9@example.com',
-    unitName: 'D1',
-    propertyTitle: 'Studio w centrum',
-    propertyAddress: 'ul. Studencka 10, Poznań',
-    status: 'inactive'
-  },
-  {
-    id: 10,
-    unitId: 10,
-    tenantId: 10,
-    startDate: '2024-07-01',
-    endDate: '2025-06-30',
-    isActive: true,
-    tenantEmail: 'tenant10@example.com',
-    unitName: 'D2',
-    propertyTitle: 'Studio w centrum',
-    propertyAddress: 'ul. Studencka 10, Poznań',
-    status: 'active'
-  },
-  {
-    id: 11,
-    unitId: 11,
-    tenantId: 1,
-    startDate: '2024-08-01',
-    endDate: '2025-07-31',
-    isActive: true,
-    tenantEmail: 'tenant1@example.com',
-    unitName: 'E1',
-    propertyTitle: 'Loft przemysłowy',
-    propertyAddress: 'ul. Fabryczna 5, Łódź',
-    status: 'active'
-  },
-  {
-    id: 12,
-    unitId: 12,
-    tenantId: 2,
-    startDate: '2023-09-01',
-    endDate: '2024-08-31',
-    isActive: false,
-    tenantEmail: 'tenant2@example.com',
-    unitName: 'E2',
-    propertyTitle: 'Loft przemysłowy',
-    propertyAddress: 'ul. Fabryczna 5, Łódź',
-    status: 'inactive'
   }
 ]
 
-export default eventHandler(async () => {
+// Fetch leases from backend
+async function fetchLeases(event: any) {
+  // Get auth token from headers
+  const authHeader = getHeader(event, 'authorization')
+  
+  try {
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    const response = await fetch('http://localhost:8000/api/leases/', {
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch leases: ${response.status} ${response.statusText}`)
+    }
+    
+    const backendLeases = await response.json()
+    console.log('Backend leases response:', JSON.stringify(backendLeases, null, 2))
+    
+    // Transform backend data to frontend format
+    return backendLeases.map((lease: any) => ({
+      id: lease.id,
+      unitId: lease.unit_id,
+      tenantId: lease.tenant_id,
+      startDate: lease.start_date,
+      endDate: lease.end_date,
+      isActive: lease.is_active,
+      tenantEmail: lease.user?.email || 'unknown@example.com',
+      unitName: lease.unit?.name || `Unit ${lease.unit_id}`,
+      propertyTitle: lease.unit?.property?.title || `Property ${lease.unit?.property_id}`,
+      propertyAddress: lease.unit?.property?.address || 'Unknown address',
+      status: lease.is_active ? 'active' : 'inactive',
+      avatar: lease.user?.avatar_url ? {
+        src: `http://localhost:8000${lease.user.avatar_url}`
+      } : {
+        src: `https://i.pravatar.cc/128?u=${lease.tenant_id}`
+      }
+    }))
+  } catch (error) {
+    console.error('Error fetching leases from backend:', error)
+    console.error('Error details:', error)
+    console.log('Auth header:', authHeader)
+    console.log('Falling back to mock data')
+    // Fallback to mock data if backend is not available
+    return leases
+  }
+}
+
+export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return leases
+  return await fetchLeases(event)
 })
