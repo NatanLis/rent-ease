@@ -19,8 +19,6 @@ class Property(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     
     owner = relationship("User", back_populates="properties")
-    units = relationship("Unit", back_populates="property", cascade="all, delete-orphan")
-
     units = relationship(
         "Unit",
         back_populates="property",

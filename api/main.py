@@ -40,7 +40,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(properties_router)
-app.include_router(leases_router)
+app.include_router(leases_router, prefix="/api")
 app.include_router(units_router)
 app.include_router(files_router)
 app.include_router(profile_pictures_router, prefix="/api")

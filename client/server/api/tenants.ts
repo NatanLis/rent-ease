@@ -1,4 +1,5 @@
 import type { User } from '~/types'
+import { getHeader } from 'h3'
 
 // Mock data for tenants - based on the seeds from the database
 const tenants: User[] = [
@@ -105,12 +106,25 @@ const tenants: User[] = [
 ]
 
 // Fetch tenants from backend
-async function fetchTenants() {
+async function fetchTenants(event: any) {
   try {
-    const response = await fetch('http://localhost:8000/users/?role=TENANT')
-    if (!response.ok) {
-      throw new Error('Failed to fetch tenants')
+    // Get auth token from headers
+    const authHeader = getHeader(event, 'authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
     }
+
+    const response = await fetch('http://localhost:8000/users/?role=tenant', {
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch tenants: ${response.status} ${response.statusText}`)
+    }
+    
     const users = await response.json()
     
     // Transform backend data to frontend format
@@ -118,24 +132,25 @@ async function fetchTenants() {
       id: user.id,
       name: `${user.first_name} ${user.last_name}`,
       email: user.email,
-      avatar: user.profile_picture_id ? {
-        src: `http://localhost:8000/profile-pictures/${user.profile_picture_id}`
-      } : {
-        src: `https://i.pravatar.cc/128?u=${user.id}`
-      },
+      avatar: user.avatar_url ? {
+        src: `http://localhost:8000${user.avatar_url}`
+      } : undefined, // Will show fallback icon
       status: user.is_active ? 'active' : 'inactive',
-      location: 'Poland' // Default location since it's not in backend
+      location: user.location || 'Poland' // Use location from backend or default
     }))
   } catch (error) {
     console.error('Error fetching tenants from backend:', error)
+    console.error('Error details:', error)
+    console.log('Auth header:', authHeader)
+    console.log('Falling back to mock data')
     // Fallback to mock data if backend is not available
     return tenants
   }
 }
 
-export default eventHandler(async () => {
+export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return await fetchTenants()
+  return await fetchTenants(event)
 })
