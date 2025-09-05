@@ -64,7 +64,7 @@ async function logIn(username: string, password: string) {
       client_id: 'string',
       client_secret: '********'
     })
-    const response = await fetch('http://localhost:8000/auth/login', {
+    const response = await fetch('api/auth/login', {
       method: 'POST',
       headers: {
         'accept': 'application/json',

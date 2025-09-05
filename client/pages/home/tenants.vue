@@ -20,7 +20,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<User[]>('/api/tenants', {
+const { data, status } = await useFetch<User[]>('/mock/tenants', {
   lazy: true
 })
 

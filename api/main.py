@@ -21,6 +21,7 @@ run_migrations()
 logger = get_logger(__name__)
 
 app = FastAPI(
+    root_path="/api",
     title=settings.PROJECT_NAME,
     debug=settings.DEBUG,
 )

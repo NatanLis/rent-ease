@@ -46,9 +46,9 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   // signUp(payload.email, payload.password)
-  console.log('Submitted', payload.data.email, payload.data.password)
+  // console.log('Submitted', payload.data.email, payload.data.password)
   const dupa = await signUp(payload.data.email, payload.data.password)
-  console.log('Response from signUp:', dupa)
+  // console.log('Response from signUp:', dupa)
 }
 
 async function signUp(username: string, password: string) {
@@ -61,7 +61,7 @@ async function signUp(username: string, password: string) {
       client_id: 'string',
       client_secret: '********'
     })
-    const response = await fetch('http://localhost:8000/auth/login', {
+    const response = await fetch('api/auth/login', {
       method: 'POST',
       headers: {
         'accept': 'application/json',
