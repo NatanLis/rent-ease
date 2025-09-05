@@ -32,7 +32,7 @@ export async function appendMessageToThread(mailId: string, msg: Message, thread
     // Create a minimal new thread if missing
     const newThread: Mail = {
       id: mailId,
-      subject: msg.subject || 'No subject',
+      subject: threadSeed?.to?.name || msg.subject || 'No subject',
       unread: false,
       from: threadSeed?.from || { name: 'You', email: process.env.SMTP_USER || '' },
       to:   threadSeed?.to   || { name: '',     email: msg.to },

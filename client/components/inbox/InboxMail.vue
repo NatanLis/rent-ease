@@ -4,13 +4,14 @@ import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import type { Mail, Message } from '~/types';
 
 const props = defineProps<{ mail: Mail }>();
-const emit = defineEmits<{ (e: 'close'): void }>();
+const emit = defineEmits<{ (e: 'close'): void; (e: 'deleted'): void }>();
 
 const messages = ref<Message[]>(props.mail?.messages ?? []);
 const replyText = ref('');
 const sending = ref(false);
 const scroller = ref<HTMLElement | null>(null);
 let pollTimer: number | null = null;
+let es: EventSource | null = null;
 
 watch(() => props.mail, (m) => {
   messages.value = m?.messages ?? [];
@@ -24,27 +25,31 @@ function scrollToBottom() {
 onMounted(scrollToBottom);
 watch(messages, scrollToBottom, { deep: true });
 
-async function refreshThread() {
+function startSSE() {
   try {
-    const all = await $fetch<Mail[]>('/api/mails');
-    const latest = all.find(m => m.id === props.mail.id);
-    if (latest?.messages) {
-      messages.value = latest.messages as Message[];
-    }
+    if (es) es.close();
+    es = new EventSource(`/api/chat/stream?threadId=${encodeURIComponent(String(props.mail.id))}`);
+    es.addEventListener('message', (evt: MessageEvent) => {
+      try {
+        const data = JSON.parse(evt.data) as Message;
+        // only push if it's for this thread and not duplicate
+        if (!messages.value.find(m => m.id === (data as any).id)) {
+          messages.value.push(data);
+        }
+      } catch (_) {}
+    });
   } catch (e) {
-    console.error('Polling inbox failed', e);
+    console.error('SSE connection failed', e);
   }
 }
 
 onMounted(() => {
-  pollTimer = window.setInterval(refreshThread, 3000);
+  startSSE();
 });
 
 onBeforeUnmount(() => {
-  if (pollTimer) {
-    clearInterval(pollTimer);
-    pollTimer = null;
-  }
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (es) { es.close(); es = null; }
 });
 
 function getReplyTo(): string {
@@ -72,37 +77,50 @@ async function sendReply() {
 
   sending.value = true;
   try {
-    const res = await $fetch('/api/send-mail', {
+    // optimistic add
+    const optimistic: Message = {
+      id: `local-${Date.now()}`,
+      from: 'agent@noreply',
+      to,
+      text,
+      date: new Date().toISOString(),
+      isOutgoing: true,
+      subject: `Re: ${props.mail.subject || ''}`
+    }
+    messages.value.push(optimistic);
+
+    await $fetch('/api/chat/messages', {
       method: 'POST',
       body: {
-        to,
-        subject: `Re: ${props.mail.subject || ''}`,
+        threadId: props.mail.id,
         text,
-        mailId: props.mail.id
+        senderEmail: 'agent@noreply',
+        recipientEmail: to,
+        subject: `Re: ${props.mail.subject || ''}`
       }
     });
-
-    if (res?.message) {
-      messages.value.push(res.message as Message);
-    } else {
-      // optimistic fallback
-      messages.value.push({
-        id: `local-${Date.now()}`,
-        from: 'noreply',
-        to,
-        text,
-        date: new Date().toISOString(),
-        isOutgoing: true,
-        subject: `Re: ${props.mail.subject || ''}`
-      });
-    }
     replyText.value = '';
   } catch (e) {
     console.error('Send failed', e);
-    alert('Failed to send. Check server logs and .env credentials.');
+    alert('Failed to send.');
   } finally {
     sending.value = false;
     scrollToBottom();
+  }
+}
+
+async function deleteChat() {
+  if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+    return
+  }
+  
+  try {
+    await $fetch(`/api/chat/${props.mail.id}`, { method: 'DELETE' })
+    emit('deleted')
+    emit('close')
+  } catch (e) {
+    console.error('Failed to delete chat', e)
+    alert('Failed to delete chat')
   }
 }
 </script>
@@ -112,17 +130,21 @@ async function sendReply() {
     <!-- Header -->
     <div class="px-4 py-3 border-b border-(--ui-border) flex items-center justify-between bg-(--ui-bg-elevated)">
       <div>
-        <div class="font-semibold">{{ props.mail.subject }}</div>
-        <div class="text-xs text-gray-500">
-          <!-- Safe to read because we provided defaults in the data -->
-          <template v-if="props.mail.from">
-            From: {{ props.mail.from.name }} &lt;{{ props.mail.from.email }}&gt;
-          </template>
+        <div class="font-semibold">
+          {{ props.mail.to?.name || props.mail.to?.email || props.mail.subject || 'Conversation' }}
+        </div>
+        <div v-if="props.mail.to?.email" class="text-xs text-(--ui-text-dimmed)">
+          {{ props.mail.to.email }}
         </div>
       </div>
-      <UButton color="primary" icon="i-lucide-x" @click="$emit('close')">
-        Close
-      </UButton>
+      <div class="flex gap-2">
+        <UButton color="primary" icon="i-lucide-trash-2" @click="deleteChat">
+          Delete
+        </UButton>
+        <UButton color="primary" icon="i-lucide-x" @click="$emit('close')">
+          Close
+        </UButton>
+      </div>
     </div>
 
     <!-- Messages -->
@@ -146,7 +168,7 @@ async function sendReply() {
     <form @submit.prevent="sendReply" class="border-t border-(--ui-border) px-3 py-3 flex gap-2 items-end bg-(--ui-bg-elevated)">
       <UTextarea
         v-model="replyText"
-        placeholder="Type a reply..."
+        placeholder="Type a message..."
         :rows="2"
         autoresize
         class="flex-1"

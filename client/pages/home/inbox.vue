@@ -21,6 +21,9 @@ const { data: mails, refresh: refreshMails, error: mailsError } = await useFetch
 // ↓ Temporary safeguard
 const safeMails = computed(() => mails.value ?? [])
 
+// Total chat rooms count for badge
+const totalRooms = computed(() => safeMails.value.length)
+
 // Filter mails based on the selected tab
 const filteredMails = computed(() => {
   const list = safeMails.value
@@ -107,6 +110,32 @@ const isMobile = breakpoints.smaller('lg')
 definePageMeta({
   layout: 'dashboard',
 })
+
+async function createThread() {
+  try {
+    const participantEmail = prompt('Recipient email (required):')?.trim()
+    if (!participantEmail) return
+    const participantName = prompt('Recipient name (optional):')?.trim()
+    const subject = prompt('Conversation subject (optional):')?.trim() || 'New conversation'
+
+    const res = await $fetch('/api/chat/new', {
+      method: 'POST',
+      body: { subject, participantEmail, participantName }
+    })
+    if (res && (res as any).thread) {
+      await refreshMails()
+      const created = mails.value?.find(m => m.id === (res as any).thread.id)
+      if (created) selectedMail.value = created
+    }
+  } catch (e) {
+    console.error('Failed to create thread', e)
+  }
+}
+
+function handleChatDeleted() {
+  selectedMail.value = null
+  refreshMails()
+}
 </script>
 
 <template>
@@ -122,10 +151,11 @@ definePageMeta({
           <UDashboardSidebarCollapse />
         </template>
         <template #trailing>
-          <UBadge :label="filteredMails.length" variant="subtle" />
+          <UBadge :label="totalRooms" variant="subtle" />
         </template>
 
         <template #right>
+          <UButton size="xs" icon="i-lucide-plus" @click="createThread">New Chat</UButton>
           <UTabs
             v-model="selectedTab"
             :items="tabItems"
@@ -138,7 +168,7 @@ definePageMeta({
       <InboxList v-model="selectedMail" :mails="filteredMails" />
     </UDashboardPanel>
 
-    <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
+    <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" @deleted="handleChatDeleted" />
 
     <div v-else class="hidden lg:flex flex-1 items-center justify-center">
       <UIcon name="i-lucide-inbox" class="size-32 text-(--ui-text-dimmed)" />
@@ -147,7 +177,7 @@ definePageMeta({
     <ClientOnly>
       <USlideover v-if="isMobile" v-model:open="isMailPanelOpen">
         <template #content>
-          <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
+          <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" @deleted="handleChatDeleted" />
         </template>
       </USlideover>
     </ClientOnly>
