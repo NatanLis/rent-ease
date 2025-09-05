@@ -12,20 +12,25 @@
     <div class="gc__toolbar">
 
       <UButton
+        label="Month"
         :color="view == 'MONTH' ? 'primary' : 'secondary'"
         :variant="view == 'MONTH' ? 'solid' : 'outline'"
         @click="view = 'MONTH'"
-        label="Month"/>
+      />
 
-      <UButton :color="view == 'WEEK' ? 'primary' : 'secondary'"
+      <UButton
+        label="Week"
+        :color="view == 'WEEK' ? 'primary' : 'secondary'"
         :variant="view == 'WEEK' ? 'solid' : 'outline'"
         @click="view = 'WEEK'"
-        label="Week"/>
+      />
 
-      <UButton :color="view == 'AGENDA' ? 'primary' : 'secondary'"
+      <UButton
+        label="Agenda"
+        :color="view == 'AGENDA' ? 'primary' : 'secondary'"
         :variant="view == 'AGENDA' ? 'solid' : 'outline'"
         @click="view = 'AGENDA'"
-        label="Agenda"/>
+      />
     </div>
 
 
@@ -65,8 +70,11 @@ onMounted(() => {
   try {
     tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
     lang.value = (navigator.language || 'en').split('-')[0]
-  } catch (e) {}
-    if (props.defaultCalendarId) {
+  } catch (_e) {
+    console.error('Error detecting timezone/language:', _e)
+  }
+
+  if (props.defaultCalendarId) {
     selectedId.value = props.defaultCalendarId
   } else if (props.calendars.length > 0) {
     selectedId.value = props.calendars[0].id

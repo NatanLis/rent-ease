@@ -281,7 +281,7 @@ definePageMeta({
           class="max-w-sm"
           icon="i-lucide-search"
           placeholder="Filter emails..."
-          @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
+          @update:modelValue="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
@@ -363,7 +363,7 @@ definePageMeta({
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="data ?? undefined"
         :columns="columns"
         :loading="status === 'pending'"
         :ui="{

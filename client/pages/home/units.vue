@@ -266,7 +266,7 @@ definePageMeta({
           class="max-w-sm"
           icon="i-lucide-search"
           placeholder="Filter units..."
-          @update:model-value="table?.tableApi?.getColumn('name')?.setFilterValue($event)"
+          @update:modelValue="table?.tableApi?.getColumn('name')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">

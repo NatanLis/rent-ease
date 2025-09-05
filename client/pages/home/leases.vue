@@ -263,7 +263,7 @@ definePageMeta({
           class="max-w-sm"
           icon="i-lucide-search"
           placeholder="Filter tenants..."
-          @update:model-value="table?.tableApi?.getColumn('tenantEmail')?.setFilterValue($event)"
+          @update:modelValue="table?.tableApi?.getColumn('tenantEmail')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">

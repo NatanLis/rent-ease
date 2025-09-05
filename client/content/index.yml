@@ -9,7 +9,6 @@ hero:
       trailing: true
       variant: subtle
       to: '/login'
-      # to: '/signup'
       size: xl
     - label: Test a demo
       icon: i-heroicons-device-phone-mobile
@@ -150,7 +149,6 @@ cta:
   description: RentierPro streamlines rent collection, tenant communication, and maintenance management for a smarter, more efficient property portfolio.
   links:
     - label: Get Started
-      # to: /signup
       to: /login
       target: _blank
       icon: i-lucide-shopping-cart

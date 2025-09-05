@@ -225,7 +225,7 @@ definePageMeta({
           class="max-w-sm"
           icon="i-lucide-search"
           placeholder="Filter emails..."
-          @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
+          @update:modelValue="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">

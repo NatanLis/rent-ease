@@ -18,8 +18,8 @@
 import GoogleCalendar from '~/components/GoogleCalendar.vue'
 
 
-const value = ref('Backlog')
-const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const _value = ref('Backlog')
+const _items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
 
 definePageMeta({
   layout: 'dashboard',
