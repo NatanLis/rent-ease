@@ -104,12 +104,6 @@ const links = [[{
       open.value = false
     }
   }, {
-    label: 'Members',
-    to: '/home/settings/members',
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
     label: 'Notifications',
     to: '/home/settings/notifications',
     onSelect: () => {
