@@ -6,3 +6,4 @@ max-line-length = 127
 per-file-ignores =
   ; Skip line length check for test files
   ./tests/**/test_*.py: E501
+  ./api/src/mock_routes/mock_routes.py: E501

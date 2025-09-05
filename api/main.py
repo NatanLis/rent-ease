@@ -8,6 +8,7 @@ from api.src.properties.routes import router as properties_router
 from api.src.leases.routes import router as leases_router
 from api.src.units.routes import router as units_router
 from api.src.files.routes import router as files_router
+from api.src.mock_routes import mock_router
 
 from api.utils.migrations import run_migrations
 
@@ -41,6 +42,8 @@ app.include_router(properties_router)
 app.include_router(leases_router)
 app.include_router(units_router)
 app.include_router(files_router)
+
+app.include_router(mock_router)
 
 @app.get("/health")
 async def health_check():
