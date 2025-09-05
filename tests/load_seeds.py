@@ -18,6 +18,7 @@ async def clear_tables(session: AsyncSession):
     await session.execute(text("DELETE FROM units"))
     await session.execute(text("DELETE FROM properties"))
     await session.execute(text("DELETE FROM files"))
+    await session.execute(text("DELETE FROM profile_pictures"))
     await session.execute(text("DELETE FROM users WHERE email != 'admin@rent-ease.com'"))
     await session.commit()
     print("✅ Tables cleared")

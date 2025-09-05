@@ -3,7 +3,7 @@ interface AdminUser {
   firstName: string
   lastName: string
   email: string
-  role: 'ADMIN' | 'OWNER' | 'TENANT'
+  role: 'admin' | 'owner' | 'tenant'
   status: 'active' | 'inactive'
   avatar?: {
     src: string
@@ -18,7 +18,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Admin',
     lastName: 'User',
     email: 'admin@rent-ease.com',
-    role: 'ADMIN',
+    role: 'admin',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=admin'
@@ -30,7 +30,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Jan',
     lastName: 'Kowalski',
     email: 'owner1@example.com',
-    role: 'OWNER',
+    role: 'owner',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=owner1'
@@ -42,7 +42,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Anna',
     lastName: 'Nowak',
     email: 'owner2@example.com',
-    role: 'OWNER',
+    role: 'owner',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=owner2'
@@ -54,7 +54,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Piotr',
     lastName: 'Wiśniewski',
     email: 'tenant1@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant1'
@@ -66,7 +66,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Maria',
     lastName: 'Kowalczyk',
     email: 'tenant2@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant2'
@@ -78,7 +78,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Tomasz',
     lastName: 'Zieliński',
     email: 'tenant3@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'inactive',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant3'
@@ -90,7 +90,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Katarzyna',
     lastName: 'Lewandowska',
     email: 'tenant4@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant4'
@@ -102,7 +102,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Michał',
     lastName: 'Dąbrowski',
     email: 'tenant5@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant5'
@@ -114,7 +114,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Agnieszka',
     lastName: 'Kamińska',
     email: 'tenant6@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'inactive',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant6'
@@ -126,7 +126,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Paweł',
     lastName: 'Szymański',
     email: 'tenant7@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant7'
@@ -138,7 +138,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Magdalena',
     lastName: 'Woźniak',
     email: 'tenant8@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'active',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant8'
@@ -150,7 +150,7 @@ const adminUsers: AdminUser[] = [
     firstName: 'Robert',
     lastName: 'Kozłowski',
     email: 'tenant9@example.com',
-    role: 'TENANT',
+    role: 'tenant',
     status: 'inactive',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=tenant9'
@@ -160,11 +160,30 @@ const adminUsers: AdminUser[] = [
 ]
 
 // Fetch users from backend
-async function fetchUsers() {
+async function fetchUsers(event: any) {
   try {
-    const response = await fetch('http://localhost:8000/users/')
+    // Get token from request headers
+    const authHeader = getHeader(event, 'authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    console.log('Token received:', token ? 'Yes' : 'No')
+    console.log('Auth header:', authHeader)
+    console.log('Token value:', token)
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+    
+    const response = await fetch('http://localhost:8000/users/', {
+      headers
+    })
+    
     if (!response.ok) {
-      throw new Error('Failed to fetch users')
+      throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`)
     }
     const users = await response.json()
     
@@ -188,9 +207,9 @@ async function fetchUsers() {
   }
 }
 
-export default eventHandler(async () => {
+export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return await fetchUsers()
+  return await fetchUsers(event)
 })

@@ -1,4 +1,5 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from api.src.enums import EnumUserRoles
 
 
@@ -29,6 +30,14 @@ class UserResponse(UserBase):
     profile_picture_id: int | None = None
     status: str | None = None  # "active" if has active lease, "inactive" otherwise
     location: str | None = None  # Current address from active lease property
+
+    @field_validator('created_at', 'updated_at', mode='before')
+    @classmethod
+    def convert_datetime_to_string(cls, v):
+        """Convert datetime objects to ISO format strings."""
+        if isinstance(v, datetime):
+            return v.isoformat()
+        return v
 
 
 class Token(BaseModel):

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
-import { getPaginationRowModel, type Row } from '@tanstack/table-core'
+import type { Row } from '@tanstack/table-core'
 
 interface AdminUser {
   id: number
   firstName: string
   lastName: string
   email: string
-  role: 'ADMIN' | 'OWNER' | 'TENANT'
+  role: 'admin' | 'owner' | 'tenant'
   status: 'active' | 'inactive'
   avatar?: {
     src: string
@@ -24,16 +24,55 @@ const UCheckbox = resolveComponent('UCheckbox')
 
 const toast = useToast()
 const table = useTemplateRef('table')
+const { getToken } = useAuth()
 
 const columnFilters = ref([{
-  id: 'email',
+  id: 'firstName',
   value: ''
 }])
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<AdminUser[]>('/api/admin/users', {
-  lazy: true
+// Get token from localStorage
+const token = getToken()
+
+// Mock data fallback
+const adminUsers: AdminUser[] = [
+  {
+    id: 1,
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@rent-ease.com',
+    role: 'admin',
+    status: 'active',
+    avatar: {
+      src: 'https://i.pravatar.cc/128?u=admin'
+    },
+    createdAt: '2024-01-15T10:00:00Z'
+  }
+]
+
+// Use reactive data instead of useFetch
+const data = ref<AdminUser[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Fetch data on mount
+onMounted(async () => {
+  try {
+    status.value = 'pending'
+    const result = await $fetch<AdminUser[]>('/api/admin/users', {
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+    data.value = result
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    status.value = 'error'
+    // Fallback to mock data
+    data.value = adminUsers
+  }
 })
 
 function getRowItems(row: Row<AdminUser>) {
@@ -78,7 +117,7 @@ function getRowItems(row: Row<AdminUser>) {
       onSelect() {
         toast.add({
           title: 'User deactivated',
-          description: 'The user has been deactivated.'
+          description: 'The user has been deactivated'
         })
       }
     },
@@ -89,7 +128,7 @@ function getRowItems(row: Row<AdminUser>) {
       onSelect() {
         toast.add({
           title: 'User deleted',
-          description: 'The user has been deleted.'
+          description: 'The user has been permanently deleted'
         })
       }
     }
@@ -142,15 +181,15 @@ const columns: TableColumn<AdminUser>[] = [
     filterFn: 'equals',
     cell: ({ row }) => {
       const color = {
-        ADMIN: 'red' as const,
-        OWNER: 'blue' as const,
-        TENANT: 'green' as const
+        admin: 'red' as const,
+        owner: 'blue' as const,
+        tenant: 'green' as const
       }[row.original.role] || 'neutral'
 
       const displayRole = {
-        ADMIN: 'Administrator',
-        OWNER: 'Property Owner',
-        TENANT: 'Tenant'
+        admin: 'Administrator',
+        owner: 'Property Owner',
+        tenant: 'Tenant'
       }[row.original.role] || row.original.role
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
@@ -273,11 +312,11 @@ definePageMeta({
     <template #body>
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
-          :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
+          :model-value="(table?.tableApi?.getColumn('firstName')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter emails..."
-          @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
+          placeholder="Filter by name..."
+          @update:model-value="table?.tableApi?.getColumn('firstName')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
@@ -299,9 +338,9 @@ definePageMeta({
             v-model="roleFilter"
             :items="[
               { label: 'All Roles', value: 'all' },
-              { label: 'Administrator', value: 'ADMIN' },
-              { label: 'Property Owner', value: 'OWNER' },
-              { label: 'Tenant', value: 'TENANT' }
+              { label: 'Administrator', value: 'admin' },
+              { label: 'Property Owner', value: 'owner' },
+              { label: 'Tenant', value: 'tenant' }
             ]"
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
             placeholder="Filter role"
@@ -355,9 +394,7 @@ definePageMeta({
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
         v-model:pagination="pagination"
-        :pagination-options="{
-          getPaginationRowModel: getPaginationRowModel()
-        }"
+        :pagination-options="{}"
         class="shrink-0"
         :data="data"
         :columns="columns"

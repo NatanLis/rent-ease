@@ -109,9 +109,11 @@ async def get_all_users(
 ) -> list[UserResponse]:
     """Get all users, optionally filtered by role."""
     logger.debug(f"Getting all users with role filter: {role}")
+    logger.debug(f"Current user: {current_user.email}, role: {current_user.role}")
     
     # Only admin can view all users
-    if current_user.role != "ADMIN":
+    if current_user.role != "admin":
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
@@ -119,3 +121,4 @@ async def get_all_users(
     
     users = await UserService(session).get_all_users(role)
     return [UserResponse.model_validate(user) for user in users]
+
