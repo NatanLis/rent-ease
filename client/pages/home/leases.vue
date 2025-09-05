@@ -7,6 +7,7 @@ const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 const UCheckbox = resolveComponent('UCheckbox')
+const UAvatar = resolveComponent('UAvatar')
 
 const toast = useToast()
 const table = useTemplateRef('table')
@@ -24,6 +25,9 @@ interface Lease {
   propertyTitle: string
   propertyAddress: string
   status: 'active' | 'inactive'
+  avatar: {
+    src: string
+  }
 }
 
 const columnFilters = ref([{
@@ -125,9 +129,10 @@ const columns: TableColumn<Lease>[] = [
     },
     cell: ({ row }) => {
       return h('div', { class: 'flex items-center gap-3' }, [
-        h('div', { class: 'w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center' }, [
-          h('span', { class: 'text-sm font-medium text-gray-600' }, row.original.tenantEmail.charAt(0).toUpperCase())
-        ]),
+        h(UAvatar, {
+          ...row.original.avatar,
+          size: 'lg'
+        }),
         h('div', undefined, [
           h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.tenantEmail.split('@')[0]),
           h('p', { class: 'text-sm text-(--ui-text-muted)' }, row.original.tenantEmail)
@@ -307,7 +312,7 @@ definePageMeta({
                   onSelect(e?: Event) {
                     e?.preventDefault()
                   }
-                }))
+                })) || []
             "
             :content="{ align: 'end' }"
           >

@@ -1,13 +1,6 @@
-from sqlalchemy import (
-    Column,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-    UniqueConstraint,
-)
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, UniqueConstraint, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from api.core.database import Base
 
@@ -21,6 +14,8 @@ class Unit(Base):
     name = Column(String, nullable=False)  # e.g., "Room A", "Apt 2"
     description = Column(Text, nullable=True)
     monthly_rent = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
     property = relationship("Property", back_populates="units")
     leases = relationship("Lease", back_populates="unit", cascade="all, delete-orphan")

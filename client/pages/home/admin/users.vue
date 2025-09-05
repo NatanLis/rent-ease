@@ -1,20 +1,8 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
-import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-
-interface AdminUser {
-  id: number
-  name: string
-  email: string
-  role: 'ADMIN' | 'OWNER' | 'TENANT'
-  status: 'active' | 'inactive'
-  avatar?: {
-    src: string
-  }
-  location: string
-  createdAt: string
-}
+import type { Row } from '@tanstack/table-core'
+import type { UserI } from '@/api/interfaces/UserI'
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
@@ -26,17 +14,17 @@ const toast = useToast()
 const table = useTemplateRef('table')
 
 const columnFilters = ref([{
-  id: 'email',
+  id: 'firstName',
   value: ''
 }])
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<AdminUser[]>('/api/mock/admin/users', {
+const { data, status } = await useFetch<UserI[]>('/api/mock/admin/users', {
   lazy: true
 })
 
-function getRowItems(row: Row<AdminUser>) {
+function getRowItems(row: Row<UserI>) {
   return [
     {
       type: 'label',
@@ -78,7 +66,7 @@ function getRowItems(row: Row<AdminUser>) {
       onSelect() {
         toast.add({
           title: 'User deactivated',
-          description: 'The user has been deactivated.'
+          description: 'The user has been deactivated'
         })
       }
     },
@@ -89,7 +77,7 @@ function getRowItems(row: Row<AdminUser>) {
       onSelect() {
         toast.add({
           title: 'User deleted',
-          description: 'The user has been deleted.'
+          description: 'The user has been permanently deleted'
         })
       }
     }
@@ -120,16 +108,18 @@ const columns: TableColumn<AdminUser>[] = [
     header: 'ID'
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'firstName',
     header: 'Name',
     cell: ({ row }) => {
+      const fullName = `${row.original.firstName} ${row.original.lastName}`
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
           ...row.original.avatar,
-          size: 'lg'
+          size: 'lg',
+          icon: 'i-lucide-user'
         }),
         h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, fullName),
           h('p', { class: 'text-sm text-(--ui-text-muted)' }, row.original.email)
         ])
       ])
@@ -141,15 +131,15 @@ const columns: TableColumn<AdminUser>[] = [
     filterFn: 'equals',
     cell: ({ row }) => {
       const color = {
-        ADMIN: 'red' as const,
-        OWNER: 'blue' as const,
-        TENANT: 'green' as const
+        admin: 'red' as const,
+        owner: 'blue' as const,
+        tenant: 'green' as const
       }[row.original.role] || 'neutral'
 
       const displayRole = {
-        ADMIN: 'Administrator',
-        OWNER: 'Property Owner',
-        TENANT: 'Tenant'
+        admin: 'Administrator',
+        owner: 'Property Owner',
+        tenant: 'Tenant'
       }[row.original.role] || row.original.role
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
@@ -176,11 +166,6 @@ const columns: TableColumn<AdminUser>[] = [
         displayStatus
       )
     }
-  },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => row.original.location
   },
   {
     accessorKey: 'createdAt',
@@ -277,11 +262,11 @@ definePageMeta({
     <template #body>
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
-          :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
+          :model-value="(table?.tableApi?.getColumn('firstName')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter emails..."
-          @update:modelValue="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
+          placeholder="Filter by name..."
+          @update:model-value="table?.tableApi?.getColumn('firstName')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
@@ -303,9 +288,9 @@ definePageMeta({
             v-model="roleFilter"
             :items="[
               { label: 'All Roles', value: 'all' },
-              { label: 'Administrator', value: 'ADMIN' },
-              { label: 'Property Owner', value: 'OWNER' },
-              { label: 'Tenant', value: 'TENANT' }
+              { label: 'Administrator', value: 'admin' },
+              { label: 'Property Owner', value: 'owner' },
+              { label: 'Tenant', value: 'tenant' }
             ]"
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
             placeholder="Filter role"
@@ -328,8 +313,8 @@ definePageMeta({
             :items="
               table?.tableApi
                 ?.getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => ({
+                ?.filter((column) => column.getCanHide())
+                ?.map((column) => ({
                   label: upperFirst(column.id),
                   type: 'checkbox' as const,
                   checked: column.getIsVisible(),
@@ -339,7 +324,7 @@ definePageMeta({
                   onSelect(e?: Event) {
                     e?.preventDefault()
                   }
-                }))
+                })) || []
             "
             :content="{ align: 'end' }"
           >
@@ -359,9 +344,7 @@ definePageMeta({
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
         v-model:pagination="pagination"
-        :pagination-options="{
-          getPaginationRowModel: getPaginationRowModel()
-        }"
+        :pagination-options="{}"
         class="shrink-0"
         :data="data ?? undefined"
         :columns="columns"

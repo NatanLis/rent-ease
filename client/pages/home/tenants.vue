@@ -99,7 +99,8 @@ const columns: TableColumn<User>[] = [
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
           ...row.original.avatar,
-          size: 'lg'
+          size: 'lg',
+          icon: 'i-lucide-user'
         }),
         h('div', undefined, [
           h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
@@ -271,7 +272,7 @@ definePageMeta({
                   onSelect(e?: Event) {
                     e?.preventDefault()
                   }
-                }))
+                })) || []
             "
             :content="{ align: 'end' }"
           >

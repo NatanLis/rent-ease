@@ -6,19 +6,35 @@ export class User {
   role: UserRole;
   status: string | null;
   location: string | null;
+  firstName?: string;
+  lastName?: string;
+  avatar?: {
+    src: string;
+  };
+  createdAt?: string;
 
   constructor(
     email: string,
     id: number,
     role: UserRole,
     status: string | null = null,
-    location: string | null = null
+    location: string | null = null,
+    firstName?: string,
+    lastName?: string,
+    avatar?: {
+      src: string;
+    },
+    createdAt?: string
   ) {
     this.email = email;
     this.id = id;
     this.role = role;
     this.status = status;
     this.location = location;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.avatar = avatar;
+    this.createdAt = createdAt;
   }
 
   static fromObject(obj: any): User {

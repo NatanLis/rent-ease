@@ -1,6 +1,9 @@
 import asyncio
 import json
-from datetime import datetime
+import asyncio
+import os
+import mimetypes
+from datetime import datetime, date
 from pathlib import Path
 
 from sqlalchemy import text
@@ -18,6 +21,7 @@ async def clear_tables(session: AsyncSession):
     await session.execute(text("DELETE FROM units"))
     await session.execute(text("DELETE FROM properties"))
     await session.execute(text("DELETE FROM files"))
+    await session.execute(text("DELETE FROM profile_pictures"))
     await session.execute(text("DELETE FROM users WHERE email != 'admin@rent-ease.com'"))
     await session.commit()
     print("✅ Tables cleared")
@@ -52,11 +56,9 @@ async def load_files(session: AsyncSession):
                     file_data = f.read()
 
                 file_size = len(file_data)
-
-                await session.execute(
-                    text(
-                        """
-                    INSERT INTO files (filename, mimetype, size, data, uploaded_at)
+                
+                await session.execute(text("""
+                    INSERT INTO files (filename, mimetype, size, data, created_at)
                     VALUES (:filename, :mimetype, :size, :data, NOW())
                 """
                     ),
@@ -99,21 +101,21 @@ async def load_seeds():
                 users_data = json.load(f)
 
             for user_data in users_data:
-                await session.execute(
-                    text(
-                        """
-                    INSERT INTO users (email, hashed_password, role)
-                    VALUES (:email, :password, :role)
+                await session.execute(text("""
+                    INSERT INTO users (email, hashed_password, first_name, last_name, username, role, is_active, created_at) 
+                    VALUES (:email, :password, :first_name, :last_name, :username, :role, :is_active, :created_at)
                     ON CONFLICT (email) DO NOTHING
-                """
-                    ),
-                    {
-                        "email": user_data["email"],
-                        "password": get_password_hash(user_data["password"]),
-                        "role": user_data["role"],
-                    },
-                )
-
+                """), {
+                    'email': user_data['email'],
+                    'password': get_password_hash(user_data['password']),
+                    'first_name': user_data['first_name'],
+                    'last_name': user_data['last_name'],
+                    'username': user_data['username'],
+                    'role': user_data['role'],
+                    'is_active': user_data.get('is_active', True),  # Default to active if not specified
+                    'created_at': datetime.fromisoformat(user_data.get('created_at', datetime.now().isoformat()).replace('Z', '+00:00'))
+                })
+            
             await session.commit()
 
             # Get loaded user IDs for reference
@@ -180,8 +182,11 @@ async def load_seeds():
             print("🏢 Loading units...")
             with open("tests/seeds/units_test_data.json", "r") as f:
                 units_data = json.load(f)
-
+            
+            print(f"   📊 Found {len(units_data)} units to load")
+            
             for unit_data in units_data:
+                print(f"   🔍 Processing unit: {unit_data['name']} for property: {unit_data['property_title']}")
                 # Check if property exists by title
                 property_check = await session.execute(
                     text(

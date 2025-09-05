@@ -3,6 +3,8 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from datetime import date
 
 from api.core.exceptions import (
     AlreadyExistsException,
@@ -123,6 +125,24 @@ class LeaseRepository:
             raise NotFoundException(f"Lease {lease_id} not found")
         return lease
 
+    async def get_all(self) -> list[Lease]:
+        """Get all leases with related data.
+
+        Returns:
+            list[Lease]: List of all leases with unit, user, and property data
+        """
+        from api.src.units.models import Unit
+        from api.src.users.models import User
+        
+        result = await self.session.execute(
+            select(Lease)
+            .options(
+                selectinload(Lease.user),
+                selectinload(Lease.unit).selectinload(Unit.property)
+            )
+        )
+        return result.scalars().all()
+
     async def list_for_tenant(self, tenant_id: int) -> list[Lease]:
         """List all leases for a given tenant.
 
@@ -132,5 +152,15 @@ class LeaseRepository:
         Returns:
             list[Lease]: List of leases for the tenant
         """
-        result = await self.session.execute(select(Lease).where(Lease.tenant_id == tenant_id))
+        from api.src.units.models import Unit
+        from api.src.users.models import User
+        
+        result = await self.session.execute(
+            select(Lease)
+            .where(Lease.tenant_id == tenant_id)
+            .options(
+                selectinload(Lease.user),
+                selectinload(Lease.unit).selectinload(Unit.property)
+            )
+        )
         return result.scalars().all()

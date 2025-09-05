@@ -31,6 +31,36 @@ class LeaseEnd(LeaseBase):
     end_date: date
 
 
+class UserInfo(BaseModel):
+    """User information for lease response."""
+    id: int
+    email: str
+    first_name: str
+    last_name: str
+    avatar_url: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class PropertyInfo(BaseModel):
+    """Property information for lease response."""
+    id: int
+    title: str
+    address: str
+
+    model_config = {"from_attributes": True}
+
+
+class UnitInfo(BaseModel):
+    """Unit information for lease response."""
+    id: int
+    name: str
+    monthly_rent: float
+    property: PropertyInfo
+
+    model_config = {"from_attributes": True}
+
+
 class LeaseResponse(LeaseBase):
     """Schema for returning lease information in API responses.
 
@@ -43,5 +73,9 @@ class LeaseResponse(LeaseBase):
     start_date: date
     end_date: Optional[date]
     is_active: bool
+    
+    # Related data from joins
+    user: Optional[UserInfo] = None
+    unit: Optional[UnitInfo] = None
 
     model_config = {"from_attributes": True}

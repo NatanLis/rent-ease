@@ -45,6 +45,21 @@ class LeaseService:
         lease = await self.repository.get_by_id(lease_id)
         return LeaseResponse.model_validate(lease)
 
+    async def get_all_leases(self) -> list[LeaseResponse]:
+        """Get all leases.
+        Returns:
+            list[LeaseResponse]: List of all leases
+        """
+        leases = await self.repository.get_all()
+        result = []
+        for lease in leases:
+            lease_dict = LeaseResponse.model_validate(lease).model_dump()
+            # Generate avatar_url if user has profile picture
+            if lease.user and lease.user.profile_picture_id:
+                lease_dict['user']['avatar_url'] = f"/api/profile-pictures/{lease.user.profile_picture_id}/download"
+            result.append(LeaseResponse(**lease_dict))
+        return result
+
     async def list_leases_for_tenant(self, tenant_id: int) -> list[LeaseResponse]:
         """List all leases for a specific tenant.
         Args:
@@ -54,4 +69,11 @@ class LeaseService:
             list[LeaseResponse]: List of leases for the tenant
         """
         leases = await self.repository.list_for_tenant(tenant_id)
-        return [LeaseResponse.model_validate(leas) for leas in leases]
+        result = []
+        for lease in leases:
+            lease_dict = LeaseResponse.model_validate(lease).model_dump()
+            # Generate avatar_url if user has profile picture
+            if lease.user and lease.user.profile_picture_id:
+                lease_dict['user']['avatar_url'] = f"/api/profile-pictures/{lease.user.profile_picture_id}/download"
+            result.append(LeaseResponse(**lease_dict))
+        return result
