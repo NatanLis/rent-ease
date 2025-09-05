@@ -1,10 +1,5 @@
 {
   "dependencies": {
-    "@vueuse/core": "^13.9.0",
-    "dotenv": "^17.2.2",
-    "nodemailer": "^7.0.6"
-  },
-  "devDependencies": {
-    "@types/nodemailer": "^7.0.1"
+    "@vueuse/core": "^13.9.0"
   }
 }

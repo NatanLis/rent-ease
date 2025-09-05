@@ -14,14 +14,6 @@ class Settings(BaseSettings):
     JWT_EXPIRATION: int = 30  # minutes
 
 
-    #mailing
-    smtp_host: str = "smtp.gmail.com"
-    smtp_port: int = 465
-    smtp_user: str
-    smtp_pass: str
-    mail_from_name: str = "NoReply"
-    mail_reply_to: str = "noreply@example.invalid"
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
