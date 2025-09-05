@@ -4,48 +4,51 @@ Quick data checker for Rent-Ease database
 """
 
 import asyncio
+
 import asyncpg
 
 DATABASE_URL = "postgresql://root:pass@localhost:5432/rentease_db_dev"
 
+
 async def main():
     conn = await asyncpg.connect(DATABASE_URL)
-    
+
     print("📊 Database Summary:")
     print("=" * 30)
-    
+
     # Counts
-    users = await conn.fetchval('SELECT COUNT(*) FROM users')
-    properties = await conn.fetchval('SELECT COUNT(*) FROM properties')
-    units = await conn.fetchval('SELECT COUNT(*) FROM units')
-    leases = await conn.fetchval('SELECT COUNT(*) FROM leases')
-    files = await conn.fetchval('SELECT COUNT(*) FROM files')
-    
+    users = await conn.fetchval("SELECT COUNT(*) FROM users")
+    properties = await conn.fetchval("SELECT COUNT(*) FROM properties")
+    units = await conn.fetchval("SELECT COUNT(*) FROM units")
+    leases = await conn.fetchval("SELECT COUNT(*) FROM leases")
+    files = await conn.fetchval("SELECT COUNT(*) FROM files")
+
     print(f"👥 Users: {users}")
     print(f"🏠 Properties: {properties}")
     print(f"🏢 Units: {units}")
     print(f"📋 Leases: {leases}")
     print(f"📁 Files: {files}")
-    
+
     print("\n🔍 Sample Data:")
     print("-" * 20)
-    
+
     # Sample users
     print("\n👥 Users by role:")
-    users_by_role = await conn.fetch('SELECT role, COUNT(*) as count FROM users GROUP BY role ORDER BY role')
+    users_by_role = await conn.fetch("SELECT role, COUNT(*) as count FROM users GROUP BY role ORDER BY role")
     for row in users_by_role:
         print(f"   {row['role']}: {row['count']}")
-    
+
     # Sample properties
     print("\n🏠 Properties:")
-    sample_props = await conn.fetch('SELECT title, address FROM properties LIMIT 3')
+    sample_props = await conn.fetch("SELECT title, address FROM properties LIMIT 3")
     for prop in sample_props:
         print(f"   - {prop['title']}")
         print(f"     {prop['address']}")
-    
+
     # Sample leases
     print("\n📋 Recent Leases:")
-    recent_leases = await conn.fetch('''
+    recent_leases = await conn.fetch(
+        """
         SELECT u.name as unit_name, p.title as property_title, us.email as tenant_email, l.start_date
         FROM leases l
         JOIN units u ON l.unit_id = u.id
@@ -53,12 +56,14 @@ async def main():
         JOIN users us ON l.tenant_id = us.id
         ORDER BY l.start_date DESC
         LIMIT 3
-    ''')
+    """
+    )
     for lease in recent_leases:
         print(f"   - {lease['unit_name']} in {lease['property_title']} → {lease['tenant_email']} ({lease['start_date']})")
-    
+
     await conn.close()
     print("\n✅ Check completed!")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,8 +1,9 @@
-from sqlalchemy import select, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.exceptions import AlreadyExistsException, NotFoundException
+
 from .models import Property
 from .schemas import PropertyCreate, PropertyUpdate
 
@@ -35,9 +36,7 @@ class PropertyRepository:
             return new_property
         except IntegrityError:
             await self.session.rollback()
-            raise AlreadyExistsException(
-                f"Property with alias {new_property.title} already exists"
-            )
+            raise AlreadyExistsException(f"Property with alias {new_property.title} already exists")
 
     async def get_by_id(self, property_id: int) -> Property:
         """Get property by ID.

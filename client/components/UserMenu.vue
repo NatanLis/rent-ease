@@ -26,11 +26,11 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
 }], [{
   label: 'Profile',
   icon: 'i-lucide-user'
-}, 
+},
 // {
 //   label: 'Billing',
 //   icon: 'i-lucide-credit-card'
-// }, 
+// },
 {
   label: 'Settings',
   icon: 'i-lucide-settings',
@@ -128,7 +128,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
 //     checked: true,
 //     type: 'checkbox'
 //   }]
-// }], 
+// }],
 // [{
 //   label: 'Documentation',
 //   icon: 'i-lucide-book-open',
@@ -144,7 +144,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
 //   icon: 'i-lucide-rocket',
 //   to: 'https://ui.nuxt.com/pro/purchase',
 //   target: '_blank'
-// }], 
+// }],
 [{
   label: 'Log out',
   icon: 'i-lucide-log-out'

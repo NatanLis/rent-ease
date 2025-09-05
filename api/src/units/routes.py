@@ -1,16 +1,15 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
-from api.src.users.models import User
-from api.src.properties.repository import PropertyRepository
-
 from api.src.enums import EnumUserRoles
+from api.src.properties.repository import PropertyRepository
+from api.src.users.models import User
 
-from .service import UnitService
 from .schemas import UnitCreate, UnitResponse
+from .service import UnitService
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/units", tags=["units"])

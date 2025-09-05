@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
 from api.src.users.models import User
+
+from .schemas import LeaseCreate, LeaseEnd, LeaseResponse
 from .service import LeaseService
-from .schemas import LeaseCreate, LeaseResponse, LeaseEnd
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/leases", tags=["leases"])

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .repository import UnitRepository
-from .schemas import UnitCreate, UnitUpdate, UnitResponse
+from .schemas import UnitCreate, UnitResponse, UnitUpdate
 
 
 class UnitService:

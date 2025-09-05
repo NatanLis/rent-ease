@@ -31,4 +31,3 @@ const calendars = [
   { id: 'your_calendar_id_2', label: 'Releases'},
 ]
 </script>
-

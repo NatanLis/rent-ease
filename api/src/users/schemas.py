@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
+
 from api.src.enums import EnumUserRoles
 
 
@@ -41,5 +42,6 @@ class LoginData(BaseModel):
 
 class LoginResponse(BaseModel):
     """Login response schema."""
+
     user: UserResponse
     token: Token

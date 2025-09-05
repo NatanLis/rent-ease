@@ -93,6 +93,6 @@ const properties = [
 export default eventHandler(async () => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return properties
 })

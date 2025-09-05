@@ -1,6 +1,7 @@
-from pydantic import BaseModel
 from datetime import date
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class LeaseBase(BaseModel):
@@ -35,6 +36,7 @@ class LeaseResponse(LeaseBase):
 
     Inherits from LeaseBase and includes additional fields such as id
     """
+
     id: int
     unit_id: int
     tenant_id: int

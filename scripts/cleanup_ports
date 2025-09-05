@@ -12,12 +12,12 @@ echo "🧹 Cleaning up Rent-Ease ports..."
 kill_port() {
     local port=$1
     local service_name=$2
-    
+
     echo "🔍 Checking port $port ($service_name)..."
-    
+
     # Find PIDs using the port
     local pids=$(lsof -ti:$port 2>/dev/null || true)
-    
+
     if [ -n "$pids" ]; then
         echo "⚠️  Found processes on port $port: $pids"
         echo "🔫 Killing processes on port $port..."
@@ -32,11 +32,11 @@ kill_port() {
 kill_by_pattern() {
     local pattern=$1
     local service_name=$2
-    
+
     echo "🔍 Checking for $service_name processes..."
-    
+
     local pids=$(pgrep -f "$pattern" 2>/dev/null || true)
-    
+
     if [ -n "$pids" ]; then
         echo "⚠️  Found $service_name processes: $pids"
         echo "🔫 Killing $service_name processes..."

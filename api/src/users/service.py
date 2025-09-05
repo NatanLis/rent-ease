@@ -30,9 +30,7 @@ class UserService:
         user = await self.repository.get_by_email(login_data.email)
 
         # Verify credentials
-        if not user or not verify_password(
-            login_data.password, str(user.hashed_password)
-        ):
+        if not user or not verify_password(login_data.password, str(user.hashed_password)):
             raise UnauthorizedException(detail="Incorrect email or password")
 
         # Create access token

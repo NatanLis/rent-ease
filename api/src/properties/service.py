@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.logging import get_logger
 from api.src.properties.repository import PropertyRepository
-from api.src.properties.schemas import PropertyCreate, PropertyResponse, PropertyBase
+from api.src.properties.schemas import PropertyBase, PropertyCreate, PropertyResponse
 
 logger = get_logger(__name__)
 
@@ -65,4 +65,3 @@ class PropertyService:
             property_id: Property ID
         """
         await self.repository.delete(property_id)
-

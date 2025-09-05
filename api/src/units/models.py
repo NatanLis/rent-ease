@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, UniqueConstraint
+from sqlalchemy import (
+    Column,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from api.core.database import Base
@@ -6,9 +14,7 @@ from api.core.database import Base
 
 class Unit(Base):
     __tablename__ = "units"
-    __table_args__ = (
-        UniqueConstraint("property_id", "name", name="uq_unit_name_per_property"),
-    )
+    __table_args__ = (UniqueConstraint("property_id", "name", name="uq_unit_name_per_property"),)
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     property_id = Column(Integer, ForeignKey("properties.id", ondelete="CASCADE"), nullable=False, index=True)

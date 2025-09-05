@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column
+from sqlalchemy import Enum as saEnum
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 
 from api.core.database import Base
 from api.src.enums import EnumUserRoles
-from sqlalchemy import Enum as saEnum
 
 
 class User(Base):

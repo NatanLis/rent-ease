@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-GREEN = '\033[92m'
-RESET = '\033[0m'
+GREEN = "\033[92m"
+RESET = "\033[0m"
 
 
 def green(text):
@@ -18,7 +18,7 @@ def run_command(command, cwd=None):
 
 
 if __name__ == "_main.py_":
-    working_dir = os.path.dirname(os.path.abspath(file))
+    working_dir = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.join(working_dir, "..")
 
     green("=== Tworzenie środowiska Python z environment.yml ===")

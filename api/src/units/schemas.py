@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
 
 
 class UnitBase(BaseModel):
@@ -18,6 +19,7 @@ class UnitUpdate(UnitBase):
 
     All fields are optional since updates might be partial.
     """
+
     property_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
@@ -29,7 +31,7 @@ class UnitResponse(UnitBase):
 
     Includes all base fields plus the id.
     """
+
     id: int
 
     model_config = ConfigDict(from_attributes=True)
-

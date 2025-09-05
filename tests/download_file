@@ -5,61 +5,68 @@ Usage: python scripts/download_file <filename>
 """
 
 import asyncio
-import asyncpg
 import sys
-import os
 from pathlib import Path
 
+import asyncpg
+
 DATABASE_URL = "postgresql://root:pass@localhost:5432/rentease_db_dev"
+
 
 async def download_file(filename):
     """Download a file from the database."""
     try:
         conn = await asyncpg.connect(DATABASE_URL)
-        
+
         # Get file from database
-        file_record = await conn.fetchrow("""
+        file_record = await conn.fetchrow(
+            """
             SELECT filename, mimetype, size, data, uploaded_at
-            FROM files 
+            FROM files
             WHERE filename = $1
-        """, filename)
-        
+        """,
+            filename,
+        )
+
         if not file_record:
             print(f"❌ File '{filename}' not found in database")
             await conn.close()
             return
-        
+
         # Create downloads directory in tests folder
         downloads_dir = Path(__file__).parent / "downloads"
         downloads_dir.mkdir(exist_ok=True)
-        
+
         # Save file
         file_path = downloads_dir / filename
-        with open(file_path, 'wb') as f:
-            f.write(file_record['data'])
-        
+        with open(file_path, "wb") as f:
+            f.write(file_record["data"])
+
         print(f"✅ Downloaded: {filename}")
         print(f"   📁 Saved to: {file_path.absolute()}")
         print(f"   📊 Size: {file_record['size']} bytes")
         print(f"   📄 Type: {file_record['mimetype']}")
         print(f"   📅 Uploaded: {file_record['uploaded_at']}")
-        
+
         await conn.close()
-        
+
     except Exception as e:
         print(f"❌ Error downloading file: {e}")
+
 
 async def list_files():
     """List all files in the database."""
     try:
         conn = await asyncpg.connect(DATABASE_URL)
-        
-        files = await conn.fetch("""
+
+        files = await conn.fetch(
+            """
             SELECT filename, mimetype, size, uploaded_at
-            FROM files 
+            FROM files
             ORDER BY filename
-        """)
-        
+        """
+        )
+
         if not files:
             print("📁 No files found in database")
         else:
@@ -71,11 +78,12 @@ async def list_files():
                 print(f"      Size: {file['size']} bytes")
                 print(f"      Uploaded: {file['uploaded_at']}")
                 print()
-        
+
         await conn.close()
-        
+
     except Exception as e:
         print(f"❌ Error listing files: {e}")
+
 
 async def main():
     if len(sys.argv) < 2:
@@ -83,12 +91,13 @@ async def main():
         print("  python tests/download_file <filename>  - Download specific file")
         print("  python tests/download_file --list      - List all files")
         return
-    
+
     if sys.argv[1] == "--list":
         await list_files()
     else:
         filename = sys.argv[1]
         await download_file(filename)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

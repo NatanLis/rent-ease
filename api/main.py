@@ -3,15 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import settings
 from api.core.logging import get_logger, setup_logging
-from api.src.users.routes import router as auth_router
-from api.src.properties.routes import router as properties_router
-from api.src.leases.routes import router as leases_router
-from api.src.units.routes import router as units_router
 from api.src.files.routes import router as files_router
+from api.src.leases.routes import router as leases_router
 from api.src.mock_routes import mock_router
-
+from api.src.properties.routes import router as properties_router
+from api.src.units.routes import router as units_router
+from api.src.users.routes import router as auth_router
 from api.utils.migrations import run_migrations
-
 
 # Set up logging configuration
 setup_logging()
@@ -44,6 +42,7 @@ app.include_router(units_router)
 app.include_router(files_router)
 
 app.include_router(mock_router)
+
 
 @app.get("/health")
 async def health_check():

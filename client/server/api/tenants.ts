@@ -14,7 +14,7 @@ const tenants: User[] = [
   },
   {
     id: 2,
-    name: 'tenant2', 
+    name: 'tenant2',
     email: 'tenant2@example.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=2'
@@ -107,6 +107,6 @@ const tenants: User[] = [
 export default eventHandler(async () => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return tenants
 })

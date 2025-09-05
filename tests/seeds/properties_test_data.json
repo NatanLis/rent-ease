@@ -9,7 +9,7 @@
     {
       "title": "Dom jednorodzinny",
       "description": "Przestronny dom z ogrodem",
-      "address": "ul. Słoneczna 15, Kraków", 
+      "address": "ul. Słoneczna 15, Kraków",
       "price": 800000.0,
       "owner_email": "owner1@example.com"
     },

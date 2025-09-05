@@ -104,7 +104,7 @@ Sets up the entire development environment:
 
 - Creates the Python environment from `environment.yml`.
 - Installs Node.js dependencies for the Nuxt client.
-  
+
 **Usage:**
 
 ```bash
@@ -175,19 +175,19 @@ This command launches:
 
 ## Additional Information
 
-- **FastAPI Backend:**  
+- **FastAPI Backend:**
   The FastAPI application resides in the `app` directory (main file: `app/main.py`).
 
-- **Nuxt Frontend:**  
+- **Nuxt Frontend:**
   The Nuxt.js client is located in the `client` directory. The main configuration is in `client/nuxt.config.js`.
 
-- **Environment Variables:**  
+- **Environment Variables:**
   Make sure to set the following as needed:
   - `NODE_ENV` (e.g., `development` or `production`)
   - `ENV` (e.g., `dev`, `beta`, or `prod`)
   - `LANDING_ONLY` (set as `"True"` or `"False"`)
 
-- **Favicons:**  
+- **Favicons:**
   Based on the `ENV` variable, ensure that the corresponding favicon file is available in your static/public directory:
   - `dev`: `/favicon-dev.ico`
   - `beta`: `/favicon-beta.ico`

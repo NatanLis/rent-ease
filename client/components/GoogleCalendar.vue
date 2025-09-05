@@ -10,20 +10,20 @@
 
     <!-- View toggles -->
     <div class="gc__toolbar">
-      
-      <UButton 
-        :color="view == 'MONTH' ? 'primary' : 'secondary'" 
-        :variant="view == 'MONTH' ? 'solid' : 'outline'" 
+
+      <UButton
+        :color="view == 'MONTH' ? 'primary' : 'secondary'"
+        :variant="view == 'MONTH' ? 'solid' : 'outline'"
         @click="view = 'MONTH'"
         label="Month"/>
-      
-      <UButton :color="view == 'WEEK' ? 'primary' : 'secondary'" 
-        :variant="view == 'WEEK' ? 'solid' : 'outline'" 
+
+      <UButton :color="view == 'WEEK' ? 'primary' : 'secondary'"
+        :variant="view == 'WEEK' ? 'solid' : 'outline'"
         @click="view = 'WEEK'"
         label="Week"/>
-      
-      <UButton :color="view == 'AGENDA' ? 'primary' : 'secondary'" 
-        :variant="view == 'AGENDA' ? 'solid' : 'outline'" 
+
+      <UButton :color="view == 'AGENDA' ? 'primary' : 'secondary'"
+        :variant="view == 'AGENDA' ? 'solid' : 'outline'"
         @click="view = 'AGENDA'"
         label="Agenda"/>
     </div>

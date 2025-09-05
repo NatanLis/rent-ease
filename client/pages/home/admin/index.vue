@@ -37,10 +37,10 @@ definePageMeta({
             <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
               View and manage all system users, their roles and permissions.
             </p>
-            <UButton 
-              to="/home/admin/users" 
-              label="Manage Users" 
-              color="primary" 
+            <UButton
+              to="/home/admin/users"
+              label="Manage Users"
+              color="primary"
               variant="outline"
               block
             />
@@ -56,9 +56,9 @@ definePageMeta({
             <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
               Configure user roles and system permissions.
             </p>
-            <UButton 
-              label="Coming Soon" 
-              color="gray" 
+            <UButton
+              label="Coming Soon"
+              color="gray"
               variant="outline"
               disabled
               block
@@ -75,9 +75,9 @@ definePageMeta({
             <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
               Configure system-wide settings and preferences.
             </p>
-            <UButton 
-              label="Coming Soon" 
-              color="gray" 
+            <UButton
+              label="Coming Soon"
+              color="gray"
               variant="outline"
               disabled
               block

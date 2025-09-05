@@ -1,6 +1,7 @@
-from typing import List, Optional
-from pydantic import BaseModel
 from datetime import datetime, timedelta
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 __all__ = ["mails"]
 
@@ -33,8 +34,10 @@ now = datetime.now()
 mails: List[Mail] = [
     Mail(
         id=1,
-        from_=MailSender(name='Alex Smith', email='alex.smith@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=1')),
-        subject='Meeting Schedule: Q1 Marketing Strategy Review',
+        from_=MailSender(
+            name="Alex Smith", email="alex.smith@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=1")
+        ),
+        subject="Meeting Schedule: Q1 Marketing Strategy Review",
         body="""Dear Team,
 
 I hope this email finds you well. Just a quick reminder about our Q1 Marketing Strategy meeting scheduled for tomorrow at 10 AM EST in Conference Room A.
@@ -51,13 +54,15 @@ Best regards,
 Alex Smith
 Senior Marketing Director
 Tel: (555) 123-4567""",
-        date=now.isoformat()
+        date=now.isoformat(),
     ),
     Mail(
         id=2,
         unread=True,
-        from_=MailSender(name='Jordan Brown', email='jordan.brown@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=2')),
-        subject='RE: Project Phoenix - Sprint 3 Update',
+        from_=MailSender(
+            name="Jordan Brown", email="jordan.brown@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=2")
+        ),
+        subject="RE: Project Phoenix - Sprint 3 Update",
         body="""Hi team,
 
 Quick update on Sprint 3 deliverables:
@@ -80,13 +85,15 @@ Jordan
 Jordan Brown
 Lead Developer | Tech Solutions
 Mobile: +1 (555) 234-5678""",
-        date=sub_date(now, minutes=7)
+        date=sub_date(now, minutes=7),
     ),
     Mail(
         id=3,
         unread=True,
-        from_=MailSender(name='Taylor Green', email='taylor.green@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=3')),
-        subject='Lunch Plans',
+        from_=MailSender(
+            name="Taylor Green", email="taylor.green@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=3")
+        ),
+        subject="Lunch Plans",
         body="""Hi there!
 
 I was wondering if you'd like to grab lunch this Friday? There's this amazing new Mexican restaurant downtown called "La Casa" that I've been wanting to try. They're known for their authentic tacos and house-made guacamole.
@@ -97,12 +104,14 @@ Let me know what you think!
 
 Best,
 Taylor""",
-        date=sub_date(now, hours=3)
+        date=sub_date(now, hours=3),
     ),
     Mail(
         id=4,
-        from_=MailSender(name='Morgan White', email='morgan.white@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=4')),
-        subject='New Proposal: Project Horizon',
+        from_=MailSender(
+            name="Morgan White", email="morgan.white@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=4")
+        ),
+        subject="New Proposal: Project Horizon",
         body="""Hi team,
 
 I've just uploaded the comprehensive proposal for Project Horizon to our shared drive. The document includes:
@@ -122,12 +131,12 @@ Thanks in advance,
 Morgan White
 Senior Project Manager
 Tel: (555) 234-5678""",
-        date=sub_date(now, days=1)
+        date=sub_date(now, days=1),
     ),
     Mail(
         id=5,
-        from_=MailSender(name='Casey Gray', email='casey.gray@example.com'),
-        subject='Updated: San Francisco Conference Trip Itinerary',
+        from_=MailSender(name="Casey Gray", email="casey.gray@example.com"),
+        subject="Updated: San Francisco Conference Trip Itinerary",
         body="""Dear [Name],
 
 Please find your confirmed travel itinerary below:
@@ -155,12 +164,12 @@ Best regards,
 Casey Gray
 Travel Coordinator
 Office: (555) 345-6789""",
-        date=sub_date(now, days=1)
+        date=sub_date(now, days=1),
     ),
     Mail(
         id=6,
-        from_=MailSender(name='Jamie Johnson', email='jamie.johnson@example.com'),
-        subject='Q1 2024 Financial Performance Review',
+        from_=MailSender(name="Jamie Johnson", email="jamie.johnson@example.com"),
+        subject="Q1 2024 Financial Performance Review",
         body="""Dear Leadership Team,
 
 Please find attached our Q1 2024 financial analysis report. Key highlights:
@@ -181,12 +190,14 @@ Best regards,
 Jamie Johnson
 Chief Financial Officer
 Ext: 4567""",
-        date=sub_date(now, days=2)
+        date=sub_date(now, days=2),
     ),
     Mail(
         id=7,
-        from_=MailSender(name='Riley Davis', email='riley.davis@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=7')),
-        subject='[Mandatory] New DevOps Tools Training Session',
+        from_=MailSender(
+            name="Riley Davis", email="riley.davis@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=7")
+        ),
+        subject="[Mandatory] New DevOps Tools Training Session",
         body="""Hello Development Team,
 
 This is a reminder about next week's mandatory training session on our updated DevOps toolkit.
@@ -214,13 +225,15 @@ Riley Davis
 DevOps Lead
 Technical Operations
 M: (555) 777-8888""",
-        date=sub_date(now, days=2)
+        date=sub_date(now, days=2),
     ),
     Mail(
         id=8,
         unread=True,
-        from_=MailSender(name='Kelly Wilson', email='kelly.wilson@example.com', avatar=Avatar(src='https://i.pravatar.cc/128?u=8')),
-        subject='🎉 Happy Birthday!',
+        from_=MailSender(
+            name="Kelly Wilson", email="kelly.wilson@example.com", avatar=Avatar(src="https://i.pravatar.cc/128?u=8")
+        ),
+        subject="🎉 Happy Birthday!",
         body="""Dear [Name],
 
 On behalf of the entire team, wishing you a fantastic birthday! 🎂
@@ -239,12 +252,12 @@ Kelly Wilson
 HR Director
 Human Resources Department
 Tel: (555) 999-0000""",
-        date=sub_date(now, days=2)
+        date=sub_date(now, days=2),
     ),
     Mail(
         id=9,
-        from_=MailSender(name='Drew Moore', email='drew.moore@example.com'),
-        subject='Website Redesign Feedback Request - Phase 2',
+        from_=MailSender(name="Drew Moore", email="drew.moore@example.com"),
+        subject="Website Redesign Feedback Request - Phase 2",
         body="""Hi there,
 
 We're entering Phase 2 of our website redesign project and would value your input on the latest iterations.
@@ -272,12 +285,12 @@ Thanks in advance,
 Drew Moore
 UX Design Lead
 Product Design Team""",
-        date=sub_date(now, days=5)
+        date=sub_date(now, days=5),
     ),
     Mail(
         id=10,
-        from_=MailSender(name='Jordan Taylor', email='jordan.taylor@example.com'),
-        subject='Corporate Wellness Program - Membership Renewal',
+        from_=MailSender(name="Jordan Taylor", email="jordan.taylor@example.com"),
+        subject="Corporate Wellness Program - Membership Renewal",
         body="""Dear Valued Member,
 
 Your corporate wellness program membership is due for renewal on April 1st, 2024.
@@ -303,13 +316,13 @@ Jordan Taylor
 Corporate Wellness Coordinator
 Downtown Fitness Center
 Tel: (555) 123-7890""",
-        date=sub_date(now, days=5)
+        date=sub_date(now, days=5),
     ),
     Mail(
         id=11,
         unread=True,
-        from_=MailSender(name='Morgan Anderson', email='morgan.anderson@example.com'),
-        subject='Important: Updates to Your Corporate Insurance Policy',
+        from_=MailSender(name="Morgan Anderson", email="morgan.anderson@example.com"),
+        subject="Important: Updates to Your Corporate Insurance Policy",
         body="""Dear [Employee Name],
 
 This email contains important information about changes to your corporate insurance coverage effective April 1, 2024.
@@ -339,11 +352,11 @@ Regards,
 Morgan Anderson
 Benefits Coordinator
 HR Department""",
-        date=sub_date(now, days=12)
+        date=sub_date(now, days=12),
     ),
     Mail(
         id=12,
-        from_=MailSender(name='Casey Thomas', email='casey.thomas@example.com'),
+        from_=MailSender(name="Casey Thomas", email="casey.thomas@example.com"),
         subject='📚 March Book Club Meeting: "The Great Gatsby"',
         body="""Hello Book Lovers!
 
@@ -372,12 +385,12 @@ Casey
 Casey Thomas
 Book Club Coordinator
 Internal Culture Committee""",
-        date=sub_date(now, days=30)
+        date=sub_date(now, days=30),
     ),
     Mail(
         id=13,
-        from_=MailSender(name='Jamie Jackson', email='jamie.jackson@example.com'),
-        subject='🍳 Company Cookbook Project - Recipe Submission Reminder',
+        from_=MailSender(name="Jamie Jackson", email="jamie.jackson@example.com"),
+        subject="🍳 Company Cookbook Project - Recipe Submission Reminder",
         body="""Dear Colleagues,
 
 Final call for our company cookbook project submissions!
@@ -405,12 +418,12 @@ Cooking together,
 Jamie Jackson
 Community Engagement Committee
 Ext. 5432""",
-        date=sub_date(now, days=30)
+        date=sub_date(now, days=30),
     ),
     Mail(
         id=14,
-        from_=MailSender(name='Riley White', email='riley.white@example.com'),
-        subject='🧘‍♀️ Updated Corporate Wellness Schedule - Spring 2024',
+        from_=MailSender(name="Riley White", email="riley.white@example.com"),
+        subject="🧘‍♀️ Updated Corporate Wellness Schedule - Spring 2024",
         body="""Dear Wellness Program Participants,
 
 Our Spring 2024 wellness schedule is now available!
@@ -438,11 +451,11 @@ Namaste,
 Riley White
 Corporate Wellness Instructor
 Wellness & Benefits Team""",
-        date=sub_date(now, days=30)
+        date=sub_date(now, days=30),
     ),
     Mail(
         id=15,
-        from_=MailSender(name='Kelly Harris', email='kelly.harris@example.com'),
+        from_=MailSender(name="Kelly Harris", email="kelly.harris@example.com"),
         subject='📚 Book Launch Event: "Digital Transformation in the Modern Age"',
         body="""Dear [Name],
 
@@ -472,12 +485,12 @@ Best regards,
 Kelly Harris
 Digital Strategy Consultant
 Author, "Digital Transformation in the Modern Age""",
-        date=sub_date(now, days=30)
+        date=sub_date(now, days=30),
     ),
     Mail(
         id=16,
-        from_=MailSender(name='Drew Martin', email='drew.martin@example.com'),
-        subject='🚀 TechCon 2024: Early Bird Registration Now Open',
+        from_=MailSender(name="Drew Martin", email="drew.martin@example.com"),
+        subject="🚀 TechCon 2024: Early Bird Registration Now Open",
         body="""Dear Tech Enthusiasts,
 
 Registration is now open for TechCon 2024: "Innovation at Scale"
@@ -508,12 +521,12 @@ Best regards,
 Drew Martin
 Conference Director
 TechCon 2024""",
-        date=sub_date(now, days=34)
+        date=sub_date(now, days=34),
     ),
     Mail(
         id=17,
-        from_=MailSender(name='Alex Thompson', email='alex.thompson@example.com'),
-        subject='🎨 Modern Perspectives: Contemporary Art Exhibition',
+        from_=MailSender(name="Alex Thompson", email="alex.thompson@example.com"),
+        subject="🎨 Modern Perspectives: Contemporary Art Exhibition",
         body="""Hi there,
 
 Hope you're well! I wanted to personally invite you to an extraordinary art exhibition this weekend.
@@ -541,11 +554,11 @@ Alex Thompson
 Curator
 Metropolitan Art Gallery
 Tel: (555) 234-5678""",
-        date=sub_date(now, days=45)
+        date=sub_date(now, days=45),
     ),
     Mail(
         id=18,
-        from_=MailSender(name='Jordan Garcia', email='jordan.garcia@example.com'),
+        from_=MailSender(name="Jordan Garcia", email="jordan.garcia@example.com"),
         subject='🤝 Industry Networking Event: "Connect & Innovate 2024"',
         body="""Dear Professional Network,
 
@@ -576,12 +589,12 @@ Best regards,
 Jordan Garcia
 Event Coordinator
 Professional Networking Association""",
-        date=sub_date(now, days=48)
+        date=sub_date(now, days=48),
     ),
     Mail(
         id=19,
-        from_=MailSender(name='Taylor Rodriguez', email='taylor.rodriguez@example.com'),
-        subject='🌟 Community Service Day - Volunteer Opportunities',
+        from_=MailSender(name="Taylor Rodriguez", email="taylor.rodriguez@example.com"),
+        subject="🌟 Community Service Day - Volunteer Opportunities",
         body="""Dear Colleagues,
 
 Join us for our annual Community Service Day!
@@ -619,12 +632,12 @@ Making a difference together,
 Taylor Rodriguez
 Community Outreach Coordinator
 Corporate Social Responsibility Team""",
-        date=sub_date(now, days=55)
+        date=sub_date(now, days=55),
     ),
     Mail(
         id=20,
-        from_=MailSender(name='Morgan Lopez', email='morgan.lopez@example.com'),
-        subject='🚗 Vehicle Maintenance Reminder: 30,000 Mile Service',
+        from_=MailSender(name="Morgan Lopez", email="morgan.lopez@example.com"),
+        subject="🚗 Vehicle Maintenance Reminder: 30,000 Mile Service",
         body="""Dear Valued Customer,
 
 Your vehicle is due for its 30,000-mile maintenance service.
@@ -655,5 +668,6 @@ Morgan Lopez
 Service Coordinator
 Downtown Auto Care
 Emergency: (555) 987-6544""",
-        date=sub_date(now, days=60)
-    )]
+        date=sub_date(now, days=60),
+    ),
+]

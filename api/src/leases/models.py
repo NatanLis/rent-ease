@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, Date, Boolean, ForeignKey, UniqueConstraint, DateTime, func
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import relationship
 
 from api.core.database import Base
@@ -6,9 +15,7 @@ from api.core.database import Base
 
 class Lease(Base):
     __tablename__ = "leases"
-    __table_args__ = (
-        UniqueConstraint("unit_id", "tenant_id", "start_date", name="uq_lease_unique"),
-    )
+    __table_args__ = (UniqueConstraint("unit_id", "tenant_id", "start_date", name="uq_lease_unique"),)
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     unit_id = Column(Integer, ForeignKey("units.id", ondelete="CASCADE"), nullable=False, index=True)

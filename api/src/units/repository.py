@@ -1,10 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.core.exceptions import AlreadyExistsException, NotFoundException
 
 from .models import Unit
 from .schemas import UnitCreate, UnitUpdate
-from api.core.exceptions import NotFoundException, AlreadyExistsException
 
 
 class UnitRepository:

@@ -1,10 +1,12 @@
-from .repository import LeaseRepository
-from .schemas import LeaseCreate, LeaseResponse, LeaseEnd
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from .repository import LeaseRepository
+from .schemas import LeaseCreate, LeaseEnd, LeaseResponse
 
 
 class LeaseService:
     """Repository for handling lease database operations."""
+
     def __init__(self, session: AsyncSession):
         self.repository = LeaseRepository(session)
 

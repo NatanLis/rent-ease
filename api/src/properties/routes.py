@@ -6,8 +6,8 @@ from api.core.logging import get_logger
 from api.core.security import get_current_user
 from api.src.users.models import User
 
+from .schemas import PropertyBase, PropertyResponse
 from .service import PropertyService
-from .schemas import PropertyResponse, PropertyBase
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/properties", tags=["properties"])
@@ -16,6 +16,7 @@ router = APIRouter(prefix="/properties", tags=["properties"])
 def get_property_service(session: AsyncSession = Depends(get_session)) -> PropertyService:
     """Dependency for getting property service instance."""
     return PropertyService(session)
+
 
 @router.get("/", response_model=list[PropertyResponse])
 async def get_all_properties(
