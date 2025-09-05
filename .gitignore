@@ -136,6 +136,29 @@ ENV/
 env.bak/
 venv.bak/
 
+# Node/Nuxt
+node_modules/
+client/node_modules/
+client/.nuxt/
+client/.output/
+client/.cache/
+client/.eslintcache
+client/.vercel/
+
+# Nuxt build outputs
+.nitro/
+.client/
+dist/
+coverage/
+
+# Lockfiles (keep tracked) — do not ignore package-lock.json/yarn.lock
+!.env.example
+
+# OS/Editor
+.DS_Store
+.idea/
+.vscode/
+
 # Spyder project settings
 .spyderproject
 .spyproject
