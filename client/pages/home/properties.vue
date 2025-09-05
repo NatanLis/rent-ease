@@ -31,7 +31,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<Property[]>('/mock/properties', {
+const { data, status } = await useFetch<Property[]>('/api/mock/properties', {
   lazy: true
 })
 

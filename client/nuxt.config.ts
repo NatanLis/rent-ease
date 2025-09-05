@@ -11,8 +11,8 @@ export default defineNuxtConfig({
   // disabled for local dev
   runtimeConfig: {
     public: {
-      apiURL: 'http://localhost:8000/api',
-      // apiURL: config.apiServer,
+      // apiURL: 'http://localhost:8000/api',
+      apiURL: config.apiServer,
       env: config.env,
     }
   },

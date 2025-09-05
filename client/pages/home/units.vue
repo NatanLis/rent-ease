@@ -31,7 +31,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<Unit[]>('/mock/units', {
+const { data, status } = await useFetch<Unit[]>('/api/mock/units', {
   lazy: true
 })
 
