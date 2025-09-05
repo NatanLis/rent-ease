@@ -40,7 +40,8 @@ mails: List[Mail] = [
         subject="Meeting Schedule: Q1 Marketing Strategy Review",
         body="""Dear Team,
 
-I hope this email finds you well. Just a quick reminder about our Q1 Marketing Strategy meeting scheduled for tomorrow at 10 AM EST in Conference Room A.
+I hope this email finds you well. Just a quick reminder about our Q1 Marketing Strategy meeting scheduled for tomorrow at 10
+AM EST in Conference Room A.
 
 Agenda:
 - Q4 Performance Review
@@ -96,7 +97,8 @@ Mobile: +1 (555) 234-5678""",
         subject="Lunch Plans",
         body="""Hi there!
 
-I was wondering if you'd like to grab lunch this Friday? There's this amazing new Mexican restaurant downtown called "La Casa" that I've been wanting to try. They're known for their authentic tacos and house-made guacamole.
+I was wondering if you'd like to grab lunch this Friday? There's this amazing new Mexican restaurant downtown called "La Casa"
+that I've been wanting to try. They're known for their authentic tacos and house-made guacamole.
 
 Would 12:30 PM work for you? It would be great to catch up and discuss the upcoming team building event while we're there.
 
@@ -122,7 +124,8 @@ I've just uploaded the comprehensive proposal for Project Horizon to our shared 
 • Budget breakdown
 • Risk assessment and mitigation strategies
 
-I'm particularly excited about our innovative approach to the user engagement component, which could set a new standard for our industry.
+I'm particularly excited about our innovative approach to the user engagement component, which could set a new standard for
+our industry.
 
 Could you please review and provide feedback by EOD Friday? I'd like to present this to the steering committee next week.
 

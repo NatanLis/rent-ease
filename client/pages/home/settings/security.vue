@@ -61,6 +61,7 @@ definePageMeta({
     </UForm>
   </UPageCard>
 
+  <!-- eslint-disable-next-line vue/no-multiple-template-root -->
   <UPageCard
     title="Account"
     description="No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently."
