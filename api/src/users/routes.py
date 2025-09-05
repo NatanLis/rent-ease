@@ -120,5 +120,16 @@ async def get_all_users(
         )
     
     users = await UserService(session).get_all_users(role)
-    return [UserResponse.model_validate(user) for user in users]
+    
+    # Transform users to include avatar_url
+    result = []
+    for user in users:
+        user_dict = UserResponse.model_validate(user).model_dump()
+        # Only set avatar_url if user has a profile picture
+        if user.profile_picture_id:
+            user_dict['avatar_url'] = f"/api/profile-pictures/{user.profile_picture_id}/download"
+        # If no profile picture, avatar_url will be None by default
+        result.append(UserResponse(**user_dict))
+    
+    return result
 

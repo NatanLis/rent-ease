@@ -28,6 +28,7 @@ class UserResponse(UserBase):
     created_at: str
     updated_at: str | None = None
     profile_picture_id: int | None = None
+    avatar_url: str | None = None  # URL to profile picture
     status: str | None = None  # "active" if has active lease, "inactive" otherwise
     location: str | None = None  # Current address from active lease property
 

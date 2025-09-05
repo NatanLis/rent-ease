@@ -195,8 +195,8 @@ async function fetchUsers(event: any) {
       email: user.email,
       role: user.role,
       status: user.is_active ? 'active' : 'inactive',
-      avatar: user.profile_picture_id ? {
-        src: `http://localhost:8000/profile-pictures/${user.profile_picture_id}`
+      avatar: user.avatar_url ? {
+        src: `http://localhost:8000${user.avatar_url}`
       } : undefined,
       createdAt: user.created_at
     }))

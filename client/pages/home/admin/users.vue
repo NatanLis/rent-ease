@@ -364,8 +364,8 @@ definePageMeta({
             :items="
               table?.tableApi
                 ?.getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => ({
+                ?.filter((column) => column.getCanHide())
+                ?.map((column) => ({
                   label: upperFirst(column.id),
                   type: 'checkbox' as const,
                   checked: column.getIsVisible(),
@@ -375,7 +375,7 @@ definePageMeta({
                   onSelect(e?: Event) {
                     e?.preventDefault()
                   }
-                }))
+                })) || []
             "
             :content="{ align: 'end' }"
           >
