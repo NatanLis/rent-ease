@@ -15,7 +15,7 @@ export interface User {
 export interface Mail {
   id: number
   unread?: boolean
-  from: User
+  from_: User
   subject: string
   body: string
   date: string
