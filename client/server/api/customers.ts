@@ -1,3 +1,4 @@
+import { privateEncrypt } from 'crypto'
 import type { User } from '~/types'
 
 const customers: User[] = [{
@@ -185,12 +186,11 @@ const customers: User[] = [{
 // Fetch customers from backend
 async function fetchCustomers() {
   try {
-    const response = await fetch('http://localhost:8000/users/?role=OWNER')
+    const response = await fetch('http://localhost:8000/api/users/?role=OWNER')
     if (!response.ok) {
       throw new Error('Failed to fetch customers')
     }
     const users = await response.json()
-    
     // Transform backend data to frontend format
     return users.map((user: any) => ({
       id: user.id,

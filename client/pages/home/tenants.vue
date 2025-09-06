@@ -18,7 +18,7 @@ const columnFilters = ref([{
   value: ''
 }])
 const columnVisibility = ref()
-const rowSelection = ref({ 1: true })
+const rowSelection = ref({})
 
 const { getToken } = useAuth()
 const token = await getToken()
@@ -30,15 +30,12 @@ const status = ref<'pending' | 'error' | 'success'>('pending')
 // Fetch data on mount
 onMounted(async () => {
   try {
-    console.log('Fetching tenants...')
-    console.log('Token:', token)
     status.value = 'pending'
     const result = await $fetch<User[]>('/api/tenants', {
       headers: token ? {
         'Authorization': `Bearer ${token}`
       } : {}
     })
-    console.log('Tenants result:', result)
     data.value = result
     status.value = 'success'
   } catch (error) {

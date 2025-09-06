@@ -58,8 +58,6 @@ function updateStatus(status: string) {
 
 // Simple function to add new payment using prompts (like inbox)
 function addPayment() {
-  console.log('Add payment function called')
-  
   // For testing, let's create a simple payment first
   const testPayment: Payment = {
     id: Math.max(...allPayments.value.map(p => p.id)) + 1,
@@ -73,39 +71,32 @@ function addPayment() {
     description: 'Test payment'
   }
 
-  console.log('Creating test payment:', testPayment)
   allPayments.value.unshift(testPayment)
-  console.log('Test payment added. Total payments:', allPayments.value.length)
   
   // Now try the prompts
   const documentType = prompt('Document Type (Invoice, Receipt, Contract, Statement, Other):')?.trim()
   if (!documentType) {
-    console.log('No document type provided, cancelling')
     return
   }
 
   const grossValue = prompt('Gross Value (PLN):')?.trim()
   if (!grossValue || isNaN(parseFloat(grossValue))) {
     alert('Please enter a valid number for gross value')
-    console.log('Invalid gross value, cancelling')
     return
   }
 
   const receiver = prompt('Receiver:')?.trim()
   if (!receiver) {
-    console.log('No receiver provided, cancelling')
     return
   }
 
   const property = prompt('Property:')?.trim()
   if (!property) {
-    console.log('No property provided, cancelling')
     return
   }
 
   const dueDate = prompt('Due Date (YYYY-MM-DD):')?.trim()
   if (!dueDate) {
-    console.log('No due date provided, cancelling')
     return
   }
 
@@ -134,9 +125,7 @@ function addPayment() {
     description
   }
 
-  console.log('Creating payment:', payment)
   allPayments.value.unshift(payment) // Add to beginning of array
-  console.log('Payment added. Total payments:', allPayments.value.length)
 }
 
 // Function to update payment status
@@ -231,9 +220,6 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('pl-PL')
 }
 
-// Debug: Log the payments data
-console.log('Payments data:', payments.value)
-
 definePageMeta({
   layout: 'dashboard',
 })
@@ -249,10 +235,10 @@ definePageMeta({
 
         <template #right>
           <UButton 
-            @click="addPayment"
             icon="i-lucide-plus"
             size="md"
             class="rounded-full"
+            @click="addPayment"
           >
             Add Payment
           </UButton>
