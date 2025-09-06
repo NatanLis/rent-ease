@@ -1,21 +1,16 @@
-<!-- <template>
-  <div>
-    <NuxtLoadingIndicator />
-    <slot />
-  </div>
-</template>
-
-<script lang="ts" setup>
-</script> -->
-
 <script setup lang="ts">
-const route = useRoute()
-const toast = useToast()
-const { getToken } = useAuth()
+const toast = useToast();
+const { getToken } = useAuth();
+const { user } = useUser();
 
-const open = ref(false)
+const open = ref(false);
 
-const links = [[{
+const showItem = (active: boolean | undefined) => {
+  return active ? '' : 'hidden'
+}
+
+const links = [
+  {
   label: 'Home',
   icon: 'i-lucide-house',
   to: '/home',
@@ -31,13 +26,6 @@ const links = [[{
     open.value = false
   }
 }, {
-  label: 'Customers',
-  icon: 'i-lucide-users',
-  to: '/home/customers',
-  onSelect: () => {
-    open.value = false
-  }
-}, {
   label: 'Calendar',
   icon: 'i-lucide-calendar',
   to: '/home/calendar',
@@ -48,6 +36,7 @@ const links = [[{
   label: 'Tenants',
   icon: 'i-lucide-users',
   to: '/home/tenants',
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -55,6 +44,7 @@ const links = [[{
   label: 'Leases',
   icon: 'i-lucide-file-text',
   to: '/home/leases',
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -62,6 +52,7 @@ const links = [[{
   label: 'Properties',
   icon: 'i-lucide-building',
   to: '/home/properties',
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -69,6 +60,7 @@ const links = [[{
   label: 'Units',
   icon: 'i-lucide-home',
   to: '/home/units',
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -84,16 +76,19 @@ const links = [[{
   to: '/home/admin',
   icon: 'i-lucide-shield-check',
   defaultOpen: true,
+  class: showItem(user.value?.isAdmin()),
   children: [{
     label: 'Overview',
     to: '/home/admin',
     exact: true,
+    class: showItem(user.value?.isAdmin()),
     onSelect: () => {
       open.value = false
     }
   }, {
     label: 'Users',
     to: '/home/admin/users',
+    class: showItem(user.value?.isAdmin()),
     onSelect: () => {
       open.value = false
     }
@@ -111,12 +106,6 @@ const links = [[{
       open.value = false
     }
   }, {
-    label: 'Members',
-    to: '/home/settings/members',
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
     label: 'Notifications',
     to: '/home/settings/notifications',
     onSelect: () => {
@@ -129,42 +118,14 @@ const links = [[{
       open.value = false
     }
   }]
-}],
-// [{
-//   label: 'Feedback',
-//   icon: 'i-lucide-message-circle',
-//   to: 'https://github.com/nuxt-ui-pro/dashboard',
-//   target: '_blank'
-// }, {
-//   label: 'Help & Support',
-//   icon: 'i-lucide-info',
-//   to: 'https://github.com/nuxt/ui-pro',
-//   target: '_blank'
-// }]
-]
-
+}]
 const groups = computed(() => [{
   id: 'links',
   label: 'Go to',
   items: links.flat()
-}, {
-  id: 'code',
-  label: 'Code',
-  items: [{
-    id: 'source',
-    label: 'View page source',
-    icon: 'i-simple-icons-github',
-    to: `https://github.com/nuxt-ui-pro/dashboard/blob/main/app/pages${route.path === '/' ? '/index' : route.path}.vue`,
-    target: '_blank'
-  }]
 }])
 
 onBeforeMount(async () => {
-  // const cookie = useCookie('cookie-consent')
-  // if (cookie.value === 'accepted') {
-  //   return
-  // }
-
   if (!getToken()) {
     // User is not logged in
       toast.add({
@@ -174,7 +135,6 @@ onBeforeMount(async () => {
       })
     navigateTo('/login')
   }
-
 })
 </script>
 
@@ -188,16 +148,10 @@ onBeforeMount(async () => {
       class="bg-(--ui-bg-elevated)/25"
       :ui="{ footer: 'lg:border-t lg:border-(--ui-border)' }"
     >
-      <!-- <template #header="{ collapsed }">
-        <TeamsMenu :collapsed="collapsed" />
-      </template> -->
       <template #header="{ collapsed }">
-        <!-- <TeamsMenu :collapsed="collapsed" /> -->
-
         <div v-if="collapsed" class="font-bold flex flex-col">
           Rent<span class="text-primary-500">Ease</span>
         </div>
-
         <div v-if="!collapsed" class="w-auto font-bold text-2xl">
           Rent<span class="text-primary-500">Ease</span>
         </div>
@@ -210,16 +164,11 @@ onBeforeMount(async () => {
 
         <UNavigationMenu
           :collapsed="collapsed"
-          :items="links[0]"
+          :items="links"
           orientation="vertical"
+          tooltip
         />
 
-        <UNavigationMenu
-          :collapsed="collapsed"
-          :items="links[1]"
-          orientation="vertical"
-          class="mt-auto"
-        />
       </template>
 
       <template #footer="{ collapsed }">

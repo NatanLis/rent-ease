@@ -3,6 +3,8 @@ import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import type { Row } from '@tanstack/table-core'
 
+const { user } = useUser();
+
 interface AdminUser {
   id: number
   firstName: string
@@ -289,6 +291,13 @@ const pagination = ref({
 
 definePageMeta({
   layout: 'dashboard',
+})
+
+onBeforeMount(() => {
+  if (user.value && !user.value?.isAdmin()) {
+    // User is not logged in, redirect to login page
+    navigateTo('/home')
+  }
 })
 </script>
 
