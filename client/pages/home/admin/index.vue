@@ -1,6 +1,15 @@
 <script setup lang="ts">
+const { user } = useUser();
+
 definePageMeta({
   layout: 'dashboard',
+})
+
+onBeforeMount(() => {
+  if (user.value && !user.value?.isAdmin()) {
+    // User is not logged in, redirect to login page
+    navigateTo('/home')
+  }
 })
 </script>
 
