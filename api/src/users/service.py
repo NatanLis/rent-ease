@@ -52,6 +52,10 @@ class UserService:
         """Get user by email."""
         return await self.repository.get_by_email(email)
 
+    async def get_all_users(self, role: str = None) -> list[User]:
+        """Get all users, optionally filtered by role."""
+        return await self.repository.get_all_users(role)
+
     async def get_all_tenants_with_status(self) -> list[User]:
         """Get all tenant users with their lease status."""
         return await self.repository.get_all_tenants_with_status()

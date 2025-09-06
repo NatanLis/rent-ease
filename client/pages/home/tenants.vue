@@ -20,8 +20,31 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<User[]>('/api/tenants', {
-  lazy: true
+const { getToken } = useAuth()
+const token = await getToken()
+
+// Use reactive data instead of useFetch
+const data = ref<User[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Fetch data on mount
+onMounted(async () => {
+  try {
+    console.log('Fetching tenants...')
+    console.log('Token:', token)
+    status.value = 'pending'
+    const result = await $fetch<User[]>('/api/tenants', {
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+    console.log('Tenants result:', result)
+    data.value = result
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching tenants:', error)
+    status.value = 'error'
+  }
 })
 
 function getRowItems(row: Row<User>) {
@@ -99,7 +122,8 @@ const columns: TableColumn<User>[] = [
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
           ...row.original.avatar,
-          size: 'lg'
+          size: 'lg',
+          icon: 'i-lucide-user'
         }),
         h('div', undefined, [
           h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
@@ -271,7 +295,7 @@ definePageMeta({
                   onSelect(e?: Event) {
                     e?.preventDefault()
                   }
-                }))
+                })) || []
             "
             :content="{ align: 'end' }"
           >

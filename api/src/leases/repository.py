@@ -1,11 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 from datetime import date
 
 from .models import Lease
 from .schemas import LeaseCreate
 from api.core.exceptions import NotFoundException, AlreadyExistsException, BusinessRuleViolationException
+from api.src.units.models import Unit
 
 
 def overlaps(existing_start, existing_end, new_start, new_end):
@@ -117,6 +119,21 @@ class LeaseRepository:
             raise NotFoundException(f"Lease {lease_id} not found")
         return lease
 
+    async def get_all(self) -> list[Lease]:
+        """Get all leases with related data.
+
+        Returns:
+            list[Lease]: List of all leases with unit, user, and property data
+        """
+        result = await self.session.execute(
+            select(Lease)
+            .options(
+                selectinload(Lease.user),
+                selectinload(Lease.unit).selectinload(Unit.property)
+            )
+        )
+        return result.scalars().all()
+
     async def list_for_tenant(self, tenant_id: int) -> list[Lease]:
         """List all leases for a given tenant.
 
@@ -126,5 +143,12 @@ class LeaseRepository:
         Returns:
             list[Lease]: List of leases for the tenant
         """
-        result = await self.session.execute(select(Lease).where(Lease.tenant_id == tenant_id))
+        result = await self.session.execute(
+            select(Lease)
+            .where(Lease.tenant_id == tenant_id)
+            .options(
+                selectinload(Lease.user),
+                selectinload(Lease.unit).selectinload(Unit.property)
+            )
+        )
         return result.scalars().all()

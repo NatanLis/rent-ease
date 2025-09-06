@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import func
 
 
 # revision identifiers, used by Alembic.
@@ -26,7 +27,8 @@ def upgrade():
         sa.Column('mimetype', sa.Text, nullable=False),
         sa.Column('size', sa.Integer, nullable=False),
         sa.Column('data', sa.LargeBinary, nullable=False),
-        sa.Column('uploaded_at', sa.TIMESTAMP, server_default=sa.func.now())
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True)
     )
 
 
