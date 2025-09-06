@@ -12,21 +12,30 @@ const UAvatar = resolveComponent('UAvatar')
 const toast = useToast()
 const table = useTemplateRef('table')
 
-// Define lease type
+// Define lease type based on backend LeaseResponse
 interface Lease {
   id: number
-  unitId: number
-  tenantId: number
-  startDate: string
-  endDate: string | null
-  isActive: boolean
-  tenantEmail: string
-  unitName: string
-  propertyTitle: string
-  propertyAddress: string
-  status: 'active' | 'inactive'
-  avatar: {
-    src: string
+  unit_id: number
+  tenant_id: number
+  start_date: string
+  end_date: string | null
+  is_active: boolean
+  user: {
+    id: number
+    email: string
+    first_name: string
+    last_name: string
+    avatar_url?: string
+  }
+  unit: {
+    id: number
+    name: string
+    monthly_rent: number
+    property: {
+      id: number
+      title: string
+      address: string
+    }
   }
 }
 
@@ -44,13 +53,28 @@ const token = await getToken()
 const data = ref<Lease[]>([])
 const status = ref<'pending' | 'error' | 'success'>('pending')
 
+// Add computed property for tenant email filtering
+const dataWithTenantEmail = computed(() => {
+  return data.value.map(lease => ({
+    ...lease,
+    tenantEmail: lease.user?.email || 'unknown@example.com'
+  }))
+})
+
+// Get user role to determine which endpoint to use
+const { getUser } = useUser()
+const user = getUser()
+
+// Use different endpoints based on user role
+const endpoint = user?.isAdmin() ? '/api/leases/all' : '/api/leases/owner'
+
 // Fetch data on mount
 onMounted(async () => {
   try {
-    console.log('Fetching leases...')
+    console.log(`Fetching leases for ${user?.isAdmin() ? 'admin' : 'owner'}...`)
     console.log('Token:', token)
     status.value = 'pending'
-    const result = await $fetch<Lease[]>('/api/leases', {
+    const result = await $fetch<Lease[]>(endpoint, {
       headers: token ? {
         'Authorization': `Bearer ${token}`
       } : {}
@@ -152,63 +176,91 @@ const columns: TableColumn<Lease>[] = [
       })
     },
     cell: ({ row }) => {
+      const user = row.original.user
+      if (!user) {
+        return h('div', { class: 'flex items-center gap-3' }, [
+          h(UAvatar, {
+            src: 'https://ui-avatars.com/api/?name=Unknown+User',
+            alt: 'Unknown User',
+            size: 'lg'
+          }),
+          h('div', undefined, [
+            h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, 'Unknown User'),
+            h('p', { class: 'text-sm text-(--ui-text-muted)' }, 'No user data')
+          ])
+        ])
+      }
+      
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
-          ...row.original.avatar,
+          src: user.avatar_url || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`,
+          alt: `${user.first_name} ${user.last_name}`,
           size: 'lg'
         }),
         h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.tenantEmail.split('@')[0]),
-          h('p', { class: 'text-sm text-(--ui-text-muted)' }, row.original.tenantEmail)
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, `${user.first_name} ${user.last_name}`),
+          h('p', { class: 'text-sm text-(--ui-text-muted)' }, user.email)
         ])
       ])
     }
   },
   {
-    accessorKey: 'propertyTitle',
+    accessorKey: 'unit.property.title',
     header: 'Property',
     cell: ({ row }) => {
+      const property = row.original.unit?.property
+      if (!property) {
+        return h('div', undefined, [
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, 'Unknown Property'),
+          h('p', { class: 'text-sm text-(--ui-text-muted)' }, 'No property data')
+        ])
+      }
+      
       return h('div', undefined, [
-        h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.propertyTitle),
-        h('p', { class: 'text-sm text-(--ui-text-muted)' }, row.original.propertyAddress)
+        h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, property.title),
+        h('p', { class: 'text-sm text-(--ui-text-muted)' }, property.address)
       ])
     }
   },
   {
-    accessorKey: 'unitName',
-    header: 'Unit'
+    accessorKey: 'unit.name',
+    header: 'Unit',
+    cell: ({ row }) => {
+      return row.original.unit?.name || 'Unknown Unit'
+    }
   },
   {
-    accessorKey: 'startDate',
+    accessorKey: 'start_date',
     header: 'Start Date',
     cell: ({ row }) => {
-      const date = new Date(row.original.startDate)
+      const date = new Date(row.original.start_date)
       return date.toLocaleDateString('pl-PL')
     }
   },
   {
-    accessorKey: 'endDate',
+    accessorKey: 'end_date',
     header: 'End Date',
     cell: ({ row }) => {
-      if (!row.original.endDate) return 'Ongoing'
-      const date = new Date(row.original.endDate)
+      if (!row.original.end_date) return 'Ongoing'
+      const date = new Date(row.original.end_date)
       return date.toLocaleDateString('pl-PL')
     }
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'is_active',
     header: 'Status',
     filterFn: 'equals',
     cell: ({ row }) => {
+      const status = row.original.is_active ? 'active' : 'inactive'
       const color = {
         active: 'success' as const,
         inactive: 'error' as const
-      }[row.original.status] || 'neutral'
+      }[status] || 'neutral'
 
       const displayStatus = {
         active: 'Active',
         inactive: 'Inactive'
-      }[row.original.status] || row.original.status
+      }[status] || status
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
         displayStatus
@@ -247,13 +299,13 @@ const statusFilter = ref('all')
 watch(() => statusFilter.value, (newVal) => {
   if (!table?.value?.tableApi) return
 
-  const statusColumn = table.value.tableApi.getColumn('status')
+  const statusColumn = table.value.tableApi.getColumn('is_active')
   if (!statusColumn) return
 
   if (newVal === 'all') {
     statusColumn.setFilterValue(undefined)
   } else {
-    statusColumn.setFilterValue(newVal)
+    statusColumn.setFilterValue(newVal === 'active')
   }
 })
 
@@ -264,6 +316,7 @@ const pagination = ref({
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 
@@ -360,7 +413,7 @@ definePageMeta({
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="dataWithTenantEmail"
         :columns="columns"
         :loading="status === 'pending'"
         :ui="{

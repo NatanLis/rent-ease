@@ -22,6 +22,7 @@ const period = ref<Period>('daily')
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

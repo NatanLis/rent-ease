@@ -2,8 +2,8 @@ import type { User } from '~/types'
 
 const customers: User[] = [{
   id: 1,
-  name: 'Alex Smith',
-  email: 'alex.smith@example.com',
+  name: '[MOCK] Alex Smith',
+  email: 'alex.smith@mock.com',
   avatar: {
     src: 'https://i.pravatar.cc/128?u=1'
   },
@@ -11,8 +11,8 @@ const customers: User[] = [{
   location: 'New York, USA'
 }, {
   id: 2,
-  name: 'Jordan Brown',
-  email: 'jordan.brown@example.com',
+  name: '[MOCK] Jordan Brown',
+  email: 'jordan.brown@mock.com',
   avatar: {
     src: 'https://i.pravatar.cc/128?u=2'
   },
@@ -20,8 +20,8 @@ const customers: User[] = [{
   location: 'London, UK'
 }, {
   id: 3,
-  name: 'Taylor Green',
-  email: 'taylor.green@example.com',
+  name: '[MOCK] Taylor Green',
+  email: 'taylor.green@mock.com',
   avatar: {
     src: 'https://i.pravatar.cc/128?u=3'
   },

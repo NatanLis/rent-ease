@@ -3,8 +3,8 @@ import { sub } from 'date-fns'
 const mails = [{
   id: 1,
   from: {
-    name: 'Alex Smith',
-    email: 'alex.smith@example.com',
+    name: '[MOCK] Alex Smith',
+    email: 'alex.smith@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=1'
     }
@@ -31,8 +31,8 @@ Tel: (555) 123-4567`,
   id: 2,
   unread: true,
   from: {
-    name: 'Jordan Brown',
-    email: 'jordan.brown@example.com',
+    name: '[MOCK] Jordan Brown',
+    email: 'jordan.brown@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=2'
     }
@@ -65,8 +65,8 @@ Mobile: +1 (555) 234-5678`,
   id: 3,
   unread: true,
   from: {
-    name: 'Taylor Green',
-    email: 'taylor.green@example.com',
+    name: '[MOCK] Taylor Green',
+    email: 'taylor.green@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=3'
     }

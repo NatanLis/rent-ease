@@ -157,3 +157,27 @@ class LeaseRepository:
             )
         )
         return result.scalars().all()
+
+    async def list_for_property_owner(self, owner_id: int) -> list[Lease]:
+        """List all leases for properties owned by a given user.
+
+        Args:
+            owner_id (int): ID of the property owner
+
+        Returns:
+            list[Lease]: List of leases for properties owned by the user
+        """
+        from api.src.units.models import Unit
+        from api.src.properties.models import Property
+        
+        result = await self.session.execute(
+            select(Lease)
+            .join(Unit, Lease.unit_id == Unit.id)
+            .join(Property, Unit.property_id == Property.id)
+            .where(Property.owner_id == owner_id)
+            .options(
+                selectinload(Lease.user),
+                selectinload(Lease.unit).selectinload(Unit.property)
+            )
+        )
+        return result.scalars().all()

@@ -128,6 +128,7 @@ function onFileClick() {
 }
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

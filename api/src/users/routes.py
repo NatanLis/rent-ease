@@ -49,52 +49,6 @@ async def get_me(user: User = Depends(get_current_user)) -> UserResponse:
     return user
 
 
-@router.get("/tenants", response_model=list[UserResponse])
-async def get_tenants_for_owner(
-    session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(get_current_user),
-) -> list[UserResponse]:
-    """Get all tenant users who have leases in current user's properties."""
-    logger.debug(f"Getting tenants for owner user_id={current_user.id}")
-    
-    # Only admin and owners can view tenants
-    if current_user.role not in ["admin", "owner"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-    
-    # For admin, get all tenants; for owner, get only tenants in their properties
-    if current_user.role == "admin":
-        tenants = await UserService(session).get_all_tenants_with_status()
-    else:
-        tenants = await UserService(session).get_tenants_for_owner(current_user.id)
-    
-    return [UserResponse.model_validate(tenant) for tenant in tenants]
-
-
-@router.get("/leases", response_model=list[dict])
-async def get_leases_for_owner(
-    session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(get_current_user),
-) -> list[dict]:
-    """Get all leases in current user's properties."""
-    logger.debug(f"Getting leases for owner user_id={current_user.id}")
-    
-    # Only admin and owners can view leases
-    if current_user.role not in ["admin", "owner"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-    
-    # For admin, get all leases; for owner, get only leases in their properties
-    if current_user.role == "admin":
-        leases = await UserService(session).get_all_leases_with_details()
-    else:
-        leases = await UserService(session).get_leases_for_owner(current_user.id)
-    
-    return leases
 
 
 # Add a new router for general user operations
@@ -111,15 +65,24 @@ async def get_all_users(
     logger.debug(f"Getting all users with role filter: {role}")
     logger.debug(f"Current user: {current_user.email}, role: {current_user.role}")
     
-    # Only admin can view all users
-    if current_user.role != "admin":
+    # Only admin and owners can view users
+    if current_user.role not in ["admin", "owner"]:
         logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
         )
     
-    users = await UserService(session).get_all_users(role)
+    # For admin, get all users; for owner, get only tenants in their properties
+    if current_user.role == "admin":
+        users = await UserService(session).get_all_users(role)
+    else:
+        # For owner, only get tenants who have leases in their properties
+        if role and role.lower() != "tenant":
+            # Owner can only see tenants, not other roles
+            users = []
+        else:
+            users = await UserService(session).get_tenants_for_owner(current_user.id)
     
     # Transform users to include avatar_url
     result = []
@@ -132,4 +95,6 @@ async def get_all_users(
         result.append(UserResponse(**user_dict))
     
     return result
+
+
 

@@ -9,6 +9,7 @@ from api.src.leases.routes import router as leases_router
 from api.src.units.routes import router as units_router
 from api.src.files.routes import router as files_router
 from api.src.profile_pictures.routes import router as profile_pictures_router
+from api.src.tenants.routes import router as tenants_router
 
 from api.utils.migrations import run_migrations
 
@@ -37,13 +38,14 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(properties_router)
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
+app.include_router(properties_router, prefix="/api")
 app.include_router(leases_router, prefix="/api")
-app.include_router(units_router)
-app.include_router(files_router)
+app.include_router(units_router, prefix="/api")
+app.include_router(files_router, prefix="/api")
 app.include_router(profile_pictures_router, prefix="/api")
+app.include_router(tenants_router, prefix="/api")
 
 @app.get("/health")
 async def health_check():

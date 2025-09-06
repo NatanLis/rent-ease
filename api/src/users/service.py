@@ -8,7 +8,7 @@ from api.core.logging import get_logger
 from api.core.security import create_access_token, verify_password
 from api.src.users.models import User
 from api.src.users.repository import UserRepository
-from api.src.users.schemas import LoginData, Token, UserCreate
+from api.src.users.schemas import LoginData, Token, UserCreate, UserUpdate
 
 logger = get_logger(__name__)
 
@@ -71,3 +71,11 @@ class UserService:
     async def get_leases_for_owner(self, owner_id: int) -> list[dict]:
         """Get all leases in properties owned by the given owner."""
         return await self.repository.get_leases_for_owner(owner_id)
+
+    async def update_user(self, user_id: int, user_data: UserUpdate) -> User:
+        """Update user by ID."""
+        return await self.repository.update(user_id, user_data)
+
+    async def delete_user(self, user_id: int) -> None:
+        """Delete user by ID."""
+        await self.repository.delete(user_id)

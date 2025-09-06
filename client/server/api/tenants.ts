@@ -2,11 +2,13 @@ import type { User } from '~/types'
 import { getHeader } from 'h3'
 
 // Mock data for tenants - based on the seeds from the database
+// COMMENTED OUT - using real backend data instead
+/*
 const tenants: User[] = [
   {
     id: 1,
-    name: 'tenant1',
-    email: 'tenant1@example.com',
+    name: '[MOCK] tenant1',
+    email: 'tenant1@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=1'
     },
@@ -15,8 +17,8 @@ const tenants: User[] = [
   },
   {
     id: 2,
-    name: 'tenant2', 
-    email: 'tenant2@example.com',
+    name: '[MOCK] tenant2', 
+    email: 'tenant2@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=2'
     },
@@ -25,8 +27,8 @@ const tenants: User[] = [
   },
   {
     id: 3,
-    name: 'tenant3',
-    email: 'tenant3@example.com',
+    name: '[MOCK] tenant3',
+    email: 'tenant3@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=3'
     },
@@ -35,8 +37,8 @@ const tenants: User[] = [
   },
   {
     id: 4,
-    name: 'tenant4',
-    email: 'tenant4@example.com',
+    name: '[MOCK] tenant4',
+    email: 'tenant4@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=4'
     },
@@ -45,8 +47,8 @@ const tenants: User[] = [
   },
   {
     id: 5,
-    name: 'tenant5',
-    email: 'tenant5@example.com',
+    name: '[MOCK] tenant5',
+    email: 'tenant5@mock.com',
     avatar: {
       src: 'https://i.pravatar.cc/128?u=5'
     },
@@ -104,17 +106,19 @@ const tenants: User[] = [
     location: 'Szczecin, Poland'
   }
 ]
+*/
 
 // Fetch tenants from backend
 async function fetchTenants(event: any) {
+  // Get auth token from headers
+  const authHeader = getHeader(event, 'authorization')
+  
   try {
-    // Get auth token from headers
-    const authHeader = getHeader(event, 'authorization')
     if (!authHeader) {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/users/?role=tenant', {
+    const response = await fetch('http://localhost:8000/api/tenants/', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'
@@ -142,9 +146,9 @@ async function fetchTenants(event: any) {
     console.error('Error fetching tenants from backend:', error)
     console.error('Error details:', error)
     console.log('Auth header:', authHeader)
-    console.log('Falling back to mock data')
-    // Fallback to mock data if backend is not available
-    return tenants
+    console.log('No fallback data - returning empty array')
+    // No fallback - return empty array if backend is not available
+    return []
   }
 }
 

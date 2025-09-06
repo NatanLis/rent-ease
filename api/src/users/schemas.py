@@ -18,6 +18,16 @@ class UserCreate(UserBase):
     role: EnumUserRoles
 
 
+class UserUpdate(BaseModel):
+    """User update schema."""
+
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None
+    is_active: bool | None = None
+    location: str | None = None
+
+
 class UserResponse(UserBase):
     """User response schema."""
 

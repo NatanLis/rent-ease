@@ -52,6 +52,7 @@ const isMobile = breakpoints.smaller('lg')
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

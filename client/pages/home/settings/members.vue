@@ -13,6 +13,7 @@ const filteredMembers = computed(() => {
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
@@ -22,14 +22,44 @@ async def get_all_properties(
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> list[PropertyResponse]:
-    """Get all properties."""
-    logger.debug("Fetching all Properties")
+    """Get all properties - admin only."""
+    logger.debug("Fetching all properties for admin user_id=%s", current_user.id)
+    if current_user.role != "admin":
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
     try:
         properties = await service.get_all_properties()
-        logger.info(f"Retrieved {len(properties)} properties")
+        logger.info(f"Admin retrieved {len(properties)} properties")
         return properties
     except Exception as e:
         logger.error(f"Failed to fetch properties: {str(e)}")
+        raise
+
+
+@router.get("/owner", response_model=list[PropertyResponse])
+async def get_owner_properties(
+    service: PropertyService = Depends(get_property_service),
+    current_user: User = Depends(get_current_user),
+) -> list[PropertyResponse]:
+    """Get properties owned by the current user."""
+    logger.debug("Fetching properties for owner user_id=%s", current_user.id)
+    if current_user.role not in ["admin", "owner"]:
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    try:
+        properties = await service.get_properties_for_owner(current_user.id)
+        logger.info(f"Owner {current_user.id} retrieved {len(properties)} properties")
+        return properties
+    except Exception as e:
+        logger.error(f"Failed to fetch owner properties: {str(e)}")
         raise
 
 

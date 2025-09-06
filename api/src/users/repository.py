@@ -5,7 +5,7 @@ from api.core.exceptions import AlreadyExistsException, NotFoundException
 from api.core.logging import get_logger
 from api.core.security import get_password_hash
 from api.src.users.models import User
-from api.src.users.schemas import UserCreate
+from api.src.users.schemas import UserCreate, UserUpdate
 from api.src.enums import EnumUserRoles
 from api.src.leases.models import Lease
 from api.src.units.models import Unit
@@ -342,3 +342,50 @@ class UserRepository:
             }
             for lease in leases
         ]
+
+    async def update(self, user_id: int, user_data: UserUpdate) -> User:
+        """Update user by ID.
+
+        Args:
+            user_id: User ID
+            user_data: User update data
+
+        Returns:
+            User: Updated user
+
+        Raises:
+            NotFoundException: If user not found
+        """
+        # Get user
+        user = await self.get_by_id(user_id)
+        
+        # Update only provided fields
+        update_data = user_data.model_dump(exclude_unset=True)
+        if not update_data:
+            return user
+        
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        
+        await self.session.commit()
+        await self.session.refresh(user)
+        
+        logger.info(f"Updated user: {user.email}")
+        return user
+
+    async def delete(self, user_id: int) -> None:
+        """Delete user by ID.
+
+        Args:
+            user_id: User ID
+
+        Raises:
+            NotFoundException: If user not found
+        """
+        # Get user
+        user = await self.get_by_id(user_id)
+        
+        await self.session.delete(user)
+        await self.session.commit()
+        
+        logger.info(f"Deleted user: {user.email}")

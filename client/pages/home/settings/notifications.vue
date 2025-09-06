@@ -44,6 +44,7 @@ async function onChange() {
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 
