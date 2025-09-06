@@ -194,7 +194,7 @@ onBeforeMount(async () => {
       <template #header="{ collapsed }">
         <!-- <TeamsMenu :collapsed="collapsed" /> -->
 
-        <div v-if="collapsed" class="font-bold">
+        <div v-if="collapsed" class="font-bold flex flex-col">
           Rent<span class="text-primary-500">Ease</span>
         </div>
 
