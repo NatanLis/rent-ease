@@ -141,7 +141,7 @@ async function fetchTenants(event: any) {
   } catch (error) {
     console.error('Error fetching tenants from backend:', error)
     console.error('Error details:', error)
-    console.log('Auth header:', authHeader)
+    // console.log('Auth header:', authHeader)
     console.log('Falling back to mock data')
     // Fallback to mock data if backend is not available
     return tenants

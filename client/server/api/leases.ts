@@ -14,6 +14,45 @@ const leases = [
     propertyTitle: 'Apartament w centrum',
     propertyAddress: 'ul. Główna 1, Warszawa',
     status: 'inactive'
+  },
+  {
+    id: 2,
+    unitId: 2,
+    tenantId: 2,
+    startDate: '2024-03-01',
+    endDate: '2024-09-30',
+    isActive: true,
+    tenantEmail: 'tenant2@example.com',
+    unitName: 'B2',
+    propertyTitle: 'Mieszkanie na Mokotowie',
+    propertyAddress: 'ul. Mokotowska 10, Warszawa',
+    status: 'active'
+  },
+  {
+    id: 3,
+    unitId: 3,
+    tenantId: 3,
+    startDate: '2024-05-15',
+    endDate: '2025-05-14',
+    isActive: true,
+    tenantEmail: 'tenant3@example.com',
+    unitName: 'C3',
+    propertyTitle: 'Loft na Pradze',
+    propertyAddress: 'ul. Praska 5, Warszawa',
+    status: 'active'
+  },
+  {
+    id: 4,
+    unitId: 4,
+    tenantId: 4,
+    startDate: '2023-11-01',
+    endDate: '2024-10-31',
+    isActive: false,
+    tenantEmail: 'tenant4@example.com',
+    unitName: 'D4',
+    propertyTitle: 'Studio na Żoliborzu',
+    propertyAddress: 'ul. Żoliborska 8, Warszawa',
+    status: 'inactive'
   }
 ]
 
@@ -63,7 +102,7 @@ async function fetchLeases(event: any) {
   } catch (error) {
     console.error('Error fetching leases from backend:', error)
     console.error('Error details:', error)
-    console.log('Auth header:', authHeader)
+    // console.log('Auth header:', authHeader)
     console.log('Falling back to mock data')
     // Fallback to mock data if backend is not available
     return leases

@@ -167,7 +167,7 @@ async function fetchUsers(event: any) {
     const token = authHeader?.replace('Bearer ', '')
     
     console.log('Token received:', token ? 'Yes' : 'No')
-    console.log('Auth header:', authHeader)
+    // console.log('Auth header:', authHeader)
     console.log('Token value:', token)
     
     const headers: Record<string, string> = {
