@@ -73,13 +73,6 @@ const links = [[{
     open.value = false
   }
 }, {
-  label: 'Payments',
-  icon: 'i-lucide-credit-card',
-  to: '/home/payments',
-  onSelect: () => {
-    open.value = false
-  }
-}, {
   label: 'Admin Panel',
   to: '/home/admin',
   icon: 'i-lucide-shield-check',
@@ -107,12 +100,6 @@ const links = [[{
     label: 'General',
     to: '/home/settings',
     exact: true,
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
-    label: 'Members',
-    to: '/home/settings/members',
     onSelect: () => {
       open.value = false
     }
