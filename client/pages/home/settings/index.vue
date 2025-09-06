@@ -35,8 +35,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
       icon: 'i-lucide-check',
       color: 'success'
     })
-    console.log(event.data)
-  } catch (error) {
+  } catch (_error) {
     toast.add({
       title: 'Error',
       description: 'Failed to update settings.',

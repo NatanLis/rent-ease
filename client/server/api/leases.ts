@@ -99,11 +99,7 @@ async function fetchLeases(event: any) {
         src: `https://i.pravatar.cc/128?u=${lease.tenant_id}`
       }
     }))
-  } catch (error) {
-    console.error('Error fetching leases from backend:', error)
-    console.error('Error details:', error)
-    // console.log('Auth header:', authHeader)
-    console.log('Falling back to mock data')
+  } catch (_error) {
     // Fallback to mock data if backend is not available
     return leases
   }

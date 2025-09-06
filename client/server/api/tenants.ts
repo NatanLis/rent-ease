@@ -138,12 +138,7 @@ async function fetchTenants(event: any) {
       status: user.is_active ? 'active' : 'inactive',
       location: user.location || 'Poland' // Use location from backend or default
     }))
-  } catch (error) {
-    console.error('Error fetching tenants from backend:', error)
-    console.error('Error details:', error)
-    // console.log('Auth header:', authHeader)
-    console.log('Falling back to mock data')
-    // Fallback to mock data if backend is not available
+  } catch (_error) {
     return tenants
   }
 }
