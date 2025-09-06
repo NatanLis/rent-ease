@@ -96,22 +96,22 @@ class UserRepository:
             List[User]: List of users
         """
         query = select(User)
-        
+
         if role:
             # Convert string role to enum
-            role_enum = None
+            # role_enum = None
             if role.upper() == "ADMIN":
                 role_enum = EnumUserRoles.ADMIN
             elif role.upper() == "OWNER":
                 role_enum = EnumUserRoles.OWNER
             elif role.upper() == "TENANT":
                 role_enum = EnumUserRoles.TENANT
-            
+
             if role_enum:
                 query = query.where(User.role == role_enum)
-        
+
         query = query.order_by(User.email)
-        
+
         result = await self.session.execute(query)
         return list(result.scalars().all())
 

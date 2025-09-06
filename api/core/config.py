@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION: int = 30  # minutes
 
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

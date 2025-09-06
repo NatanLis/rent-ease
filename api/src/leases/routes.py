@@ -65,15 +65,15 @@ async def get_all_leases(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
         )
-    
+
     leases = await service.get_all_leases()
     logger.info(f"Found {len(leases)} leases")
-    
+
     # Log first lease for debugging
     if leases:
         first_lease = leases[0]
         logger.info(f"First lease: id={first_lease.id}, unit_id={first_lease.unit_id}, tenant_id={first_lease.tenant_id}")
-    
+
     return leases
 
 

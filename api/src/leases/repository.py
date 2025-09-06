@@ -7,6 +7,7 @@ from datetime import date
 from .models import Lease
 from .schemas import LeaseCreate
 from api.core.exceptions import NotFoundException, AlreadyExistsException, BusinessRuleViolationException
+from api.src.units.models import Unit
 
 
 def overlaps(existing_start, existing_end, new_start, new_end):
@@ -124,9 +125,6 @@ class LeaseRepository:
         Returns:
             list[Lease]: List of all leases with unit, user, and property data
         """
-        from api.src.units.models import Unit
-        from api.src.users.models import User
-        
         result = await self.session.execute(
             select(Lease)
             .options(
@@ -145,9 +143,6 @@ class LeaseRepository:
         Returns:
             list[Lease]: List of leases for the tenant
         """
-        from api.src.units.models import Unit
-        from api.src.users.models import User
-        
         result = await self.session.execute(
             select(Lease)
             .where(Lease.tenant_id == tenant_id)
