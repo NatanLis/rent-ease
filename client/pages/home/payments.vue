@@ -249,10 +249,10 @@ definePageMeta({
 
         <template #right>
           <UButton 
-            @click="addPayment"
             icon="i-lucide-plus"
             size="md"
             class="rounded-full"
+            @click="addPayment"
           >
             Add Payment
           </UButton>
