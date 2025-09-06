@@ -5,7 +5,7 @@ const { user } = useUser();
 
 const open = ref(false);
 
-const hideItem = (active: boolean | undefined) => {
+const showItem = (active: boolean | undefined) => {
   return active ? '' : 'hidden'
 }
 
@@ -36,7 +36,7 @@ const links = [
   label: 'Tenants',
   icon: 'i-lucide-users',
   to: '/home/tenants',
-  class: hideItem(!user.value?.isTenant()),
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -44,7 +44,7 @@ const links = [
   label: 'Leases',
   icon: 'i-lucide-file-text',
   to: '/home/leases',
-  class: hideItem(!user.value?.isTenant()),
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -52,7 +52,7 @@ const links = [
   label: 'Properties',
   icon: 'i-lucide-building',
   to: '/home/properties',
-  class: hideItem(!user.value?.isTenant()),
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -60,7 +60,7 @@ const links = [
   label: 'Units',
   icon: 'i-lucide-home',
   to: '/home/units',
-  class: hideItem(!user.value?.isTenant()),
+  class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -76,19 +76,19 @@ const links = [
   to: '/home/admin',
   icon: 'i-lucide-shield-check',
   defaultOpen: true,
-  class: hideItem(user.value?.isAdmin()),
+  class: showItem(user.value?.isAdmin()),
   children: [{
     label: 'Overview',
     to: '/home/admin',
     exact: true,
-    class: hideItem(user.value?.isAdmin()),
+    class: showItem(user.value?.isAdmin()),
     onSelect: () => {
       open.value = false
     }
   }, {
     label: 'Users',
     to: '/home/admin/users',
-    class: hideItem(user.value?.isAdmin()),
+    class: showItem(user.value?.isAdmin()),
     onSelect: () => {
       open.value = false
     }
@@ -149,15 +149,9 @@ onBeforeMount(async () => {
       :ui="{ footer: 'lg:border-t lg:border-(--ui-border)' }"
     >
       <template #header="{ collapsed }">
-        <!-- <TeamsMenu :collapsed="collapsed" /> -->
-
-      <pre>
-        {{ user.value?.isAdmin() }}
-      </pre>
         <div v-if="collapsed" class="font-bold flex flex-col">
           Rent<span class="text-primary-500">Ease</span>
         </div>
-
         <div v-if="!collapsed" class="w-auto font-bold text-2xl">
           Rent<span class="text-primary-500">Ease</span>
         </div>
