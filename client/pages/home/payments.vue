@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, watch } from 'vue'
 import type { Payment } from '~/data/payments'
 import { mockPayments } from '~/data/payments'
 
@@ -11,6 +11,127 @@ const UDropdownMenu = resolveComponent('UDropdownMenu')
 const allPayments = ref<Payment[]>([...mockPayments])
 const selectedStatus = ref('all')
 const searchQuery = ref('')
+
+// Add Payment form state
+const isAddOpen = ref(false)
+const documentTypeOptions = [
+  { label: 'Rent Invoice', value: 'Rent Invoice' },
+  { label: 'Security Deposit', value: 'Security Deposit' },
+  { label: 'Maintenance Fee', value: 'Maintenance Fee' },
+  { label: 'Other', value: 'Other' }
+]
+
+// Fetch tenants and leases to power selects and auto property mapping
+const { data: tenants, pending: tenantsPending } = await useFetch<any[]>('/api/tenants', { default: () => [], server: false })
+const { data: leasesData, pending: leasesPending } = await useFetch<any[]>('/api/leases', { default: () => [], server: false })
+const { data: properties, pending: propertiesPending } = await useFetch<any[]>('/api/properties', { default: () => [], server: false })
+
+const tenantOptions = computed(() => (tenants.value || []).map((t: any) => ({
+  label: `${t.name} (${t.email})`,
+  value: t.email,
+  name: t.name
+})))
+
+const propertyOptions = computed(() => (properties.value || []).map((p: any) => ({
+  label: p.title || p.propertyTitle || p.name,
+  value: p.title || p.propertyTitle || p.name
+})))
+
+const newPayment = ref({
+  documentType: '',
+  receiverEmail: '',
+  receiverName: '',
+  property: '',
+  grossValue: '',
+  dueDate: '',
+  description: ''
+})
+
+// Touched state for lazy validation
+const touched = ref({
+  documentType: false,
+  receiverEmail: false,
+  property: false,
+  grossValue: false,
+  dueDate: false,
+  description: false
+})
+const submittedAttempt = ref(false)
+
+function openAddPaymentForm() {
+  isAddOpen.value = true
+}
+
+function cancelAddPayment() {
+  isAddOpen.value = false
+  newPayment.value = {
+    documentType: '',
+    receiverEmail: '',
+    receiverName: '',
+    property: '',
+    grossValue: '',
+    dueDate: '',
+    description: ''
+  }
+}
+
+// Auto-fill property based on selected tenant via active lease
+watch(() => newPayment.value.receiverEmail, (email) => {
+  if (!email) {
+    newPayment.value.property = ''
+    newPayment.value.receiverName = ''
+    return
+  }
+  const tenant = (tenants.value || []).find((t: any) => t.email === email)
+  newPayment.value.receiverName = tenant?.name || email
+  const activeLease = (leasesData.value || []).find((l: any) => (l.tenantEmail === email) && (l.isActive === true || l.status === 'active'))
+  newPayment.value.property = activeLease?.propertyTitle || ''
+})
+
+function submitAddPayment() {
+  submittedAttempt.value = true
+  if (!isFormValid.value) {
+    toast.add({ title: 'Please fix the form errors', color: 'error' })
+    return
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0)
+  const due = new Date(newPayment.value.dueDate); due.setHours(0,0,0,0)
+  const status: 'Paid' | 'Pending' | 'Overdue' = due < today ? 'Overdue' : 'Pending'
+
+  const payment: Payment = {
+    id: Math.max(0, ...allPayments.value.map(p => p.id)) + 1,
+    createdAt: new Date().toISOString(),
+    documentType: newPayment.value.documentType,
+    grossValue: parseFloat(newPayment.value.grossValue),
+    dueDate: newPayment.value.dueDate,
+    receiver: newPayment.value.receiverName || newPayment.value.receiverEmail,
+    property: newPayment.value.property || 'Unknown',
+    status,
+    description: newPayment.value.description || ''
+  }
+
+  allPayments.value.unshift(payment)
+  cancelAddPayment()
+  toast.add({ title: 'Payment added', description: `#${payment.id} for ${formatCurrency(payment.grossValue)}`, color: 'success' })
+  submittedAttempt.value = false
+}
+
+// Inline validation
+const documentTypeError = computed(() => newPayment.value.documentType ? '' : 'Please select a document type')
+const receiverEmailError = computed(() => newPayment.value.receiverEmail ? '' : 'Please select a tenant')
+const propertyError = computed(() => newPayment.value.property ? '' : 'Select or auto-fill a property')
+const grossValueError = computed(() => {
+  const v = parseFloat(newPayment.value.grossValue)
+  if (!newPayment.value.grossValue) return 'Enter an amount'
+  if (Number.isNaN(v) || v <= 0) return 'Enter a valid amount > 0'
+  return ''
+})
+const dueDateError = computed(() => newPayment.value.dueDate ? '' : 'Please select a due date')
+const isSubmitting = ref(false)
+const isFormValid = computed(() => !documentTypeError.value && !receiverEmailError.value && !propertyError.value && !grossValueError.value && !dueDateError.value)
+
+const toast = useToast()
 
 // Function to automatically update payment status based on due date
 function updatePaymentStatuses() {
@@ -238,7 +359,7 @@ definePageMeta({
             icon="i-lucide-plus"
             size="md"
             class="rounded-full"
-            @click="addPayment"
+            @click="openAddPaymentForm"
           >
             Add Payment
           </UButton>
@@ -248,6 +369,65 @@ definePageMeta({
 
     <template #body>
       <div class="space-y-6">
+        <!-- Add Payment Inline Form -->
+        <UCard v-if="isAddOpen">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-start gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted) mt-2">Document type:</label>
+              <div class="flex-1 space-y-1">
+                <USelect v-model="newPayment.documentType" :items="documentTypeOptions" placeholder="Select type" class="w-full" @blur="touched.documentType = true" />
+                <p v-if="(touched.documentType || submittedAttempt) && documentTypeError" class="text-xs text-red-500">{{ documentTypeError }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted) mt-2">Receiver:</label>
+              <div class="flex-1 space-y-1">
+                <USelect v-model="newPayment.receiverEmail" :items="tenantOptions" :loading="tenantsPending" placeholder="Select tenant" class="w-full" @blur="touched.receiverEmail = true" />
+                <p v-if="(touched.receiverEmail || submittedAttempt) && receiverEmailError" class="text-xs text-red-500">{{ receiverEmailError }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted) mt-2">Property:</label>
+              <div class="flex-1 space-y-1">
+                <UInput v-model="newPayment.property" :disabled="!!newPayment.receiverEmail" placeholder="Auto-selected from active lease" class="w-full" @blur="touched.property = true" />
+                <p v-if="(touched.property || submittedAttempt) && propertyError" class="text-xs text-red-500">{{ propertyError }}</p>
+                <p v-if="!newPayment.property && newPayment.receiverEmail" class="text-xs text-(--ui-text-muted)">No active lease found. You can pick a property:</p>
+                <USelect v-if="!newPayment.property && newPayment.receiverEmail" v-model="newPayment.property" :items="propertyOptions" :loading="propertiesPending" placeholder="Select property" class="w-full" @blur="touched.property = true" />
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted) mt-2">Gross value (PLN):</label>
+              <div class="flex-1 space-y-1">
+                <UInput v-model="newPayment.grossValue" type="number" step="0.01" placeholder="0.00" class="w-full" @blur="touched.grossValue = true" />
+                <p v-if="(touched.grossValue || submittedAttempt) && grossValueError" class="text-xs text-red-500">{{ grossValueError }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted) mt-2">Due date:</label>
+              <div class="flex-1 space-y-1">
+                <UInput v-model="newPayment.dueDate" type="date" class="w-full" @blur="touched.dueDate = true" />
+                <p v-if="(touched.dueDate || submittedAttempt) && dueDateError" class="text-xs text-red-500">{{ dueDateError }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <label class="w-40 text-sm text-(--ui-text-muted)">Description:</label>
+              <UInput v-model="newPayment.description" placeholder="Optional description" class="flex-1" />
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="flex justify-end gap-2">
+              <UButton color="neutral" variant="ghost" @click="cancelAddPayment">Cancel</UButton>
+              <UButton color="primary" @click="submitAddPayment" :disabled="!isFormValid || tenantsPending || leasesPending || propertiesPending">Add</UButton>
+            </div>
+          </template>
+        </UCard>
+
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <UCard>

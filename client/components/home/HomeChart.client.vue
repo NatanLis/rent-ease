@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format } from 'date-fns'
+import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format, addDays } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 import type { Period, Range } from '~/types'
+import type { Payment } from '~/data/payments'
+import { mockPayments } from '~/data/payments'
 
 const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
 
@@ -18,7 +20,7 @@ type DataRecord = {
 // const { width } = '50vw'
 // const { width } = useElementSize(cardRef)
 
-// We use `useAsyncData` here to have same random data on the client and server
+// Build chart data from payments (sum of PAID grossValue per bucket)
 const { data } = await useAsyncData<DataRecord[]>(async () => {
   const dates = ({
     daily: eachDayOfInterval,
@@ -26,10 +28,27 @@ const { data } = await useAsyncData<DataRecord[]>(async () => {
     monthly: eachMonthOfInterval
   } as Record<Period, typeof eachDayOfInterval>)[props.period](props.range)
 
-  const min = 1000
-  const max = 10000
+  // Normalize payments list and parse dates once
+  const paidPayments = (mockPayments as Payment[])
+    .filter(p => p.status === 'Paid')
+    .map(p => ({ ...p, createdAtDate: new Date(p.createdAt) }))
 
-  return dates.map(date => ({ date, amount: Math.floor(Math.random() * (max - min + 1)) + min }))
+  const records: DataRecord[] = []
+
+  for (let i = 0; i < dates.length; i++) {
+    const start = new Date(dates[i])
+    start.setHours(0, 0, 0, 0)
+    const nextBoundary = i < dates.length - 1 ? new Date(dates[i + 1]) : addDays(new Date(props.range.end), 1)
+    nextBoundary.setHours(0, 0, 0, 0)
+
+    const amount = paidPayments
+      .filter(p => p.createdAtDate >= start && p.createdAtDate < nextBoundary)
+      .reduce((sum, p) => sum + (Number(p.grossValue) || 0), 0)
+
+    records.push({ date: start, amount })
+  }
+
+  return records
 }, {
   watch: [() => props.period, () => props.range],
   default: () => []
@@ -40,7 +59,7 @@ const y = (d: DataRecord) => d.amount
 
 const total = computed(() => data.value.reduce((acc: number, { amount }) => acc + amount, 0))
 
-const formatNumber = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format
+const formatNumber = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format
 
 const formatDate = (date: Date): string => {
   return ({

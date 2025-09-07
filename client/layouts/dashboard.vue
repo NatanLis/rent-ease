@@ -72,6 +72,13 @@ const links = [
     open.value = false
   }
 }, {
+  label: 'Invoices',
+  icon: 'i-lucide-receipt',
+  to: '/home/invoices',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Admin Panel',
   to: '/home/admin',
   icon: 'i-lucide-shield-check',

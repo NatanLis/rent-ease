@@ -27,8 +27,8 @@ definePageMeta({
 
 // Replace with your real IDs + labels; add/remove as needed.
 const calendars = [
-  { id: 'kkrol.contact@gmail.com', label: 'Test'},
-  { id: 'your_calendar_id_2', label: 'Releases'},
+  { id: 'rentease2137@gmail.com', label: 'Test'},
+  { id: '846dbd0ce509e14824e55daedcbfe0d03140a3b952777acfe7bcac10ebaae3af@group.calendar.google.com', label: 'Apartment1'},
 ]
 </script>
 

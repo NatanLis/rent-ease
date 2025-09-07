@@ -69,5 +69,36 @@ export const mockPayments: Payment[] = [
     receiver: 'Piotr Wiśniewski',
     property: 'Apartament premium - C1',
     status: 'Paid'
+  },
+  // Recent paid payments for dashboard revenue chart (within ~last 14 days)
+  {
+    id: 7,
+    createdAt: '2025-09-06',
+    documentType: 'Rent Invoice',
+    grossValue: 2900.00,
+    dueDate: '2025-09-10',
+    receiver: 'Barbara Lewandowska',
+    property: 'Kamienica zabytkowa - K2',
+    status: 'Paid'
+  },
+  {
+    id: 8,
+    createdAt: '2025-09-02',
+    documentType: 'Maintenance Fee',
+    grossValue: 450.00,
+    dueDate: '2025-09-05',
+    receiver: 'Michał Nowicki',
+    property: 'Loft przemysłowy - L1',
+    status: 'Paid'
+  },
+  {
+    id: 9,
+    createdAt: '2025-08-29',
+    documentType: 'Rent Invoice',
+    grossValue: 2100.00,
+    dueDate: '2025-09-01',
+    receiver: 'Ewa Wiśniewska',
+    property: 'Apartament w centrum - A2',
+    status: 'Paid'
   }
 ]
