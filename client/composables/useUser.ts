@@ -19,6 +19,9 @@ export function useUser() {
     return user.value
   }
 
+  // Reactive getter for computed properties
+  const currentUser = computed(() => getUser())
+
   function updateUser(data: Partial<User>) {
     if (user.value) {
       user.value.update(data)
@@ -31,5 +34,5 @@ export function useUser() {
     localStorage.removeItem('user')
   }
 
-  return { user, setUser, getUser, updateUser, clearUser }
+  return { user, setUser, getUser, currentUser, updateUser, clearUser }
 }

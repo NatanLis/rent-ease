@@ -34,13 +34,42 @@ const rowSelection = ref({ 1: true })
 // Get user role to determine which endpoint to use
 const { getUser } = useUser()
 const user = getUser()
+const { getToken } = useAuth()
+const token = await getToken()
 
 // Use different endpoints based on user role
 const endpoint = user?.isAdmin() ? '/api/properties/all' : '/api/properties'
 
-const { data, status } = await useFetch<Property[]>(endpoint, {
-  lazy: true
-})
+// Use reactive data instead of useFetch
+const data = ref<Property[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Fetch data with authorization header
+async function fetchProperties() {
+  try {
+    status.value = 'pending'
+    const response = await fetch(endpoint, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch properties: ${response.status}`)
+    }
+    
+    data.value = await response.json()
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching properties:', error)
+    status.value = 'error'
+    data.value = []
+  }
+}
+
+// Fetch data on mount
+await fetchProperties()
 
 function getRowItems(row: Row<Property>) {
   return [

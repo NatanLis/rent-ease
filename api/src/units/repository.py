@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 
 from .models import Unit
 from .schemas import UnitCreate, UnitUpdate
@@ -49,6 +50,42 @@ class UnitRepository:
         if not unit:
             raise NotFoundException(f"Unit {unit_id} not found")
         return unit
+
+    async def get_all(self) -> list[Unit]:
+        """Get all units.
+
+        Returns:
+            list[Unit]: List of all units.
+        """
+        result = await self.session.execute(
+            select(Unit)
+            .options(
+                selectinload(Unit.property),
+                selectinload(Unit.leases)
+            )
+        )
+        return result.scalars().all()
+
+    async def get_by_owner(self, owner_id: int) -> list[Unit]:
+        """Get all units for properties owned by a specific user.
+
+        Args:
+            owner_id (int): The ID of the owner.
+
+        Returns:
+            list[Unit]: List of units belonging to owner's properties.
+        """
+        from api.src.properties.models import Property
+        result = await self.session.execute(
+            select(Unit)
+            .join(Property, Unit.property_id == Property.id)
+            .where(Property.owner_id == owner_id)
+            .options(
+                selectinload(Unit.property),
+                selectinload(Unit.leases)
+            )
+        )
+        return result.scalars().all()
 
     async def list_by_property(self, property_id: int) -> list[Unit]:
         """List all units for a given property.

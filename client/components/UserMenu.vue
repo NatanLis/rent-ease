@@ -15,11 +15,24 @@ const toast = useToast()
 const colors = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
 const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone']
 
-const user = ref({
-  name: 'Benjamin Canac',
-  avatar: {
-    src: 'https://github.com/benjamincanac.png',
-    alt: 'Benjamin Canac'
+const { currentUser } = useUser()
+
+const user = computed(() => {
+  if (currentUser.value) {
+    return {
+      name: `${currentUser.value.first_name} ${currentUser.value.last_name}`,
+      avatar: {
+        src: 'https://github.com/benjamincanac.png', // TODO: Use real avatar from backend
+        alt: `${currentUser.value.first_name} ${currentUser.value.last_name}`
+      }
+    }
+  }
+  return {
+    name: 'Guest',
+    avatar: {
+      src: 'https://github.com/benjamincanac.png',
+      alt: 'Guest'
+    }
   }
 })
 

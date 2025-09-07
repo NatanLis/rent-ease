@@ -30,7 +30,7 @@ export default eventHandler(async (event) => {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/api/properties/', {
+    const response = await fetch('http://localhost:8000/properties/', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'

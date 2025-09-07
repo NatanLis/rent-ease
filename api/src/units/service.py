@@ -34,6 +34,29 @@ class UnitService:
         unit = await self.repository.get_by_id(unit_id)
         return UnitResponse.model_validate(unit)
 
+    async def get_all_units(self) -> list[UnitResponse]:
+        """
+        Get all Units.
+
+        Returns:
+            list[UnitResponse]: List of all units
+        """
+        units = await self.repository.get_all()
+        return [UnitResponse.model_validate(u) for u in units]
+
+    async def get_units_for_owner(self, owner_id: int) -> list[UnitResponse]:
+        """
+        Get all Units for properties owned by a specific user.
+
+        Args:
+            owner_id: ID of the owner
+
+        Returns:
+            list[UnitResponse]: List of units for owner's properties
+        """
+        units = await self.repository.get_by_owner(owner_id)
+        return [UnitResponse.model_validate(u) for u in units]
+
     async def list_units_for_property(self, property_id: int) -> list[UnitResponse]:
         """
         List all Units for a given Property.

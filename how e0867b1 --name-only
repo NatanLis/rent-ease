@@ -1,0 +1,10 @@
+[33me0867b1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/user-functionality[m[33m, [m[1;31morigin/feature/user-functionality[m[33m)[m Merge branch 'feature/user-functionality' of github.com:NatanLis/rent-ease into feature/user-functionality
+[33m39e0a87[m feat: Add tenant CRUD with role-based data access
+[33mf043721[m Payments + chat updates
+[33mfe3fbbd[m[33m ([m[1;31morigin/feature/marcin-db-setup[m[33m, [m[1;32mfeature/marcin-db-setup[m[33m)[m feat: Add joins and profile pictures to leases API
+[33m65b8244[m feat: implement profile pictures with fallback icons
+[33mc80544d[m feat: add user icon placeholder in admin users table
+[33mcc0f05c[m feat: implement user fetching from database
+[33me5d1a6b[m feat: Add profile pictures integration with backend
+[33mf15b5e5[m Merge main into feature/marcin-db-setup
+[33m6129913[m fix: remove upload router references

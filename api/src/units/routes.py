@@ -21,6 +21,42 @@ def get_unit_service(session: AsyncSession = Depends(get_session)) -> UnitServic
     return UnitService(session)
 
 
+@router.get("/", response_model=list[UnitResponse])
+async def get_all_units(
+    service: UnitService = Depends(get_unit_service),
+    current_user: User = Depends(get_current_user),
+) -> list[UnitResponse]:
+    """Get all units - admin only."""
+    logger.debug("Getting all units for user_id=%s", current_user.id)
+    if current_user.role != "admin":
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    units = await service.get_all_units()
+    logger.info(f"Admin found {len(units)} units")
+    return units
+
+@router.get("/owner", response_model=list[UnitResponse])
+async def get_owner_units(
+    service: UnitService = Depends(get_unit_service),
+    current_user: User = Depends(get_current_user),
+) -> list[UnitResponse]:
+    """Get units for properties owned by the current user - owner only."""
+    logger.debug("Getting units for owner user_id=%s", current_user.id)
+    if current_user.role != "owner":
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    units = await service.get_units_for_owner(current_user.id)
+    logger.info(f"Owner {current_user.id} found {len(units)} units")
+    return units
+
 @router.post("/", response_model=UnitResponse, status_code=status.HTTP_201_CREATED)
 async def create_unit(
     unit_data: UnitCreate,

@@ -109,7 +109,7 @@ export default eventHandler(async (event) => {
     // Get user role from token to determine which endpoint to use
     // For now, we'll use the owner endpoint as default since most users are owners
     // In a real app, you'd decode the JWT token to get the role
-    const response = await fetch('http://localhost:8000/api/properties/owner', {
+    const response = await fetch('http://localhost:8000/properties/owner', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'

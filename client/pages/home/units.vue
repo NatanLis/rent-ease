@@ -31,9 +31,44 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<Unit[]>('/api/units', {
-  lazy: true
-})
+const { getToken } = useAuth()
+const token = await getToken()
+const { getUser } = useUser()
+const user = getUser()
+
+// Use different endpoints based on user role
+const endpoint = user?.isAdmin() ? '/api/units/' : '/api/units/owner'
+
+// Use reactive data instead of useFetch
+const data = ref<Unit[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Fetch data with authorization header
+async function fetchUnits() {
+  try {
+    status.value = 'pending'
+    const response = await fetch(endpoint, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch units: ${response.status}`)
+    }
+    
+    data.value = await response.json()
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching units:', error)
+    status.value = 'error'
+    data.value = []
+  }
+}
+
+// Fetch data on mount
+await fetchUnits()
 
 function getRowItems(row: Row<Unit>) {
   return [
