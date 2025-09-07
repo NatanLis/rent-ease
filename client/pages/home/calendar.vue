@@ -23,6 +23,7 @@ const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 
 // Replace with your real IDs + labels; add/remove as needed.

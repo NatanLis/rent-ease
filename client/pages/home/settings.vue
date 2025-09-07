@@ -16,6 +16,7 @@ const links = [{
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

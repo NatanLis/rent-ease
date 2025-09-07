@@ -45,6 +45,18 @@ class PropertyService:
         properties = await self.repository.get_all()
         return [PropertyResponse.model_validate(property) for property in properties]
 
+    async def get_properties_for_owner(self, owner_id: int) -> list[PropertyResponse]:
+        """Get all properties owned by a specific user.
+
+        Args:
+            owner_id: Owner user ID
+
+        Returns:
+            List[PropertyResponse]: List of properties owned by the user
+        """
+        properties = await self.repository.get_by_owner(owner_id)
+        return [PropertyResponse.model_validate(property) for property in properties]
+
     async def update_property(self, property_id: int, property_data: PropertyBase) -> PropertyResponse:
         """Update property by ID.
 

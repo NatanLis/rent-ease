@@ -70,6 +70,19 @@ class PropertyRepository:
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def get_by_owner(self, owner_id: int) -> list[Property]:
+        """Get all properties owned by a specific user.
+
+        Args:
+            owner_id: Owner user ID
+
+        Returns:
+            List[Property]: List of properties owned by the user
+        """
+        query = select(Property).where(Property.owner_id == owner_id)
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
     async def update(self, property_id: int, property_data) -> PropertyUpdate:
         """Update property by ID.
 

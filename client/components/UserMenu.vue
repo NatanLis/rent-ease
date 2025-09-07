@@ -9,6 +9,10 @@ defineProps<{
 
 const colorMode = useColorMode()
 const appConfig = useAppConfig()
+const { clearToken } = useAuth()
+const { clearUser } = useUser()
+const router = useRouter()
+const toast = useToast()
 
 const colors = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
 const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone']
@@ -21,10 +25,22 @@ const user = ref({
   }
 })
 
+// Logout function
+function handleLogout() {
+  clearToken()
+  clearUser()
+  toast.add({
+    title: 'Logged out',
+    description: 'You have been successfully logged out',
+    color: 'green'
+  })
+  router.push('/')
+}
+
 const items = computed<DropdownMenuItem[][]>(() => ([[{
   type: 'label',
-  label: user.value.name,
-  avatar: user.value.avatar
+  label: user.name,
+  avatar: user.avatar
 }], [{
   label: 'Profile',
   icon: 'i-lucide-user'
@@ -128,7 +144,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     <UButton
       v-bind="{
         ...user,
-        label: collapsed ? undefined : user?.name,
+        label: collapsed ? undefined : user.name,
         trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down'
       }"
       color="neutral"

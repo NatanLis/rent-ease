@@ -291,6 +291,7 @@ const pagination = ref({
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 
 onBeforeMount(() => {

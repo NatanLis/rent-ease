@@ -3,6 +3,7 @@ const { user } = useUser();
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 
 onBeforeMount(() => {

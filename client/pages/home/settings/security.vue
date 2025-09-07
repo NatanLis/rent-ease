@@ -24,6 +24,7 @@ const validate = (state: Partial<PasswordSchema>): FormError[] => {
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

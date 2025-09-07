@@ -50,6 +50,7 @@ const statusColor = (status: Payment['status']) => ({ Paid: 'success', Pending: 
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

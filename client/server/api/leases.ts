@@ -9,10 +9,10 @@ const leases = [
     startDate: '2024-01-01',
     endDate: '2024-12-31',
     isActive: false,
-    tenantEmail: 'tenant1@example.com',
-    unitName: 'A1',
-    propertyTitle: 'Apartament w centrum',
-    propertyAddress: 'ul. Główna 1, Warszawa',
+    tenantEmail: 'tenant1@mock.com',
+    unitName: '[MOCK] A1',
+    propertyTitle: '[MOCK] Apartament w centrum',
+    propertyAddress: 'ul. Mockowa 1, Mockowo',
     status: 'inactive'
   },
   {

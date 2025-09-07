@@ -31,7 +31,14 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({})
 
-const { data, status } = await useFetch<Property[]>('/api/properties', {
+// Get user role to determine which endpoint to use
+const { getUser } = useUser()
+const user = getUser()
+
+// Use different endpoints based on user role
+const endpoint = user?.isAdmin() ? '/api/properties/all' : '/api/properties'
+
+const { data, status } = await useFetch<Property[]>(endpoint, {
   lazy: true
 })
 
@@ -248,6 +255,7 @@ const pagination = ref({
 
 definePageMeta({
   layout: 'dashboard',
+  middleware: 'auth'
 })
 </script>
 

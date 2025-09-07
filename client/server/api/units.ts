@@ -1,35 +1,39 @@
+import { getHeader } from 'h3'
+
 // Mock data for units - based on the seeds from the database
+// COMMENTED OUT - using real backend data instead
+/*
 const units = [
   {
     id: 1,
     propertyId: 1,
-    name: 'A1',
-    description: 'Apartament 1-pokojowy z balkonem',
+    name: '[MOCK] A1',
+    description: 'Apartament 1-pokojowy z balkonem - MOCK DATA',
     monthlyRent: 2500,
-    propertyTitle: 'Apartament w centrum',
-    propertyAddress: 'ul. Główna 1, Warszawa',
+    propertyTitle: '[MOCK] Apartament w centrum',
+    propertyAddress: 'ul. Mockowa 1, Mockowo',
     activeLeases: 0,
     status: 'available'
   },
   {
     id: 2,
     propertyId: 1,
-    name: 'A2',
-    description: 'Apartament 2-pokojowy z tarasem',
+    name: '[MOCK] A2',
+    description: 'Apartament 2-pokojowy z tarasem - MOCK DATA',
     monthlyRent: 3000,
-    propertyTitle: 'Apartament w centrum',
-    propertyAddress: 'ul. Główna 1, Warszawa',
+    propertyTitle: '[MOCK] Apartament w centrum',
+    propertyAddress: 'ul. Mockowa 1, Mockowo',
     activeLeases: 1,
     status: 'occupied'
   },
   {
     id: 3,
     propertyId: 2,
-    name: 'B1',
-    description: 'Dom jednorodzinny - parter',
+    name: '[MOCK] B1',
+    description: 'Dom jednorodzinny - parter - MOCK DATA',
     monthlyRent: 1800,
-    propertyTitle: 'Dom jednorodzinny',
-    propertyAddress: 'ul. Słoneczna 15, Kraków',
+    propertyTitle: '[MOCK] Dom jednorodzinny',
+    propertyAddress: 'ul. Mockowa 15, Mockowo',
     activeLeases: 1,
     status: 'occupied'
   },
@@ -177,10 +181,50 @@ const units = [
     status: 'occupied'
   }
 ]
+*/
 
-export default eventHandler(async () => {
+export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  return units
+  try {
+    // Get auth token from headers
+    const authHeader = getHeader(event, 'authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    const response = await fetch('http://localhost:8000/units/', {
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Backend responded with status: ${response.status}`)
+    }
+    
+    const backendUnits = await response.json()
+    console.log('Backend units response:', JSON.stringify(backendUnits, null, 2))
+    
+    // Transform backend data to frontend format
+    return backendUnits.map((unit: any) => ({
+      id: unit.id,
+      propertyId: unit.property_id,
+      name: unit.name,
+      description: unit.description,
+      monthlyRent: unit.monthly_rent,
+      propertyTitle: unit.property?.title || 'Unknown Property',
+      propertyAddress: unit.property?.address || 'Unknown Address',
+      activeLeases: 0, // TODO: Calculate from leases
+      status: 'available' // TODO: Calculate based on active leases
+    }))
+  } catch (error) {
+    console.error('Error fetching units from backend:', error)
+    console.error('Error details:', error)
+    console.log('No fallback data - returning empty array')
+    // No fallback - return empty array if backend is not available
+    return []
+  }
 })

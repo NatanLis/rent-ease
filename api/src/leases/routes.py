@@ -34,7 +34,7 @@ async def create_lease(
     if not property_:
         raise HTTPException(status_code=404, detail="Property not found")
 
-    if not (current_user.is_admin or property_.owner_id == current_user.id):
+    if not (current_user.role == "admin" or property_.owner_id == current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to assign tenant to this unit")
     return await service.create_lease(lease_data)
 
@@ -56,9 +56,8 @@ async def get_all_leases(
     service: LeaseService = Depends(get_lease_service),
     current_user: User = Depends(get_current_user),
 ):
-    """Get all leases."""
-    logger.debug("Getting all leases by user_id=%s", current_user.id)
-    # Only admin can view all leases
+    """Get all leases - admin only."""
+    logger.debug("Getting all leases for admin user_id=%s", current_user.id)
     if current_user.role != "admin":
         logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
         raise HTTPException(
@@ -87,3 +86,24 @@ async def list_tenant_leases(
     logger.debug("Listing leases for tenant_id=%s by user_id=%s", tenant_id, current_user.id)
     # tenant can see own; owner/admin can query their tenants (enforce outside)
     return await service.list_leases_for_tenant(tenant_id)
+
+
+@router.get("/owner", response_model=list[LeaseResponse])
+async def list_owner_leases(
+    service: LeaseService = Depends(get_lease_service),
+    current_user: User = Depends(get_current_user),
+):
+    """List all leases for properties owned by the current user."""
+    logger.debug("Listing leases for property owner user_id=%s", current_user.id)
+    # Only property owners and admins can view their leases
+    if current_user.role not in ["admin", "owner"]:
+        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    
+    leases = await service.list_leases_for_property_owner(current_user.id)
+    logger.info(f"Found {len(leases)} leases for owner {current_user.id}")
+    
+    return leases

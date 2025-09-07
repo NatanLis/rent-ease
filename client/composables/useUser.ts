@@ -5,7 +5,6 @@ const user = ref<User | null>(null)
 
 export function useUser() {
   function setUser(newUser: UserI) {
-
     user.value = User.fromObject(newUser)
     localStorage.setItem('user', JSON.stringify(user.value.toJSON()))
   }
