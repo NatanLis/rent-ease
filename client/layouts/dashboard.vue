@@ -30,7 +30,6 @@ const links = [
   label: 'Calendar',
   icon: 'i-lucide-calendar',
   to: '/home/calendar',
-  class: 'hidden',
   onSelect: () => {
     open.value = false
    }
