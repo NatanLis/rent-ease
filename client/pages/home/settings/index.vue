@@ -279,6 +279,7 @@ definePageMeta({
       <UFormField
         name="avatar"
         label="Avatar"
+        hidden=true
         description="JPG, GIF or PNG. 1MB Max."
         class="flex max-sm:flex-col justify-between sm:items-center gap-4"
       >
@@ -305,7 +306,7 @@ definePageMeta({
           >
         </div>
       </UFormField>
-      <USeparator />
+      <!-- <USeparator /> -->
       <UFormField
         name="bio"
         label="Bio"

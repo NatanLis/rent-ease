@@ -7,19 +7,44 @@ defineProps<{
 
 const colorMode = useColorMode()
 const appConfig = useAppConfig()
-const { clearToken } = useAuth()
-const { clearUser } = useUser()
+const { clearToken, validateToken, isValidating } = useAuth()
+const { user: currentUser, clearUser, getUser } = useUser()
 const router = useRouter()
 const toast = useToast()
 
 const colors = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
 const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone']
 
-const user = ref({
-  name: 'Benjamin Canac',
-  avatar: {
-    src: 'https://github.com/benjamincanac.png',
-    alt: 'Benjamin Canac'
+// Initialize user data on component mount
+onMounted(async () => {
+  // Try to get user from localStorage first
+  const storedUser = getUser()
+
+  // If no user in localStorage, try to validate token and fetch user data
+  if (!storedUser) {
+    await validateToken()
+  }
+})
+
+// Get current user data - reactive
+const user = computed(() => {
+  if (currentUser.value) {
+    return {
+      name: currentUser.value.fullName || currentUser.value.username || 'User',
+      avatar: {
+        src: currentUser.value.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.value.first_name || '')}+${encodeURIComponent(currentUser.value.last_name || '')}`,
+        alt: currentUser.value.fullName || currentUser.value.username || 'User'
+      }
+    }
+  }
+
+  // Fallback for when user is not loaded or loading
+  return {
+    name: isValidating.value ? 'Loading...' : 'User',
+    avatar: {
+      src: 'https://ui-avatars.com/api/?name=User',
+      alt: 'User'
+    }
   }
 })
 
@@ -37,16 +62,16 @@ function handleLogout() {
 
 const items = computed<DropdownMenuItem[][]>(() => ([[{
   type: 'label',
-  label: user.name,
-  avatar: user.avatar
+  label: user.value?.name || 'User',
+  avatar: user.value?.avatar || { src: 'https://ui-avatars.com/api/?name=User', alt: 'User' }
 }], [{
   label: 'Profile',
   icon: 'i-lucide-user'
-}, 
+},
 // {
 //   label: 'Billing',
 //   icon: 'i-lucide-credit-card'
-// }, 
+// },
 {
   label: 'Settings',
   icon: 'i-lucide-settings',
@@ -141,8 +166,8 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
   >
     <UButton
       v-bind="{
-        ...user,
-        label: collapsed ? undefined : user.name,
+        ...(user?.value || {}),
+        label: collapsed ? undefined : (user?.value?.name || 'User'),
         trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down'
       }"
       color="neutral"
