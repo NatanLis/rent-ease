@@ -1,61 +1,29 @@
 import { getHeader } from 'h3'
 
-// Mock data for owner leases - fallback if backend is not available
-// COMMENTED OUT - using real backend data instead
-/*
-const ownerLeases = [
-  {
-    id: 1,
-    unit_id: 1,
-    tenant_id: 1,
-    start_date: '2024-01-01',
-    end_date: '2024-12-31',
-    is_active: false,
-    user: {
-      id: 1,
-      email: 'tenant1@mock.com',
-      first_name: 'Mock',
-      last_name: 'User',
-      avatar_url: undefined
-    },
-    unit: {
-      id: 1,
-      name: '[MOCK] A1',
-      monthly_rent: 2500,
-      property: {
-        id: 1,
-        title: '[MOCK] Apartament w centrum',
-        address: 'ul. Mockowa 1, Mockowo'
-      }
-    }
-  }
-]
-*/
-
 // Fetch owner leases from backend
 async function fetchOwnerLeases(event: any) {
   // Get auth token from headers
   const authHeader = getHeader(event, 'authorization')
-  
+
   try {
     if (!authHeader) {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/api/leases/owner', {
+    const response = await fetch('http://backend:8000/api/leases/owner', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch owner leases: ${response.status} ${response.statusText}`)
     }
-    
+
     const backendLeases = await response.json()
     console.log('Backend owner leases response:', JSON.stringify(backendLeases, null, 2))
-    
+
     // Transform backend data to frontend format - keep nested structure
     return backendLeases.map((lease: any) => ({
       id: lease.id,
@@ -69,7 +37,7 @@ async function fetchOwnerLeases(event: any) {
         email: lease.user?.email || 'unknown@example.com',
         first_name: lease.user?.first_name || 'Unknown',
         last_name: lease.user?.last_name || 'User',
-        avatar_url: lease.user?.avatar_url ? `http://localhost:8000${lease.user.avatar_url}` : undefined
+        avatar_url: lease.user?.avatar_url ? `http://backend:8000${lease.user.avatar_url}` : undefined
       },
       unit: {
         id: lease.unit?.id || 0,
@@ -95,6 +63,6 @@ async function fetchOwnerLeases(event: any) {
 export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return await fetchOwnerLeases(event)
 })

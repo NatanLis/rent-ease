@@ -1,132 +1,104 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
+from api.src.enums.enums_user_role import EnumUserRoles
+from api.src.properties.schemas import PropertyBase, PropertyResponse, PropertyUpdate
+from api.src.properties.service import PropertyService
 from api.src.users.models import User
-
-from .service import PropertyService
-from .schemas import PropertyResponse, PropertyBase
+from api.src.utils.access_verify import is_owner_or_admin
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/properties", tags=["properties"])
 
 
-def get_property_service(session: AsyncSession = Depends(get_session)) -> PropertyService:
-    """Dependency for getting property service instance."""
+def get_property_service(
+    session: AsyncSession = Depends(get_session),
+) -> PropertyService:
     return PropertyService(session)
 
-@router.get("/", response_model=list[PropertyResponse])
+
+@router.get(
+    "/",
+    response_model=list[PropertyResponse],
+)
 async def get_all_properties(
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> list[PropertyResponse]:
-    """Get all properties - admin only."""
-    logger.debug("Fetching all properties for admin user_id=%s", current_user.id)
-    if current_user.role != "admin":
-        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-    
-    try:
+    properties = []
+    if current_user.role == EnumUserRoles.ADMIN:
         properties = await service.get_all_properties()
-        logger.info(f"Admin retrieved {len(properties)} properties")
-        return properties
-    except Exception as e:
-        logger.error(f"Failed to fetch properties: {str(e)}")
-        raise
+    else:
+        properties = await service.get_properties_for_owner(current_user.id)
+    return properties
 
 
-@router.get("/owner", response_model=list[PropertyResponse])
+@router.get(
+    "/owner",
+    response_model=list[PropertyResponse],
+)
 async def get_owner_properties(
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> list[PropertyResponse]:
-    """Get properties owned by the current user."""
-    logger.debug("Fetching properties for owner user_id=%s", current_user.id)
-    if current_user.role not in ["admin", "owner"]:
-        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-    
-    try:
-        properties = await service.get_properties_for_owner(current_user.id)
-        logger.info(f"Owner {current_user.id} retrieved {len(properties)} properties")
-        return properties
-    except Exception as e:
-        logger.error(f"Failed to fetch owner properties: {str(e)}")
-        raise
+    is_owner_or_admin(current_user)
+
+    properties = await service.get_properties_for_owner(current_user.id)
+    return properties
 
 
-@router.get("/{property_id}", response_model=PropertyResponse)
+@router.get(
+    "/{property_id}",
+    response_model=PropertyResponse,
+)
 async def get_property(
     property_id: int,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> PropertyResponse:
-    """Get property by ID."""
-    logger.debug("Fetching property {property_id}")
-    try:
-        properties = await service.get_property(property_id)
-        logger.info(f"Retrieved  property {property_id}")
-        return properties
-    except Exception as e:
-        logger.error(f"Failed to fetch property {property_id}: {str(e)}")
-        raise
+    properties = await service.get_property(property_id)
+    return properties
 
 
-@router.post("/", response_model=PropertyResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=PropertyResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_property(
     property_data: PropertyBase,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> PropertyResponse:
-    """Create a new property."""
-    logger.debug("Creating new property")
     property_create = property_data.model_copy(update={"owner_id": current_user.id})
-    try:
-        property_obj = await service.create_property(property_create)
-        logger.info(f"Created property {property_obj.id}")
-        return property_obj
-    except Exception as e:
-        logger.error(f"Failed to create property: {str(e)}")
-        raise
+    property_obj = await service.create_property(property_create)
+    return property_obj
 
 
-@router.patch("/{property_id}", response_model=PropertyResponse)
+@router.patch(
+    "/{property_id}",
+    response_model=PropertyResponse,
+)
 async def update_property(
     property_id: int,
-    property_data: PropertyBase,
+    property_data: PropertyUpdate,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> PropertyResponse:
-    """Update property by ID."""
-    logger.debug(f"Updating property {property_id}")
-    try:
-        property_obj = await service.update_property(property_id, property_data)
-        logger.info(f"Updated property {property_id}")
-        return property_obj
-    except Exception as e:
-        logger.error(f"Failed to update property {property_id}: {str(e)}")
-        raise
+    property_obj = await service.update_property(property_id, property_data)
+    return property_obj
 
 
-@router.delete("/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{property_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_property(
     property_id: int,
     service: PropertyService = Depends(get_property_service),
     current_user: User = Depends(get_current_user),
 ) -> None:
-    """Delete property by ID."""
-    logger.debug(f"Deleting property {property_id}")
-    try:
-        await service.delete_property(property_id)
-        logger.info(f"Deleted property {property_id}")
-    except Exception as e:
-        logger.error(f"Failed to delete property {property_id}: {str(e)}")
-        raise
+    await service.delete_property(property_id)

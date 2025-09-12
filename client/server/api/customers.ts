@@ -186,7 +186,7 @@ const customers: User[] = [{
 // Fetch customers from backend
 async function fetchCustomers() {
   try {
-    const response = await fetch('http://localhost:8000/api/users/?role=OWNER')
+    const response = await fetch('http://backend:8000/api/users/?role=OWNER')
     if (!response.ok) {
       throw new Error('Failed to fetch customers')
     }
@@ -197,7 +197,7 @@ async function fetchCustomers() {
       name: `${user.first_name} ${user.last_name}`,
       email: user.email,
       avatar: user.profile_picture_id ? {
-        src: `http://localhost:8000/profile-pictures/${user.profile_picture_id}`
+        src: `http://backend:8000/profile-pictures/${user.profile_picture_id}`
       } : {
         src: `https://i.pravatar.cc/128?u=${user.id}`
       },

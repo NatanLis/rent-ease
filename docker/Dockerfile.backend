@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip && pip install poetry
+
+COPY ./api /app/api
+COPY ./alembic /app/alembic
+COPY ./scripts /app/scripts
+COPY ./tests /app/tests
+
+COPY pyproject.toml environment.yml alembic.ini /app/
+RUN poetry install --no-interaction --no-ansi
+
+RUN chmod a+x /app/scripts/wait-for-it.sh
+RUN chmod a+x /app/scripts/run.sh

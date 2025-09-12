@@ -165,25 +165,25 @@ async function fetchUsers(event: any) {
     // Get token from request headers
     const authHeader = getHeader(event, 'authorization')
     const token = authHeader?.replace('Bearer ', '')
-    
-    
+
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     }
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
-    
-    const response = await fetch('http://localhost:8000/users/', {
+
+    const response = await fetch('http://backend:8000/users/', {
       headers
     })
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`)
     }
     const users = await response.json()
-    
+
     // Transform backend data to frontend format
     return users.map((user: any) => ({
       id: user.id,
@@ -193,7 +193,7 @@ async function fetchUsers(event: any) {
       role: user.role,
       status: user.is_active ? 'active' : 'inactive',
       avatar: user.avatar_url ? {
-        src: `http://localhost:8000${user.avatar_url}`
+        src: `http://backend:8000${user.avatar_url}`
       } : undefined,
       createdAt: user.created_at
     }))
@@ -207,6 +207,6 @@ async function fetchUsers(event: any) {
 export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return await fetchUsers(event)
 })

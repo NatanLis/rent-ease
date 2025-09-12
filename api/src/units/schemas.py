@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
 
 
 class UnitBase(BaseModel):
@@ -10,14 +11,10 @@ class UnitBase(BaseModel):
 
 
 class UnitCreate(UnitBase):
-    """Unit response schema."""
+    pass
 
 
 class UnitUpdate(UnitBase):
-    """Schema for updating an existing property.
-
-    All fields are optional since updates might be partial.
-    """
     property_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
@@ -25,11 +22,10 @@ class UnitUpdate(UnitBase):
 
 
 class UnitResponse(UnitBase):
-    """Schema for unit responses.
-
-    Includes all base fields plus the id.
-    """
     id: int
+    property_title: Optional[str] = None
+    property_address: Optional[str] = None
+    active_leases: int = 0
+    status: str = "available"
 
     model_config = ConfigDict(from_attributes=True)
-

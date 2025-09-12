@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: rent-ease-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: ./scripts/run.sh
+    env_file:
+      - docker/.env-backend
+    volumes:
+      - ./api:/app/api
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./environment.yml:/app/environment.yml
+    tty: true
+    stdin_open: true
+  frontend:
+    build:
+      context: ./client
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: rent-ease-frontend
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+    command: sh -c "ENV=dev yarn dev"
+    working_dir: /app
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    tty: true
+  db:
+    image: postgres:15
+    container_name: rent-ease-db
+    restart: always
+    env_file:
+      - docker/.env-backend
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    tty: true
+volumes:
+  pgdata:

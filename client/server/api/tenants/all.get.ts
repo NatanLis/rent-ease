@@ -23,32 +23,32 @@ const tenants: User[] = [
 async function fetchAllTenants(event: any) {
   // Get auth token from headers
   const authHeader = getHeader(event, 'authorization')
-  
+
   try {
     if (!authHeader) {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/api/tenants/', {
+    const response = await fetch('http://backend:8000/api/tenants/', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch all tenants: ${response.status} ${response.statusText}`)
     }
-    
+
     const users = await response.json()
-    
+
     // Transform backend data to frontend format
     return users.map((user: any) => ({
       id: user.id,
       name: `${user.first_name} ${user.last_name}`,
       email: user.email,
       avatar: user.avatar_url ? {
-        src: `http://localhost:8000${user.avatar_url}`
+        src: `http://backend:8000${user.avatar_url}`
       } : undefined, // Will show fallback icon
       status: user.is_active ? 'active' : 'inactive',
       location: user.location || 'Poland' // Use location from backend or default
@@ -66,6 +66,6 @@ async function fetchAllTenants(event: any) {
 export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return await fetchAllTenants(event)
 })

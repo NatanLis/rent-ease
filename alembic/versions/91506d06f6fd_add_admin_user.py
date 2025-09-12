@@ -5,29 +5,31 @@ Revises: 445f7ca1bb11
 Create Date: 2025-09-01 13:24:59.230785
 
 """
-from typing import Sequence, Union
+
 import os
+from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
-revision: str = '91506d06f6fd'
-down_revision: Union[str, None] = '7890abcdef12'
+revision: str = "91506d06f6fd"
+down_revision: Union[str, None] = "7890abcdef12"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
     # Get admin data from environment variables
-    admin_email = os.getenv('ADMIN_EMAIL', 'admin@rent-ease.com')
-    admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-    
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@rent-ease.com")
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+
     # Hash the password (using bcrypt)
     import bcrypt
-    hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    
+
+    hashed_password = bcrypt.hashpw(
+        admin_password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
     # Add admin user
     op.execute(f"""
         INSERT INTO users (email, hashed_password, first_name, last_name, username, role, is_active, created_at) VALUES
@@ -38,5 +40,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Remove admin user
-    admin_email = os.getenv('ADMIN_EMAIL', 'admin@rent-ease.com')
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@rent-ease.com")
     op.execute(f"DELETE FROM users WHERE email = '{admin_email}'")

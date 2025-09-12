@@ -2,6 +2,8 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
+import AddModal from '~/components/properties/AddModal.vue'
+import EditModal from '~/components/properties/EditModal.vue'
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
@@ -11,18 +13,27 @@ const UCheckbox = resolveComponent('UCheckbox')
 const toast = useToast()
 const table = useTemplateRef('table')
 
-// Define property type
+// Property interface definition
 interface Property {
   id: number
   title: string
   description: string | null
   address: string
   price: number
-  ownerId: number
-  unitsCount: number
-  activeLeases: number
-  status: 'active' | 'available' | 'maintenance'
+  owner_id: number
+  units_count: number
+  active_leases: number
 }
+
+// Edit modal state
+const isEditModalOpen = ref(false)
+const propertyToEdit = ref<Property | null>(null)
+
+// Delete confirmation modal state
+const isDeleteModalOpen = ref(false)
+const propertyToDelete = ref<Property | null>(null)
+
+const route = useRoute()
 
 const columnFilters = ref([{
   id: 'title',
@@ -31,48 +42,147 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({})
 
-// Get user role to determine which endpoint to use
+const { getToken } = useAuth()
+const token = await getToken()
+
+// Reactive data instead of useFetch
+const data = ref<Property[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Property filter from URL parameter (to filter by specific property ID)
+const propertyIdFilter = ref<string | null>(null)
+
+// Check for property filter in URL
+onMounted(() => {
+  if (route.query.propertyId) {
+    propertyIdFilter.value = route.query.propertyId as string
+  }
+  fetchProperties()
+})
+
+// Watch for route changes
+watch(() => route.query.propertyId, (newPropertyId) => {
+  propertyIdFilter.value = newPropertyId as string || null
+})
+
+// Computed filtered data
+const filteredData = computed(() => {
+  if (!propertyIdFilter.value) {
+    return data.value
+  }
+  return data.value.filter(property => property.id.toString() === propertyIdFilter.value)
+})
+
+// Function to clear property filter
+function clearPropertyFilter() {
+  propertyIdFilter.value = null
+  navigateTo('/home/properties')
+}
+
+// Get user role to determine endpoint
 const { getUser } = useUser()
 const user = getUser()
 
-// Use different endpoints based on user role
-const endpoint = user?.isAdmin() ? '/api/properties/all' : '/api/properties'
+// Function to fetch properties
+async function fetchProperties() {
+  try {
+    status.value = 'pending'
+    const result = await $fetch<Property[]>('/api/properties', {
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+    data.value = result
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching properties:', error)
+    status.value = 'error'
+  }
+}
 
-const { data, status } = await useFetch<Property[]>(endpoint, {
-  lazy: true
-})
+// Function to open edit modal
+function openEditModal(property: Property) {
+  propertyToEdit.value = property
+  isEditModalOpen.value = true
+}
 
+// Function to open delete confirmation modal
+function openDeleteModal(property: Property) {
+  propertyToDelete.value = property
+  isDeleteModalOpen.value = true
+}
+
+// Function to delete property
+async function confirmDeleteProperty() {
+  if (!propertyToDelete.value) return
+
+  try {
+    const token = getToken()
+
+    await $fetch(`/api/properties/${propertyToDelete.value.id}`, {
+      method: 'DELETE',
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+
+    toast.add({
+      title: 'Success',
+      description: `Property "${propertyToDelete.value.title}" has been deleted`,
+      color: 'success'
+    })
+
+    // Close modal and refresh properties list
+    isDeleteModalOpen.value = false
+    propertyToDelete.value = null
+    await fetchProperties()
+
+  } catch (error: any) {
+    console.error('Error deleting property:', error)
+
+    // Handle different error cases
+    let errorMessage = 'Failed to delete property'
+
+    if (error.status === 409 || error.statusCode === 409) {
+      // Conflict - likely active leases
+      errorMessage = error.data?.detail || 'Cannot delete property with active leases'
+    } else if (error.data?.detail) {
+      errorMessage = error.data.detail
+    }
+
+    toast.add({
+      title: 'Error',
+      description: errorMessage,
+      color: 'error'
+    })
+  }
+}
+
+// Provide refresh function for child components
+provide('refreshProperties', fetchProperties)
+
+// Function to generate context menu items for table row
 function getRowItems(row: Row<Property>) {
+  const hasActiveLeases = row.original.activeLeases > 0
+
   return [
     {
       type: 'label',
       label: 'Actions'
     },
     {
-      label: 'Copy property ID',
-      icon: 'i-lucide-copy',
+      label: 'View units',
+      icon: 'i-lucide-building',
       onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'Property ID copied to clipboard'
-        })
+        navigateTo(`/home/units?propertyId=${row.original.id}`)
       }
     },
     {
-      type: 'separator'
-    },
-    {
-      label: 'View property details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'View units',
-      icon: 'i-lucide-building'
-    },
-    {
       label: 'View leases',
-      icon: 'i-lucide-file-text'
+      icon: 'i-lucide-file-text',
+      onSelect() {
+        navigateTo(`/home/leases?propertyId=${row.original.id}`)
+      }
     },
     {
       type: 'separator'
@@ -80,22 +190,32 @@ function getRowItems(row: Row<Property>) {
     {
       label: 'Edit property',
       icon: 'i-lucide-edit',
-      color: 'primary'
+      color: 'primary',
+      onSelect() {
+        openEditModal(row.original)
+      }
     },
     {
       label: 'Delete property',
       icon: 'i-lucide-trash',
-      color: 'error',
+      color: hasActiveLeases ? 'neutral' : 'error',
+      disabled: hasActiveLeases,
       onSelect() {
-        toast.add({
-          title: 'Property deleted',
-          description: 'The property has been deleted.'
-        })
+        if (!hasActiveLeases) {
+          openDeleteModal(row.original)
+        } else {
+          toast.add({
+            title: 'Cannot delete property',
+            description: 'Property has active leases. Please terminate all leases before deleting.',
+            color: 'warning'
+          })
+        }
       }
     }
   ]
 }
 
+// Table columns definition
 const columns: TableColumn<Property>[] = [
   {
     id: 'select',
@@ -165,7 +285,7 @@ const columns: TableColumn<Property>[] = [
     }
   },
   {
-    accessorKey: 'unitsCount',
+    accessorKey: 'units_count',
     header: 'Units',
     cell: ({ row }) => {
       return h('div', { class: 'text-center' }, [
@@ -175,35 +295,13 @@ const columns: TableColumn<Property>[] = [
     }
   },
   {
-    accessorKey: 'activeLeases',
+    accessorKey: 'active_leases',
     header: 'Active Leases',
     cell: ({ row }) => {
       return h('div', { class: 'text-center' }, [
         h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.activeLeases),
         h('p', { class: 'text-sm text-(--ui-text-muted)' }, 'occupied')
       ])
-    }
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    filterFn: 'equals',
-    cell: ({ row }) => {
-      const color = {
-        active: 'success' as const,
-        available: 'info' as const,
-        maintenance: 'warning' as const
-      }[row.original.status] || 'neutral'
-
-      const displayStatus = {
-        active: 'Active',
-        available: 'Available',
-        maintenance: 'Maintenance'
-      }[row.original.status] || row.original.status
-
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        displayStatus
-      )
     }
   },
   {
@@ -233,26 +331,13 @@ const columns: TableColumn<Property>[] = [
   }
 ]
 
-const statusFilter = ref('all')
-
-watch(() => statusFilter.value, (newVal) => {
-  if (!table?.value?.tableApi) return
-
-  const statusColumn = table.value.tableApi.getColumn('status')
-  if (!statusColumn) return
-
-  if (newVal === 'all') {
-    statusColumn.setFilterValue(undefined)
-  } else {
-    statusColumn.setFilterValue(newVal)
-  }
-})
-
+// Pagination configuration
 const pagination = ref({
   pageIndex: 0,
   pageSize: 10
 })
 
+// Page metadata configuration
 definePageMeta({
   layout: 'dashboard',
   middleware: 'auth'
@@ -262,28 +347,77 @@ definePageMeta({
 <template>
   <UDashboardPanel id="properties">
     <template #header>
-      <UDashboardNavbar title="Properties">
+      <UDashboardNavbar
+        :title="propertyIdFilter ? 'Property Details' : 'Properties'"
+      >
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
-        <template #right>
-          <UButton
-            label="Add Property"
-            icon="i-lucide-plus"
+        <template #trailing>
+          <UBadge
+            v-if="propertyIdFilter && filteredData.length > 0"
+            :label="filteredData[0].title"
+            variant="subtle"
             color="primary"
           />
+        </template>
+
+        <template #right>
+          <div class="flex items-center gap-2">
+            <UButton
+              v-if="propertyIdFilter"
+              label="Show All Properties"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="clearPropertyFilter"
+            />
+            <AddModal />
+          </div>
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
+      <!-- Filter info -->
+      <div v-if="propertyIdFilter && filteredData.length > 0" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-filter" class="text-blue-600" />
+            <span class="text-sm text-blue-800">
+              Viewing property details: <strong>{{ filteredData[0].title }}</strong>
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <UButton
+              size="xs"
+              color="blue"
+              variant="soft"
+              icon="i-lucide-home"
+              @click="navigateTo(`/home/units?propertyId=${propertyIdFilter}`)"
+            >
+              View Units
+            </UButton>
+            <UButton
+              size="xs"
+              color="blue"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="clearPropertyFilter"
+            >
+              Clear
+            </UButton>
+          </div>
+        </div>
+      </div>
+
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
           :model-value="(table?.tableApi?.getColumn('title')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter properties..."
+          placeholder="Search properties..."
           @update:modelValue="table?.tableApi?.getColumn('title')?.setFilterValue($event)"
         />
 
@@ -302,18 +436,6 @@ definePageMeta({
             </template>
           </UButton>
 
-          <USelect
-            v-model="statusFilter"
-            :items="[
-              { label: 'All', value: 'all' },
-              { label: 'Active', value: 'active' },
-              { label: 'Available', value: 'available' },
-              { label: 'Maintenance', value: 'maintenance' }
-            ]"
-            :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-            placeholder="Filter status"
-            class="min-w-28"
-          />
           <UDropdownMenu
             :items="
               table?.tableApi
@@ -353,7 +475,7 @@ definePageMeta({
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="filteredData"
         :columns="columns"
         :loading="status === 'pending'"
         :ui="{
@@ -382,4 +504,46 @@ definePageMeta({
       </div>
     </template>
   </UDashboardPanel>
+
+  <!-- Edit Modal -->
+  <EditModal
+    v-model:open="isEditModalOpen"
+    :property="propertyToEdit"
+  />
+
+  <!-- Delete Confirmation Modal -->
+  <UModal
+    v-model:open="isDeleteModalOpen"
+    title="Delete Property"
+    description="This action cannot be undone"
+  >
+    <template #body>
+      <div class="space-y-4">
+        <div v-if="propertyToDelete" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800">
+            Are you sure you want to delete the property
+            <strong>"{{ propertyToDelete.title }}"</strong>?
+          </p>
+          <p class="text-xs text-red-600 mt-2">
+            This will permanently delete the property and all associated data.
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <UButton
+            label="Cancel"
+            color="neutral"
+            variant="subtle"
+            @click="isDeleteModalOpen = false"
+          />
+          <UButton
+            label="Delete"
+            color="error"
+            variant="solid"
+            @click="confirmDeleteProperty"
+          />
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>

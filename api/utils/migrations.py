@@ -5,17 +5,17 @@ import sys
 
 def run_migrations():
     """
-    Runs Alembic database migrations using sys.executable and module execution.
+    Run Alembic database migrations using Python's module execution.
 
-    This method is more compatible with environments like Vercel where direct
-    command execution might be restricted.
+    This approach is compatible with cloud environments (e.g. Vercel) where direct shell commands may be restricted.
+    On success, prints migration output and completion message. On failure, prints error details.
     """
     try:
-        # Ensure the current directory is in the Python path
+        # Add current directory to Python path to ensure Alembic can find config
         current_dir = os.path.dirname(os.path.abspath(__file__))
         sys.path.insert(0, current_dir)
 
-        # Use sys.executable to run the Alembic module
+        # Run Alembic migrations using Python interpreter
         result = subprocess.run(
             [sys.executable, "-m", "alembic", "upgrade", "head"],
             capture_output=True,
@@ -23,7 +23,7 @@ def run_migrations():
             check=True,
         )
 
-        # Print the output if there's any
+        # Print migration output if available
         if result.stdout:
             print("Migration output:", result.stdout)
 

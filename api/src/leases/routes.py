@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
+from api.src.enums import EnumUserRoles
+from api.src.leases.schemas import LeaseCreate, LeaseEnd, LeaseResponse
+from api.src.leases.service import LeaseService
 from api.src.users.models import User
-from .service import LeaseService
-from .schemas import LeaseCreate, LeaseResponse, LeaseEnd
+from api.src.utils.access_verify import is_owner_or_admin
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/leases", tags=["leases"])
@@ -24,7 +26,11 @@ async def create_lease(
     current_user: User = Depends(get_current_user),
 ):
     """Create a new lease for a unit."""
-    logger.debug("Creating lease for unit_id=%s by user_id=%s", lease_data.unit_id, current_user.id)
+    logger.debug(
+        "Creating lease for unit_id=%s by user_id=%s",
+        lease_data.unit_id,
+        current_user.id,
+    )
     # Only owner of the property (via unit) or admin can assign tenant
     unit = await service.get_unit_by_id(lease_data.unit_id)
     if not unit:
@@ -34,8 +40,13 @@ async def create_lease(
     if not property_:
         raise HTTPException(status_code=404, detail="Property not found")
 
-    if not (current_user.role == "admin" or property_.owner_id == current_user.id):
-        raise HTTPException(status_code=403, detail="Not authorized to assign tenant to this unit")
+    if not (
+        current_user.role == EnumUserRoles.ADMIN
+        or property_.owner_id == current_user.id
+    ):
+        raise HTTPException(
+            status_code=403, detail="Not authorized to assign tenant to this unit"
+        )
     return await service.create_lease(lease_data)
 
 
@@ -51,27 +62,35 @@ async def end_lease(
     return await service.end_lease(lease_id, end_data)
 
 
+@router.patch("/{lease_id}/activate", response_model=LeaseResponse)
+async def activate_lease(
+    lease_id: int,
+    service: LeaseService = Depends(get_lease_service),
+    current_user: User = Depends(get_current_user),
+):
+    """Activate an existing lease."""
+    logger.debug(
+        "Activating lease lease_id=%s by user_id=%s", lease_id, current_user.id
+    )
+    return await service.activate_lease(lease_id)
+
+
 @router.get("/", response_model=list[LeaseResponse])
 async def get_all_leases(
     service: LeaseService = Depends(get_lease_service),
     current_user: User = Depends(get_current_user),
 ):
     """Get all leases - admin only."""
-    logger.debug("Getting all leases for admin user_id=%s", current_user.id)
-    if current_user.role != "admin":
-        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-
+    is_owner_or_admin(current_user)
     leases = await service.get_all_leases()
     logger.info(f"Found {len(leases)} leases")
 
     # Log first lease for debugging
     if leases:
         first_lease = leases[0]
-        logger.info(f"First lease: id={first_lease.id}, unit_id={first_lease.unit_id}, tenant_id={first_lease.tenant_id}")
+        logger.info(
+            f"First lease: id={first_lease.id}, unit_id={first_lease.unit_id}, tenant_id={first_lease.tenant_id}"
+        )
 
     return leases
 
@@ -83,7 +102,9 @@ async def list_tenant_leases(
     current_user: User = Depends(get_current_user),
 ):
     """List all leases for a tenant."""
-    logger.debug("Listing leases for tenant_id=%s by user_id=%s", tenant_id, current_user.id)
+    logger.debug(
+        "Listing leases for tenant_id=%s by user_id=%s", tenant_id, current_user.id
+    )
     # tenant can see own; owner/admin can query their tenants (enforce outside)
     return await service.list_leases_for_tenant(tenant_id)
 
@@ -97,13 +118,14 @@ async def list_owner_leases(
     logger.debug("Listing leases for property owner user_id=%s", current_user.id)
     # Only property owners and admins can view their leases
     if current_user.role not in ["admin", "owner"]:
-        logger.warning(f"Access denied for user {current_user.email} with role {current_user.role}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
+        logger.warning(
+            f"Access denied for user {current_user.email} with role {current_user.role}"
         )
-    
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+        )
+
     leases = await service.list_leases_for_property_owner(current_user.id)
     logger.info(f"Found {len(leases)} leases for owner {current_user.id}")
-    
+
     return leases

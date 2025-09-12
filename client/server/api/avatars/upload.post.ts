@@ -1,7 +1,7 @@
 export default eventHandler(async (event) => {
   try {
     const formData = await readMultipartFormData(event)
-    
+
     if (!formData || formData.length === 0) {
       throw createError({
         statusCode: 400,
@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
     }
 
     const file = formData[0]
-    
+
     if (!file.data || !file.filename) {
       throw createError({
         statusCode: 400,
@@ -40,7 +40,7 @@ export default eventHandler(async (event) => {
     const backendFormData = new FormData()
     backendFormData.append('file', new Blob([file.data], { type: file.type }), file.filename)
 
-    const response = await fetch('http://localhost:8000/files/upload', {
+    const response = await fetch('http://backend:8000/files/upload', {
       method: 'POST',
       body: backendFormData
     })
@@ -54,7 +54,7 @@ export default eventHandler(async (event) => {
     }
 
     const result = await response.json()
-    
+
     return {
       success: true,
       file: {
@@ -62,16 +62,16 @@ export default eventHandler(async (event) => {
         filename: result.filename,
         mimetype: result.mimetype,
         size: result.size,
-        url: `http://localhost:8000/files/${result.id}`
+        url: `http://backend:8000/files/${result.id}`
       }
     }
   } catch (error) {
     console.error('Avatar upload error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal server error during file upload'

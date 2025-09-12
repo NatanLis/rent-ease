@@ -1,6 +1,21 @@
 <script setup lang="ts">
-const { data: invoices, refresh, pending } = await useFetch<any[]>('/api/invoices', { default: () => [], server: false })
-const { data: properties, pending: propertiesPending } = await useFetch<any[]>('/api/properties', { default: () => [], server: false })
+const { getToken } = useAuth()
+const token = await getToken()
+
+const { data: invoices, refresh, pending } = await useFetch<any[]>('/api/invoices', {
+  default: () => [],
+  server: false,
+  headers: token ? {
+    'Authorization': `Bearer ${token}`
+  } : {}
+})
+const { data: properties, pending: propertiesPending } = await useFetch<any[]>('/api/properties', {
+  default: () => [],
+  server: false,
+  headers: token ? {
+    'Authorization': `Bearer ${token}`
+  } : {}
+})
 
 const title = ref('')
 const value = ref('')
@@ -96,5 +111,3 @@ definePageMeta({ layout: 'dashboard' })
     </template>
   </UDashboardPanel>
 </template>
-
-

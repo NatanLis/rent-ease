@@ -1,10 +1,16 @@
-from sqlalchemy import select, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from api.core.exceptions import AlreadyExistsException, NotFoundException
-from .models import Property
-from .schemas import PropertyCreate, PropertyUpdate
+from api.core.exceptions import (
+    AlreadyExistsException,
+    ConflictException,
+    NotFoundException,
+)
+from api.src.properties.models import Property
+from api.src.properties.schemas import PropertyCreate
+from api.src.units.models import Unit
 
 
 class PropertyRepository:
@@ -13,19 +19,10 @@ class PropertyRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, property_data: PropertyCreate) -> Property:
-        """Create a new property.
-
-        Args:
-            property_data: Property creation data
-
-        Returns:
-            Property: Created property
-
-        Raises:
-            AlreadyExistsException: If property with same unique field already exists
-        """
-
+    async def create(
+        self,
+        property_data: PropertyCreate,
+    ) -> Property:
         new_property = Property(**property_data.model_dump(exclude_unset=True))
 
         try:
@@ -37,91 +34,122 @@ class PropertyRepository:
             await self.session.rollback()
             raise AlreadyExistsException(
                 f"Property with alias {new_property.title} already exists"
-            )
+            ) from None
 
     async def get_by_id(self, property_id: int) -> Property:
-        """Get property by ID.
-
-        Args:
-            property_id: Property ID
-
-        Returns:
-            Property: Found property
-
-        Raises:
-            NotFoundException: If property not found
-        """
-        query = select(Property).where(Property.id == property_id)
+        query = (
+            select(Property)
+            .where(Property.id == property_id)
+            .options(selectinload(Property.units).selectinload(Unit.leases))
+        )
         result = await self.session.execute(query)
         property_obj = result.scalar_one_or_none()
 
         if not property_obj:
             raise NotFoundException("Property not found")
 
+        # Calculate units_count and active_leases
+        property_obj.units_count = len(property_obj.units)
+        property_obj.active_leases = sum(
+            1
+            for unit in property_obj.units
+            if any(lease.is_active for lease in unit.leases)
+        )
+
         return property_obj
 
     async def get_all(self) -> list[Property]:
-        """Get all properties.
-
-        Returns:
-            List[Property]: List of all properties
-        """
-        query = select(Property)
+        query = select(Property).options(
+            selectinload(Property.units).selectinload(Unit.leases)
+        )
         result = await self.session.execute(query)
-        return list(result.scalars().all())
+        properties = list(result.scalars().all())
 
-    async def get_by_owner(self, owner_id: int) -> list[Property]:
-        """Get all properties owned by a specific user.
+        # Calculate units_count and active_leases for each property
+        for prop in properties:
+            prop.units_count = len(prop.units)
+            prop.active_leases = sum(
+                1
+                for unit in prop.units
+                if any(lease.is_active for lease in unit.leases)
+            )
 
-        Args:
-            owner_id: Owner user ID
+        return properties
 
-        Returns:
-            List[Property]: List of properties owned by the user
-        """
-        query = select(Property).where(Property.owner_id == owner_id)
+    async def get_by_owner(
+        self,
+        owner_id: int,
+    ) -> list[Property]:
+        # Load properties with their units and leases to calculate counts
+        query = (
+            select(Property)
+            .where(Property.owner_id == owner_id)
+            .options(selectinload(Property.units).selectinload(Unit.leases))
+        )
         result = await self.session.execute(query)
-        return list(result.scalars().all())
+        properties = list(result.scalars().all())
 
-    async def update(self, property_id: int, property_data) -> PropertyUpdate:
-        """Update property by ID.
+        # Calculate units_count and active_leases for each property
+        for prop in properties:
+            prop.units_count = len(prop.units)
+            prop.active_leases = sum(
+                1
+                for unit in prop.units
+                if any(lease.is_active for lease in unit.leases)
+            )
 
-        Args:
-            property_id: Property ID
-            property_data: Property update data
+        return properties
 
-        Returns:
-            Property: Updated property
-
-        Raises:
-            NotFoundException: If property not found
-        """
+    async def update(
+        self,
+        property_id: int,
+        property_data,
+    ) -> Property:
         update_data = property_data.model_dump(exclude_unset=True)
         if not update_data:
             raise ValueError("No fields to update")
 
-        query = update(Property).where(Property.id == property_id).values(**update_data)
+        query = (
+            update(Property).where(Property.id == property_id).values(**update_data)
+        )
         result = await self.session.execute(query)
 
-        if result.rowcount == 0:
+        if not result.rowcount:
             raise NotFoundException(f"Property with id {property_id} not found")
 
         await self.session.commit()
         return await self.get_by_id(property_id)
 
-    async def delete(self, property_id: int) -> None:
-        """Delete property by ID.
+    async def delete(
+        self,
+        property_id: int,
+    ) -> None:
+        # First, check if property exists and load with units and leases
+        property_query = (
+            select(Property)
+            .where(Property.id == property_id)
+            .options(selectinload(Property.units).selectinload(Unit.leases))
+        )
+        result = await self.session.execute(property_query)
+        property_obj = result.scalar_one_or_none()
 
-        Args:
-            property_id: Hero ID
-
-        Raises:
-            NotFoundException: If property not found
-        """
-        query = delete(Property).where(Property.id == property_id)
-        result = await self.session.execute(query)
-
-        if result.rowcount == 0:
+        if not property_obj:
             raise NotFoundException(f"Property with id {property_id} not found")
 
+        # Check if any unit has active leases
+        active_leases_count = sum(
+            1
+            for unit in property_obj.units
+            if any(lease.is_active for lease in unit.leases)
+        )
+
+        if active_leases_count > 0:
+            raise ConflictException(
+                f"Cannot delete property. It has {active_leases_count} active lease(s). "
+                "Please terminate all active leases before deleting the property."
+            )
+
+        # If no active leases, proceed with deletion
+        query = delete(Property).where(Property.id == property_id)
+        await self.session.execute(query)
         await self.session.commit()

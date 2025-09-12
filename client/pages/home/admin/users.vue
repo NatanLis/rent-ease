@@ -35,24 +35,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({})
 
-// Get token from localStorage
-const token = getToken()
-
-// Mock data fallback
-const adminUsers: AdminUser[] = [
-  {
-    id: 1,
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@rent-ease.com',
-    role: 'admin',
-    status: 'active',
-    avatar: {
-      src: 'https://i.pravatar.cc/128?u=admin'
-    },
-    createdAt: '2024-01-15T10:00:00Z'
-  }
-]
+const token = process.client ? getToken() : null
 
 // Use reactive data instead of useFetch
 const data = ref<AdminUser[]>([])
@@ -73,69 +56,10 @@ onMounted(async () => {
     console.error('Error fetching users:', error)
     status.value = 'error'
     // Fallback to mock data
-    data.value = adminUsers
+    data.value = []
   }
 })
 
-function getRowItems(row: Row<AdminUser>) {
-  return [
-    {
-      type: 'label',
-      label: 'Actions'
-    },
-    {
-      label: 'Copy user ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'User ID copied to clipboard'
-        })
-      }
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'View user details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'Edit user role',
-      icon: 'i-lucide-user-cog'
-    },
-    {
-      label: 'Reset password',
-      icon: 'i-lucide-key'
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'Deactivate user',
-      icon: 'i-lucide-user-x',
-      color: 'warning',
-      onSelect() {
-        toast.add({
-          title: 'User deactivated',
-          description: 'The user has been deactivated'
-        })
-      }
-    },
-    {
-      label: 'Delete user',
-      icon: 'i-lucide-trash',
-      color: 'error',
-      onSelect() {
-        toast.add({
-          title: 'User deleted',
-          description: 'The user has been permanently deleted'
-        })
-      }
-    }
-  ]
-}
 
 const columns: TableColumn<AdminUser>[] = [
   {
@@ -228,31 +152,6 @@ const columns: TableColumn<AdminUser>[] = [
       return date.toLocaleDateString()
     }
   },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      return h(
-        'div',
-        { class: 'text-right' },
-        h(
-          UDropdownMenu,
-          {
-            content: {
-              align: 'end'
-            },
-            items: getRowItems(row)
-          },
-          () =>
-            h(UButton, {
-              icon: 'i-lucide-ellipsis-vertical',
-              color: 'neutral',
-              variant: 'ghost',
-              class: 'ml-auto'
-            })
-        )
-      )
-    }
-  }
 ]
 
 const statusFilter = ref('all')

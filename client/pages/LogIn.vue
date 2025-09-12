@@ -50,6 +50,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   if (res?.token.access_token) {
     setToken(res.token.access_token)
     setUser(res.user)
+
+    // Wait a bit for token to be saved to localStorage
+    await nextTick()
+
     navigateTo('/home')
   }
 }
@@ -84,10 +88,18 @@ async function logIn(username: string, password: string) {
   }
 }
 
-onBeforeMount(() => {
-  if (getToken()) {
-    // User is already logged in
+onBeforeMount(async () => {
+  // Clear any existing token first
+  const { clearToken, isAuthenticated } = useAuth()
+
+  // Check if there's a valid token
+  const isValid = await isAuthenticated()
+
+  if (isValid) {
     navigateTo('/home')
+  } else {
+    // Clear invalid token
+    clearToken()
   }
 })
 
@@ -111,4 +123,3 @@ definePageMeta({
     </UPageCard>
   </div>
 </template>
-

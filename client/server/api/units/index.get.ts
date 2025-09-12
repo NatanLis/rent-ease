@@ -186,7 +186,7 @@ const units = [
 export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   try {
     // Get auth token from headers
     const authHeader = getHeader(event, 'authorization')
@@ -194,20 +194,19 @@ export default eventHandler(async (event) => {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/units/', {
+    const response = await fetch('http://backend:8000/api/units/', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Backend responded with status: ${response.status}`)
     }
-    
+
     const backendUnits = await response.json()
-    console.log('Backend units response:', JSON.stringify(backendUnits, null, 2))
-    
+
     // Transform backend data to frontend format
     return backendUnits.map((unit: any) => ({
       id: unit.id,
@@ -215,10 +214,10 @@ export default eventHandler(async (event) => {
       name: unit.name,
       description: unit.description,
       monthlyRent: unit.monthly_rent,
-      propertyTitle: unit.property?.title || 'Unknown Property',
-      propertyAddress: unit.property?.address || 'Unknown Address',
-      activeLeases: 0, // TODO: Calculate from leases
-      status: 'available' // TODO: Calculate based on active leases
+      propertyTitle: unit.property_title || 'Unknown Property',
+      propertyAddress: unit.property_address || 'Unknown Address',
+      activeLeases: unit.active_leases || 0,
+      status: unit.status || 'available'
     }))
   } catch (error) {
     console.error('Error fetching units from backend:', error)

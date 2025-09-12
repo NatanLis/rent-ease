@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, Date, Boolean, ForeignKey, UniqueConstraint, DateTime, func
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import relationship
 
 from api.core.database import Base
@@ -11,8 +20,12 @@ class Lease(Base):
     )
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    unit_id = Column(Integer, ForeignKey("units.id", ondelete="CASCADE"), nullable=False, index=True)
-    tenant_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    unit_id = Column(
+        Integer, ForeignKey("units.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    tenant_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=True)  # null means ongoing
@@ -23,3 +36,4 @@ class Lease(Base):
 
     unit = relationship("Unit", back_populates="leases")
     user = relationship("User", back_populates="leases")
+    payments = relationship("Payment", back_populates="lease")

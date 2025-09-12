@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PropertyBase(BaseModel):
@@ -11,15 +12,10 @@ class PropertyBase(BaseModel):
 
 
 class PropertyCreate(PropertyBase):
-    """Property response schema."""
+    pass
 
 
 class PropertyUpdate(PropertyBase):
-    """Schema for updating an existing property.
-
-    All fields are optional since updates might be partial.
-    """
-
     title: str | None = Field(None, min_length=1, max_length=100)
     description: str | None = Field(None, min_length=1, max_length=100)
     address: str | None = None
@@ -27,11 +23,7 @@ class PropertyUpdate(PropertyBase):
 
 
 class PropertyResponse(PropertyBase):
-    """Schema for property responses.
-
-    Includes all base fields plus the id.
-    """
-
-    model_config = ConfigDict(from_attributes=True)
     id: int
-    owner_id: int
+    units_count: int = 0
+    active_leases: int = 0
+    model_config = ConfigDict(from_attributes=True)

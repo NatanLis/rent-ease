@@ -7,11 +7,14 @@ from passlib.context import CryptContext
 
 from api.core.config import settings
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["bcrypt"], deprecated="auto"
+)  # Context for password hashing
 
-# OAuth2 scheme for token authentication
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="auth/login"
+)  # OAuth2 scheme for JWT token authentication
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -50,9 +53,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         if user_id is None:
             raise credentials_exception
     except JWTError:
-        raise credentials_exception
+        raise credentials_exception from JWTError
 
-    # Import here to avoid circular imports
     from api.core.database import get_session
     from api.src.users.service import UserService
 

@@ -23,15 +23,13 @@ const rowSelection = ref({})
 const { getToken } = useAuth()
 const token = await getToken()
 
-// Use reactive data instead of useFetch
 const data = ref<User[]>([])
 const status = ref<'pending' | 'error' | 'success'>('pending')
 
-// Fetch data on mount
-onMounted(async () => {
+async function fetchTenants() {
   try {
     status.value = 'pending'
-    const result = await $fetch<User[]>('/api/tenants', {
+    const result = await $fetch<User[]>(`/api/tenants?t=${Date.now()}`, {
       headers: token ? {
         'Authorization': `Bearer ${token}`
       } : {}
@@ -42,7 +40,15 @@ onMounted(async () => {
     console.error('Error fetching tenants:', error)
     status.value = 'error'
   }
-})
+}
+
+function refreshTenants() {
+  return fetchTenants()
+}
+
+provide('refreshTenants', refreshTenants)
+
+onMounted(fetchTenants)
 
 function getRowItems(row: Row<User>) {
   return [
@@ -51,26 +57,11 @@ function getRowItems(row: Row<User>) {
       label: 'Actions'
     },
     {
-      label: 'Copy tenant ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'Tenant ID copied to clipboard'
-        })
-      }
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'View tenant details',
-      icon: 'i-lucide-list'
-    },
-    {
       label: 'View tenant payments',
-      icon: 'i-lucide-wallet'
+      icon: 'i-lucide-wallet',
+      onSelect() {
+        navigateTo(`/home/payments?tenantId=${row.original.id}`)
+      }
     },
     {
       type: 'separator'
@@ -116,15 +107,18 @@ const columns: TableColumn<User>[] = [
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row }) => {
+      const user = row.original
+
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
-          ...row.original.avatar,
+          src: user.avatar_url || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`,
+          alt: `${user.first_name} ${user.last_name}`,
           size: 'lg',
           icon: 'i-lucide-user'
         }),
         h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
-          h('p', { class: '' }, `@${row.original.name}`)
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, `${user.first_name} ${user.last_name}`),
+          h('p', { class: '' }, `@${user.username}`)
         ])
       ])
     }
@@ -151,7 +145,7 @@ const columns: TableColumn<User>[] = [
   {
     accessorKey: 'location',
     header: 'Location',
-    cell: ({ row }) => row.original.location
+    cell: ({ row }) => row.original.location || 'N/A'
   },
   {
     accessorKey: 'status',

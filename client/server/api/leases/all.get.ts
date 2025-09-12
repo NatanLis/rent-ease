@@ -4,26 +4,25 @@ import { getHeader } from 'h3'
 async function fetchAllLeases(event: any) {
   // Get auth token from headers
   const authHeader = getHeader(event, 'authorization')
-  
+
   try {
     if (!authHeader) {
       throw new Error('No authorization header')
     }
 
-    const response = await fetch('http://localhost:8000/api/leases/', {
+    const response = await fetch('http://backend:8000/api/leases/', {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch all leases: ${response.status} ${response.statusText}`)
     }
-    
+
     const backendLeases = await response.json()
-    console.log('Backend all leases response:', JSON.stringify(backendLeases, null, 2))
-    
+
     // Transform backend data to frontend format
     return backendLeases.map((lease: any) => ({
       id: lease.id,
@@ -37,7 +36,7 @@ async function fetchAllLeases(event: any) {
         email: lease.user?.email || 'unknown@example.com',
         first_name: lease.user?.first_name || 'Unknown',
         last_name: lease.user?.last_name || 'User',
-        avatar_url: lease.user?.avatar_url ? `http://localhost:8000${lease.user.avatar_url}` : undefined
+        avatar_url: lease.user?.avatar_url ? `http://backend:8000${lease.user.avatar_url}` : undefined
       },
       unit: {
         id: lease.unit?.id || 0,
@@ -63,6 +62,6 @@ async function fetchAllLeases(event: any) {
 export default eventHandler(async (event) => {
   // Simulate some delay like real API
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   return await fetchAllLeases(event)
 })

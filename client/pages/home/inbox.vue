@@ -14,9 +14,15 @@ const tabItems = [{
 }]
 const selectedTab = ref('all')
 
+const { getToken } = useAuth()
+const token = await getToken()
+
 const { data: mails, refresh: refreshMails, error: mailsError } = await useFetch<Mail[]>('/api/mails', {
   default: () => [],
-  server: false
+  server: false,
+  headers: token ? {
+    'Authorization': `Bearer ${token}`
+  } : {}
 })
 // ↓ Temporary safeguard
 const safeMails = computed(() => mails.value ?? [])

@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Enum as saEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from api.core.database import Base
 from api.src.enums import EnumUserRoles
-from sqlalchemy import Enum as saEnum
 
 
 class User(Base):
@@ -18,10 +18,14 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(saEnum(EnumUserRoles, name="enumuserroles"), unique=False, nullable=False)
-    is_active = Column(Boolean, nullable=False, default=True)  # True = active, False = inactive
-    profile_picture_id = Column(Integer, nullable=True)  # Reference to profile_pictures table
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    role = Column(
+        saEnum(EnumUserRoles, name="enumuserroles"), unique=False, nullable=False
+    )
+    is_active = Column(Boolean, nullable=False, default=True)
+    profile_picture_id = Column(Integer, nullable=True)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
     properties = relationship(
@@ -36,4 +40,9 @@ class User(Base):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    profile_picture = relationship("ProfilePicture", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    profile_picture = relationship(
+        "ProfilePicture",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )

@@ -1,7 +1,7 @@
 export default eventHandler(async (event) => {
   try {
     const id = getRouterParam(event, 'id')
-    
+
     if (!id) {
       throw createError({
         statusCode: 400,
@@ -10,8 +10,8 @@ export default eventHandler(async (event) => {
     }
 
     // Fetch file from backend
-    const response = await fetch(`http://localhost:8000/files/${id}`)
-    
+    const response = await fetch(`http://backend:8000/files/${id}`)
+
     if (!response.ok) {
       if (response.status === 404) {
         throw createError({
@@ -19,7 +19,7 @@ export default eventHandler(async (event) => {
           statusMessage: 'File not found'
         })
       }
-      
+
       throw createError({
         statusCode: response.status,
         statusMessage: 'Backend error'
@@ -28,19 +28,19 @@ export default eventHandler(async (event) => {
 
     const fileData = await response.arrayBuffer()
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
-    
+
     // Set appropriate headers
     setHeader(event, 'Content-Type', contentType)
     setHeader(event, 'Cache-Control', 'public, max-age=31536000') // Cache for 1 year
-    
+
     return new Uint8Array(fileData)
   } catch (error) {
     console.error('Avatar fetch error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal server error during file fetch'

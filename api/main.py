@@ -3,26 +3,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import settings
 from api.core.logging import get_logger, setup_logging
-from api.src.users.routes import router as auth_router, users_router
-from api.src.properties.routes import router as properties_router
-from api.src.leases.routes import router as leases_router
-from api.src.units.routes import router as units_router
 from api.src.files.routes import router as files_router
+from api.src.leases.routes import router as leases_router
+from api.src.payments.routes import router as payments_router
 from api.src.profile_pictures.routes import router as profile_pictures_router
-from api.src.mock_routes import mock_router
+from api.src.properties.routes import router as properties_router
 from api.src.tenants.routes import router as tenants_router
-
+from api.src.units.routes import router as units_router
+from api.src.users.auth_routes import router as auth_router
+from api.src.users.routes import users_router
 from api.utils.migrations import run_migrations
 
+setup_logging()  # Initialize global logging for the application
 
-# Set up logging configuration
-setup_logging()
+run_migrations()  # Run database migrations at startup (can be disabled in config)
 
-# Optional: Run migrations on startup
-run_migrations()
-
-# Set up logger for this module
-logger = get_logger(__name__)
+logger = get_logger(__name__)  # Logger instance for this module
 
 app = FastAPI(
     root_path="/api",
@@ -30,25 +26,26 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or specify allowed origins
+    allow_origins=[
+        "*"
+    ],  # WARNING: In production, specify allowed origins for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(mock_router)
-app.include_router(auth_router, prefix="/api")
-app.include_router(users_router, prefix="/api")
-app.include_router(properties_router, prefix="/api")
-app.include_router(leases_router, prefix="/api")
-app.include_router(units_router, prefix="/api")
-app.include_router(files_router, prefix="/api")
-app.include_router(profile_pictures_router, prefix="/api")
-app.include_router(tenants_router, prefix="/api")
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(properties_router)
+app.include_router(leases_router)
+app.include_router(units_router)
+app.include_router(files_router)
+app.include_router(profile_pictures_router)
+app.include_router(tenants_router)
+app.include_router(payments_router)
+
 
 @app.get("/health")
 async def health_check():

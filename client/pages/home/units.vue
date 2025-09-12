@@ -2,6 +2,8 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
+import AddModal from '~/components/units/AddModal.vue'
+import EditModal from '~/components/units/EditModal.vue'
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
@@ -24,6 +26,16 @@ interface Unit {
   status: 'occupied' | 'available' | 'maintenance'
 }
 
+// Edit modal state
+const isEditModalOpen = ref(false)
+const unitToEdit = ref<Unit | null>(null)
+
+// Delete confirmation modal state
+const isDeleteModalOpen = ref(false)
+const unitToDelete = ref<Unit | null>(null)
+
+const route = useRoute()
+
 const columnFilters = ref([{
   id: 'name',
   value: ''
@@ -31,41 +43,148 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref()
 
-const { data, status } = await useFetch<Unit[]>('/api/units', {
-  lazy: true
+const { getToken } = useAuth()
+const token = await getToken()
+
+// Reactive data instead of useFetch
+const data = ref<Unit[]>([])
+const status = ref<'pending' | 'error' | 'success'>('pending')
+
+// Property filter from URL parameter
+const propertyFilter = ref<string | null>(null)
+
+// Check for property filter in URL
+onMounted(() => {
+  if (route.query.propertyId) {
+    propertyFilter.value = route.query.propertyId as string
+  }
+  fetchUnits()
 })
 
+// Watch for route changes
+watch(() => route.query.propertyId, (newPropertyId) => {
+  propertyFilter.value = newPropertyId as string || null
+})
+
+// Computed filtered data
+const filteredData = computed(() => {
+  if (!propertyFilter.value) {
+    return data.value
+  }
+  return data.value.filter(unit => unit.propertyId.toString() === propertyFilter.value)
+})
+
+// Get property name for better UX
+const propertyName = computed(() => {
+  if (!propertyFilter.value || filteredData.value.length === 0) return null
+  return filteredData.value[0]?.propertyTitle
+})
+
+// Function to clear property filter
+function clearPropertyFilter() {
+  propertyFilter.value = null
+  navigateTo('/home/units')
+}
+
+// Function to fetch units
+async function fetchUnits() {
+  try {
+    status.value = 'pending'
+    const result = await $fetch<Unit[]>('/api/units', {
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+    data.value = result
+    status.value = 'success'
+  } catch (error) {
+    console.error('Error fetching units:', error)
+    status.value = 'error'
+  }
+}
+
+// Provide refresh function for child components
+provide('refreshUnits', fetchUnits)
+
+// Function to open edit modal
+function openEditModal(unit: Unit) {
+  unitToEdit.value = unit
+  isEditModalOpen.value = true
+}
+
+// Function to open delete confirmation modal
+function openDeleteModal(unit: Unit) {
+  unitToDelete.value = unit
+  isDeleteModalOpen.value = true
+}
+
+// Function to delete unit
+async function confirmDeleteUnit() {
+  if (!unitToDelete.value) return
+
+  try {
+    const token = getToken()
+
+    await $fetch(`/api/units/${unitToDelete.value.id}`, {
+      method: 'DELETE',
+      headers: token ? {
+        'Authorization': `Bearer ${token}`
+      } : {}
+    })
+
+    toast.add({
+      title: 'Success',
+      description: `Unit "${unitToDelete.value.name}" has been deleted`,
+      color: 'success'
+    })
+
+    // Close modal and refresh units list
+    isDeleteModalOpen.value = false
+    unitToDelete.value = null
+    await fetchUnits()
+
+  } catch (error: any) {
+    console.error('Error deleting unit:', error)
+
+    // Handle different error cases
+    let errorMessage = 'Failed to delete unit'
+
+    if (error.status === 409 || error.statusCode === 409) {
+      // Conflict - likely active leases
+      errorMessage = error.data?.detail || 'Cannot delete unit with active leases'
+    } else if (error.data?.detail) {
+      errorMessage = error.data.detail
+    }
+
+    toast.add({
+      title: 'Error',
+      description: errorMessage,
+      color: 'error'
+    })
+  }
+}
+
 function getRowItems(row: Row<Unit>) {
+  const hasActiveLeases = row.original.activeLeases > 0
+
   return [
     {
       type: 'label',
       label: 'Actions'
     },
     {
-      label: 'Copy unit ID',
-      icon: 'i-lucide-copy',
+      label: 'View property',
+      icon: 'i-lucide-building',
       onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'Unit ID copied to clipboard'
-        })
+        navigateTo(`/home/properties?propertyId=${row.original.propertyId}`)
       }
     },
     {
-      type: 'separator'
-    },
-    {
-      label: 'View unit details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'View property',
-      icon: 'i-lucide-building'
-    },
-    {
       label: 'View leases',
-      icon: 'i-lucide-file-text'
+      icon: 'i-lucide-file-text',
+      onSelect() {
+        navigateTo(`/home/leases?unitId=${row.original.id}`)
+      }
     },
     {
       type: 'separator'
@@ -73,17 +192,26 @@ function getRowItems(row: Row<Unit>) {
     {
       label: 'Edit unit',
       icon: 'i-lucide-edit',
-      color: 'primary'
+      color: 'primary',
+      onSelect() {
+        openEditModal(row.original)
+      }
     },
     {
       label: 'Delete unit',
       icon: 'i-lucide-trash',
-      color: 'error',
+      color: hasActiveLeases ? 'neutral' : 'error',
+      disabled: hasActiveLeases,
       onSelect() {
-        toast.add({
-          title: 'Unit deleted',
-          description: 'The unit has been deleted.'
-        })
+        if (!hasActiveLeases) {
+          openDeleteModal(row.original)
+        } else {
+          toast.add({
+            title: 'Cannot delete unit',
+            description: 'Unit has active leases. Please terminate all leases before deleting.',
+            color: 'warning'
+          })
+        }
       }
     }
   ]
@@ -245,22 +373,71 @@ definePageMeta({
 <template>
   <UDashboardPanel id="units">
     <template #header>
-      <UDashboardNavbar title="Units">
+      <UDashboardNavbar
+        :title="propertyFilter && propertyName ? `Units - ${propertyName}` : 'Units'"
+      >
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
-        <template #right>
-          <UButton
-            label="Add Unit"
-            icon="i-lucide-plus"
+        <template #trailing>
+          <UBadge
+            v-if="propertyFilter"
+            :label="`${filteredData.length} units`"
+            variant="subtle"
             color="primary"
           />
+        </template>
+
+        <template #right>
+          <div class="flex items-center gap-2">
+            <UButton
+              v-if="propertyFilter"
+              label="Show All Units"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="clearPropertyFilter"
+            />
+            <AddModal />
+          </div>
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
+      <!-- Filter info -->
+      <div v-if="propertyFilter" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-filter" class="text-blue-600" />
+            <span class="text-sm text-blue-800">
+              Showing units for property: <strong>{{ propertyName || `#${propertyFilter}` }}</strong>
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <UButton
+              size="xs"
+              color="blue"
+              variant="soft"
+              icon="i-lucide-building"
+              @click="navigateTo(`/home/properties?propertyId=${propertyFilter}`)"
+            >
+              View Property
+            </UButton>
+            <UButton
+              size="xs"
+              color="blue"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="clearPropertyFilter"
+            >
+              Clear
+            </UButton>
+          </div>
+        </div>
+      </div>
+
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
           :model-value="(table?.tableApi?.getColumn('name')?.getFilterValue() as string)"
@@ -336,7 +513,7 @@ definePageMeta({
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="filteredData"
         :columns="columns"
         :loading="status === 'pending'"
         :ui="{
@@ -365,4 +542,46 @@ definePageMeta({
       </div>
     </template>
   </UDashboardPanel>
+
+  <!-- Edit Modal -->
+  <EditModal
+    v-model:open="isEditModalOpen"
+    :unit="unitToEdit"
+  />
+
+  <!-- Delete Confirmation Modal -->
+  <UModal
+    v-model:open="isDeleteModalOpen"
+    title="Delete Unit"
+    description="This action cannot be undone"
+  >
+    <template #body>
+      <div class="space-y-4">
+        <div v-if="unitToDelete" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800">
+            Are you sure you want to delete the unit
+            <strong>"{{ unitToDelete.name }}"</strong>?
+          </p>
+          <p class="text-xs text-red-600 mt-2">
+            This will permanently delete the unit and all associated data.
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <UButton
+            label="Cancel"
+            color="neutral"
+            variant="subtle"
+            @click="isDeleteModalOpen = false"
+          />
+          <UButton
+            label="Delete"
+            color="error"
+            variant="solid"
+            @click="confirmDeleteUnit"
+          />
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>

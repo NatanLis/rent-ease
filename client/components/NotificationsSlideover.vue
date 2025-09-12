@@ -3,8 +3,14 @@ import { formatTimeAgo } from '@vueuse/core'
 import type { Notification } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
+const { getToken } = useAuth()
+const token = await getToken()
 
-const { data: notifications } = await useFetch<Notification[]>('/api/notifications')
+const { data: notifications } = await useFetch<Notification[]>('/api/notifications', {
+  headers: token ? {
+    'Authorization': `Bearer ${token}`
+  } : {}
+})
 </script>
 
 <template>

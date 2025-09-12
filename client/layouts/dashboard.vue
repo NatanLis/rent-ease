@@ -22,6 +22,7 @@ const links = [
   icon: 'i-lucide-inbox',
   to: '/home/inbox',
   badge: '4',
+  class: 'hidden',
   onSelect: () => {
     open.value = false
   }
@@ -29,6 +30,7 @@ const links = [
   label: 'Calendar',
   icon: 'i-lucide-calendar',
   to: '/home/calendar',
+  class: 'hidden',
   onSelect: () => {
     open.value = false
    }
@@ -44,7 +46,7 @@ const links = [
   label: 'Leases',
   icon: 'i-lucide-file-text',
   to: '/home/leases',
-  class: showItem(!user.value?.isTenant()),
+  // class: showItem(!user.value?.isTenant()),
   onSelect: () => {
     open.value = false
   }
@@ -75,6 +77,7 @@ const links = [
   label: 'Invoices',
   icon: 'i-lucide-receipt',
   to: '/home/invoices',
+  class: 'hidden',
   onSelect: () => {
     open.value = false
   }

@@ -3,7 +3,6 @@ import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format, add
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 import type { Period, Range } from '~/types'
 import type { Payment } from '~/data/payments'
-import { mockPayments } from '~/data/payments'
 
 const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
 
@@ -17,8 +16,17 @@ type DataRecord = {
   amount: number
 }
 
-// const { width } = '50vw'
-// const { width } = useElementSize(cardRef)
+const { getToken } = useAuth()
+const token = await getToken()
+
+// Fetch payments from API
+const { data: paymentsData } = await useFetch<Payment[]>('/api/payments', {
+  default: () => [],
+  server: false,
+  headers: token ? {
+    'Authorization': `Bearer ${token}`
+  } : {}
+})
 
 // Build chart data from payments (sum of PAID grossValue per bucket)
 const { data } = await useAsyncData<DataRecord[]>(async () => {
@@ -28,10 +36,10 @@ const { data } = await useAsyncData<DataRecord[]>(async () => {
     monthly: eachMonthOfInterval
   } as Record<Period, typeof eachDayOfInterval>)[props.period](props.range)
 
-  // Normalize payments list and parse dates once
-  const paidPayments = (mockPayments as Payment[])
+  // Get only PAID payments and filter by dueDate (when payment was supposed to be paid)
+  const paidPayments = (paymentsData.value as Payment[])
     .filter(p => p.status === 'Paid')
-    .map(p => ({ ...p, createdAtDate: new Date(p.createdAt) }))
+    .map(p => ({ ...p, dueDateParsed: new Date(p.dueDate) }))
 
   const records: DataRecord[] = []
 
@@ -42,7 +50,7 @@ const { data } = await useAsyncData<DataRecord[]>(async () => {
     nextBoundary.setHours(0, 0, 0, 0)
 
     const amount = paidPayments
-      .filter(p => p.createdAtDate >= start && p.createdAtDate < nextBoundary)
+      .filter(p => p.dueDateParsed >= start && p.dueDateParsed < nextBoundary)
       .reduce((sum, p) => sum + (Number(p.grossValue) || 0), 0)
 
     records.push({ date: start, amount })
@@ -50,7 +58,7 @@ const { data } = await useAsyncData<DataRecord[]>(async () => {
 
   return records
 }, {
-  watch: [() => props.period, () => props.range],
+  watch: [() => props.period, () => props.range, paymentsData],
   default: () => []
 })
 

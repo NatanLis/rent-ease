@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_session
 from api.core.logging import get_logger
 from api.core.security import get_current_user
+from api.src.files.schemas import FileCreate, FileResponse
+from api.src.files.service import FileService
 from api.src.users.models import User
-
-from .service import FileService
-from .schemas import FileResponse, FileCreate
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/files", tags=["files"])
@@ -47,8 +46,7 @@ async def get_file(
         file_obj = await service.get_file(file_id)
         if not file_obj:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="File not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
         logger.info(f"Retrieved file {file_id}")
         return file_obj
@@ -70,15 +68,15 @@ async def upload_file(
     try:
         # Read file data
         file_data = await file.read()
-        
+
         # Create file object
         file_create = FileCreate(
             filename=file.filename,
             mimetype=file.content_type or "application/octet-stream",
             size=len(file_data),
-            data=file_data
+            data=file_data,
         )
-        
+
         file_obj = await service.create_file(file_create)
         logger.info(f"Uploaded file {file_obj.id}: {file.filename}")
         return file_obj
@@ -99,15 +97,16 @@ async def download_file(
         file_download = await service.get_file_for_download(file_id)
         if not file_download:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="File not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
-        
+
         logger.info(f"Downloaded file {file_id}: {file_download.filename}")
         return Response(
             content=file_download.data,
             media_type=file_download.mimetype,
-            headers={"Content-Disposition": f"attachment; filename={file_download.filename}"}
+            headers={
+                "Content-Disposition": f"attachment; filename={file_download.filename}"
+            },
         )
     except HTTPException:
         raise
@@ -128,8 +127,7 @@ async def delete_file(
         success = await service.delete_file(file_id)
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="File not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
         logger.info(f"Deleted file {file_id}")
     except HTTPException:
