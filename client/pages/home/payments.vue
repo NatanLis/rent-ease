@@ -827,7 +827,7 @@ definePageMeta({
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-500">Total Payments</p>
-                <p class="text-2xl font-bold">{{ totalPayments }}</p>
+                <p class="text-2xl font-bold text-blue-600">{{ totalPayments }}</p>
               </div>
               <UIcon name="i-lucide-credit-card" class="w-8 h-8 text-blue-500" />
             </div>
