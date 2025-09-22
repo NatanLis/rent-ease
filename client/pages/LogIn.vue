@@ -15,28 +15,13 @@ const fields = [{
   name: 'password',
   label: 'Password',
   type: 'password' as const,
-  placeholder: 'Enter your password'
+  placeholder: 'Enter your password',
+  required: true
 }, {
   name: 'remember',
   label: 'Remember me',
   type: 'checkbox' as const
 }]
-
-const providers = [{
-  label: 'Google',
-  icon: 'i-simple-icons-google',
-  onClick: () => {
-    toast.add({ title: 'Google', description: 'Login with Google' })
-  }
-},
-// {
-//   label: 'GitHub',
-//   icon: 'i-simple-icons-github',
-//   onClick: () => {
-//     toast.add({ title: 'GitHub', description: 'Login with GitHub' })
-//   }
-// }
-]
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -83,7 +68,7 @@ async function logIn(username: string, password: string) {
     toast.add({ title: 'Success', description: 'Signed up successfully!' })
     return data
   } catch (error: any) {
-    toast.add({ title: 'Error', description: error.message })
+    toast.add({ title: 'Error', description: error.message, color: 'error' })
     return null
   }
 }
@@ -117,7 +102,6 @@ definePageMeta({
         description="Enter your credentials to access your account."
         icon="i-lucide-user"
         :fields="fields"
-        :providers="providers"
         @submit="onSubmit"
       />
     </UPageCard>
