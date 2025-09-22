@@ -68,7 +68,7 @@ async function logIn(username: string, password: string) {
     toast.add({ title: 'Success', description: 'Signed up successfully!' })
     return data
   } catch (error: any) {
-    toast.add({ title: 'Error', description: error.message })
+    toast.add({ title: 'Error', description: error.message, color: 'error' })
     return null
   }
 }
