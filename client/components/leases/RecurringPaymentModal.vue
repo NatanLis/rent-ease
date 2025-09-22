@@ -249,7 +249,7 @@ watch(() => props.isOpen, (newIsOpen) => {
         </UFormField>
 
         <!-- Amount -->
-        <UFormField label="Total Amount ($)" name="amount" required>
+        <UFormField label="Total Amount (PLN)" name="amount" required>
           <UInput
             v-model="state.amount"
             type="number"
