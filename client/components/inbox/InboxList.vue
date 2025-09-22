@@ -59,7 +59,7 @@ defineShortcuts({
       >
         <div class="flex items-center justify-between" :class="[mail.unread && 'font-semibold']">
           <div class="flex items-center gap-3">
-            {{ mail.to?.name || mail.to?.email || mail.subject || 'Unknown' }}
+            {{ mail.from.name }}
 
             <UChip v-if="mail.unread" />
           </div>

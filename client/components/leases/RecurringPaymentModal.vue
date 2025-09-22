@@ -22,7 +22,10 @@ interface Emits {
 
 const schema = z.object({
   documentType: z.string().min(1, 'Document type is required'),
-  amount: z.string().transform(val => parseFloat(val)).refine(val => val > 0, 'Amount must be greater than 0'),
+  amount: z.union([
+    z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val > 0, 'Amount must be greater than 0'),
+    z.number().refine(val => val > 0, 'Amount must be greater than 0')
+  ]),
   frequency: z.enum(['monthly', 'quarterly', 'yearly']),
   dueDay: z.number().min(1).max(31),
   description: z.string().optional()
@@ -200,7 +203,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'PLN'
   }).format(amount)
 }
 

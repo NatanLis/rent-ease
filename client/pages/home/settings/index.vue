@@ -299,6 +299,7 @@ definePageMeta({
           <input
             ref="fileRef"
             type="file"
+            lang="en"
             class="hidden"
             accept=".jpg, .jpeg, .png, .gif"
             :disabled="isUploading"

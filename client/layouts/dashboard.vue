@@ -22,7 +22,6 @@ const links = [
   icon: 'i-lucide-inbox',
   to: '/home/inbox',
   badge: '4',
-  class: 'hidden',
   onSelect: () => {
     open.value = false
   }
@@ -30,7 +29,6 @@ const links = [
   label: 'Calendar',
   icon: 'i-lucide-calendar',
   to: '/home/calendar',
-  class: 'hidden',
   onSelect: () => {
     open.value = false
    }

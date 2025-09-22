@@ -93,12 +93,22 @@ async function attachInvoice() {
           <label class="block text-sm font-medium text-gray-700">
             Select PDF Invoice File
           </label>
-          <input
-            type="file"
-            accept=".pdf"
-            @change="onFileChange"
-            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          />
+          <div class="relative">
+            <input
+              type="file"
+              accept=".pdf"
+              @change="onFileChange"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div class="flex items-center justify-between p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors">
+              <span class="text-sm text-gray-500">
+                {{ invoiceFile ? invoiceFile.name : 'Choose PDF file...' }}
+              </span>
+              <button type="button" class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-100 pointer-events-none">
+                Browse
+              </button>
+            </div>
+          </div>
           <p v-if="invoiceFile" class="text-xs text-green-600">
             Selected: {{ invoiceFile.name }}
           </p>

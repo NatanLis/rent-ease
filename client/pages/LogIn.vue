@@ -22,13 +22,14 @@ const fields = [{
   type: 'checkbox' as const
 }]
 
-const providers = [{
-  label: 'Google',
-  icon: 'i-simple-icons-google',
-  onClick: () => {
-    toast.add({ title: 'Google', description: 'Login with Google' })
-  }
-},
+const providers = [
+//   {
+//   label: 'Google',
+//   icon: 'i-simple-icons-google',
+//   onClick: () => {
+//     toast.add({ title: 'Google', description: 'Login with Google' })
+//   }
+// },
 // {
 //   label: 'GitHub',
 //   icon: 'i-simple-icons-github',

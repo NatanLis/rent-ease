@@ -80,7 +80,7 @@ definePageMeta({ layout: 'dashboard' })
             </div>
             <div class="flex items-center gap-3">
               <label class="w-40 text-sm text-(--ui-text-muted)">File:</label>
-              <input type="file" accept="application/pdf,image/*" @change="onFileChange" class="flex-1" />
+              <input type="file" lang="en" accept="application/pdf,image/*" @change="onFileChange" class="flex-1" />
             </div>
           </div>
           <template #footer>
